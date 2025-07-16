@@ -13,7 +13,7 @@ use yii\base\Action;
 use yii\web\Response;
 use yii\base\InvalidParamException;
 use GraphQL\Upload\UploadMiddleware;
-use Zend\Diactoros\ServerRequestFactory;
+use Laminas\Diactoros\ServerRequestFactory;
 
 /**
  * GraphQLAction implements the access method of the graph server and returns the query results in the JSON format

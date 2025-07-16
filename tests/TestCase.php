@@ -18,8 +18,9 @@ use yiiunit\extensions\graphql\objects\query\UserQuery;
 use yiiunit\extensions\graphql\objects\query\ViewerQuery;
 use yiiunit\extensions\graphql\objects\types\ExampleType;
 use yiiunit\extensions\graphql\objects\types\StoryType;
+use PHPUnit\Framework\TestCase as BaseTestCase;
 
-abstract class TestCase extends \PHPUnit_Framework_TestCase
+abstract class TestCase extends BaseTestCase
 {
     protected $queries;
     protected $data;
