@@ -31,6 +31,9 @@ $_SERVER['HTTP_HOST'] = 'localhost';
 $_SERVER['REQUEST_URI'] = '/';
 $_SERVER['DOCUMENT_ROOT'] = __DIR__;
 
+// Force all usage of yii\web\Session to be replaced with DummySession in DI container
+Yii::$container->set(\yii\web\Session::class, \yii\web\DummySession::class);
+
 // Minimal application setup for tests
 new \yii\web\Application([
     'id' => 'test-app',
