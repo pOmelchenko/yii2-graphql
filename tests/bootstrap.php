@@ -36,17 +36,29 @@ new \yii\web\Application([
     'id' => 'test-app',
     'basePath' => dirname(__DIR__),
     'components' => [
+        // Request configuration with disabled CSRF validation and test cookie key
         'request' => [
             'cookieValidationKey' => 'test-key',
             'enableCsrfValidation' => false,
         ],
+
+        // Response component with JSON formatter enabled
         'response' => [
             'formatters' => [
                 \yii\web\Response::FORMAT_JSON => \yii\web\JsonResponseFormatter::class,
             ],
         ],
+
+        // Disable session handling entirely using DummySession (prevents headers/cookie errors in CLI)
         'session' => [
             'class' => \yii\web\DummySession::class,
+        ],
+
+        // Disable session support in user component to avoid session_start() calls during tests
+        'user' => [
+            'class' => \yii\web\User::class,
+            'enableSession' => false,
+            'identityClass' => null, // set to null if no authentication is used in tests
         ],
     ],
 ]);
