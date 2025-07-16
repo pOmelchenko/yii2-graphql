@@ -45,5 +45,8 @@ new \yii\web\Application([
                 \yii\web\Response::FORMAT_JSON => \yii\web\JsonResponseFormatter::class,
             ],
         ],
+        'session' => [
+            'class' => \yii\web\DummySession::class,
+        ],
     ],
 ]);
