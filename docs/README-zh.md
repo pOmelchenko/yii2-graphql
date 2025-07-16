@@ -3,7 +3,7 @@
 使用 Facebook [GraphQL](http://facebook.github.io/graphql/) 的PHP服务端实现. 扩展 [graphql-php](https://github.com/webonyx/graphql-php) 以适用于 YII2.
  
 [![Latest Stable Version](https://poser.pugx.org/tsingsun/yii2-graphql/v/stable.svg)](https://packagist.org/packages/tsingsun/yii2-graphql)
-[![Build Status](https://travis-ci.org/tsingsun/yii2-graphql.png?branch=master)](https://travis-ci.org/tsingsun/yii2-graphql)
+[![CI](https://github.com/tsingsun/yii2-graphql/actions/workflows/ci.yml/badge.svg)](https://github.com/tsingsun/yii2-graphql/actions)
 [![Total Downloads](https://poser.pugx.org/tsingsun/yii2-graphql/downloads.svg)](https://packagist.org/packages/tsingsun/yii2-graphql)
 
 --------

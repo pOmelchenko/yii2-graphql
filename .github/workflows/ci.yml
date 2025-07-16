@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['7.4']
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+      - name: Run tests
+        run: vendor/bin/phpunit --verbose --configuration phpunit.xml.dist
