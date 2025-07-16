@@ -22,6 +22,15 @@ Yii::setAlias('@yiiunit/extensions/graphql', __DIR__);
 Yii::setAlias('@yiiunit', __DIR__ . '/../tests');
 Yii::setAlias('@yii/graphql', dirname(__DIR__) . '/src');
 
+// Minimal mock $_SERVER vars for web Application
+$_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/index.php';
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+$_SERVER['SERVER_NAME'] = 'localhost';
+$_SERVER['SERVER_PORT'] = '80';
+$_SERVER['HTTP_HOST'] = 'localhost';
+$_SERVER['REQUEST_URI'] = '/';
+$_SERVER['DOCUMENT_ROOT'] = __DIR__;
+
 // Minimal application setup for tests
 new \yii\web\Application([
     'id' => 'test-app',
