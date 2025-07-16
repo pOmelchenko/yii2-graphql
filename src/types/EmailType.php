@@ -57,7 +57,7 @@ class EmailType extends CustomScalarType
      * @return string
      * @throws Error
      */
-    public function parseLiteral($valueAST)
+    public function parseLiteral($valueAST, ?array $variables = null)
     {
         // Note: throwing GraphQL\Error\Error vs \UnexpectedValueException to benefit from GraphQL
         // error location in query:
