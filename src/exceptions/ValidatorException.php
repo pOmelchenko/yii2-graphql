@@ -23,7 +23,7 @@ class ValidatorException extends Exception
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($model, $code = 0, Throwable $previous = null)
+    public function __construct($model, $code = 0, ?Throwable $previous = null)
     {
         parent::__construct("model {$model->formName()} validate false", $code, $previous);
         $this->formatModelErrors($model);
