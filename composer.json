@@ -20,7 +20,8 @@
     },
     "require-dev":{
         "phpunit/phpunit": "^7.5",
-        "yiisoft/yii2": "~2.0.10"
+        "yiisoft/yii2": "~2.0.10",
+        "yidas/yii2-composer-bower-skip": "^2.0"
     },
     "autoload":{
         "psr-4":{
@@ -31,5 +32,8 @@
         "exclude": [
             "/tests"
         ]
+    },
+    "extra": {
+        "yii\\composer\\bower-skip": true
     }
 }
