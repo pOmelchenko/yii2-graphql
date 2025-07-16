@@ -35,5 +35,10 @@
     },
     "extra": {
         "yii\\composer\\bower-skip": true
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true
+        }
     }
 }
