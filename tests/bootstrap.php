@@ -1,6 +1,13 @@
 <?php
-// ensure we get report on all possible php errors
+
+// Ensure all PHP errors are shown
 error_reporting(-1);
+
+// Prevent PHP from sending or depending on session cookies
+ini_set('session.use_cookies', '0');
+ini_set('session.use_only_cookies', '0');
+ini_set('session.auto_start', '0');
+
 define('YII_ENABLE_ERROR_HANDLER', false);
 define('YII_DEBUG', true);
 
