@@ -4,7 +4,7 @@ Using Facebook [GraphQL](http://facebook.github.io/graphql/) PHP server implemen
 
 [![Latest Stable Version](https://poser.pugx.org/pomelchenko/yii2-graphql/v/stable.svg)](https://packagist.org/packages/pomelchenko/yii2-graphql)
 [![CI](https://github.com/pOmelchenko/yii2-graphql/actions/workflows/ci.yml/badge.svg)](https://github.com/pOmelchenko/yii2-graphql/actions)
-[![Coverage](https://codecov.io/gh/pOmelchenko/yii2-graphql/branch/master/graph/badge.svg)](https://codecov.io/gh/pOmelchenko/yii2-graphql)
+[![Coverage](https://img.shields.io/github/actions/workflow/status/pOmelchenko/yii2-graphql/ci.yml?branch=master&label=coverage)](https://github.com/pOmelchenko/yii2-graphql/actions/workflows/ci.yml?query=branch%3Amaster)
 [![Total Downloads](https://poser.pugx.org/pomelchenko/yii2-graphql/downloads.svg)](https://packagist.org/packages/pomelchenko/yii2-graphql)
 
 --------
