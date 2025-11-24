@@ -1,5 +1,5 @@
 {
-    "name":"tsingsun/yii2-graphql",
+    "name":"pomelchenko/yii2-graphql",
     "description":"facebook graphql server side for yii2 php framework",
     "keywords": ["yii2", "graphql"],
     "type":"yii2-extension",
