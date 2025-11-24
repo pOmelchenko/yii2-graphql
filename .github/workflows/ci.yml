@@ -18,7 +18,11 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          tools: composer:v2
+          coverage: none
+      - name: Validate composer files
+        run: composer validate --strict
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+        run: composer install --prefer-dist --no-progress --no-interaction --no-suggest
       - name: Run tests
         run: vendor/bin/phpunit --verbose --configuration phpunit.xml.dist
