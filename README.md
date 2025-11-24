@@ -2,9 +2,10 @@ yii-graphql
 ==========
 Using Facebook [GraphQL](http://facebook.github.io/graphql/) PHP server implementation. Extends [graphql-php](https://github.com/webonyx/graphql-php) to apply to YII2.
 
-[![Latest Stable Version](https://poser.pugx.org/tsingsun/yii2-graphql/v/stable.svg)](https://packagist.org/packages/tsingsun/yii2-graphql)
-[![CI](https://github.com/tsingsun/yii2-graphql/actions/workflows/ci.yml/badge.svg)](https://github.com/tsingsun/yii2-graphql/actions)
-[![Total Downloads](https://poser.pugx.org/tsingsun/yii2-graphql/downloads.svg)](https://packagist.org/packages/tsingsun/yii2-graphql)
+[![Latest Stable Version](https://poser.pugx.org/pomelchenko/yii2-graphql/v/stable.svg)](https://packagist.org/packages/pomelchenko/yii2-graphql)
+[![CI](https://github.com/pOmelchenko/yii2-graphql/actions/workflows/ci.yml/badge.svg)](https://github.com/pOmelchenko/yii2-graphql/actions)
+[![Coverage](https://codecov.io/gh/pOmelchenko/yii2-graphql/branch/master/graph/badge.svg)](https://codecov.io/gh/pOmelchenko/yii2-graphql)
+[![Total Downloads](https://poser.pugx.org/pomelchenko/yii2-graphql/downloads.svg)](https://packagist.org/packages/pomelchenko/yii2-graphql)
 
 --------
 
@@ -23,8 +24,10 @@ Features
 
 Using [composer](https://getcomposer.org/)
 ```
-composer require tsingsun/yii2-graphql
+composer require pomelchenko/yii2-graphql
 ```
+
+> Проект изначально был создан [tsingsun](https://github.com/tsingsun) и продолжает развиваться в этом форке.
 
 ### Type
 The type system is the core of GraphQL, which is embodied in `GraphQLType`. By deconstructing the GraphQL protocol and using the [graph-php](https://github.com/webonyx/graphql-php) library to achieve fine-grained control of all elements, it is convenient to extend the class according to its own needs

@@ -65,6 +65,26 @@ class GraphQLActionTest extends TestCase
         $this->assertNotEmpty($ret);
     }
 
+    function testAuthBehaviorDoesNotStartSession()
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+
+        $_GET = [
+            'query' => $this->queries['hello'],
+            'access-token' => 'testtoken',
+        ];
+        $controller = $this->controller;
+        $controller->attachBehavior('authenticator', [
+            'class' => QueryParamAuth::className()
+        ]);
+
+        $controller->runAction('index');
+
+        $this->assertSame(PHP_SESSION_NONE, session_status(), 'Auth should not start PHP session');
+    }
+
     function testAuthBehaviorExcept()
     {
         $_GET = [

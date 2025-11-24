@@ -77,7 +77,9 @@ abstract class TestCase extends BaseTestCase
                 ],
                 'user' => [
                     'class' => 'yii\web\User',
-                    'identityClass' => 'yiiunit\extensions\graphql\data\User'
+                    'identityClass' => 'yiiunit\extensions\graphql\data\User',
+                    'enableSession' => false,
+                    'identityCookie' => false,
                 ],
 
             ],

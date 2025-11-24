@@ -18,7 +18,31 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          tools: composer:v2
+          coverage: xdebug
+      - name: Validate composer files
+        run: composer validate --strict
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
-      - name: Run tests
-        run: vendor/bin/phpunit --verbose --configuration phpunit.xml.dist
+        run: composer install --prefer-dist --no-progress --no-interaction --no-suggest
+      - name: Run tests with coverage
+        run: |
+          mkdir -p coverage
+          vendor/bin/phpunit --verbose --configuration phpunit.xml.dist --coverage-text=coverage/coverage.txt --coverage-clover=coverage/clover.xml
+      - name: Upload coverage to Codecov
+        if: success()
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage/clover.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+      - name: Publish coverage summary
+        if: success()
+        run: |
+          echo "## Code coverage" >> $GITHUB_STEP_SUMMARY
+          cat coverage/coverage.txt >> $GITHUB_STEP_SUMMARY
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage

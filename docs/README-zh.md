@@ -2,9 +2,10 @@
 
 使用 Facebook [GraphQL](http://facebook.github.io/graphql/) 的PHP服务端实现. 扩展 [graphql-php](https://github.com/webonyx/graphql-php) 以适用于 YII2.
  
-[![Latest Stable Version](https://poser.pugx.org/tsingsun/yii2-graphql/v/stable.svg)](https://packagist.org/packages/tsingsun/yii2-graphql)
-[![CI](https://github.com/tsingsun/yii2-graphql/actions/workflows/ci.yml/badge.svg)](https://github.com/tsingsun/yii2-graphql/actions)
-[![Total Downloads](https://poser.pugx.org/tsingsun/yii2-graphql/downloads.svg)](https://packagist.org/packages/tsingsun/yii2-graphql)
+[![Latest Stable Version](https://poser.pugx.org/pomelchenko/yii2-graphql/v/stable.svg)](https://packagist.org/packages/pomelchenko/yii2-graphql)
+[![CI](https://github.com/pOmelchenko/yii2-graphql/actions/workflows/ci.yml/badge.svg)](https://github.com/pOmelchenko/yii2-graphql/actions)
+[![Coverage](https://codecov.io/gh/pOmelchenko/yii2-graphql/branch/master/graph/badge.svg)](https://codecov.io/gh/pOmelchenko/yii2-graphql)
+[![Total Downloads](https://poser.pugx.org/pomelchenko/yii2-graphql/downloads.svg)](https://packagist.org/packages/pomelchenko/yii2-graphql)
 
 --------
 
@@ -20,7 +21,7 @@ yii-graphql特点
 本库位于私有库中,需要在项目composer.json添加库地址
 ```php    
 "require": {
-    "tsingsun/yii2-graphql": "^0.9"
+    "pomelchenko/yii2-graphql": "^0.9"
 }
 ```
 
