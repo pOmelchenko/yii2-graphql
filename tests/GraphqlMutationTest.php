@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2016/11/29
- * Time: 下午3:05
- */
 
 namespace yiiunit\extensions\graphql;
-
 
 class GraphqlMutationTest extends TestCase
 {

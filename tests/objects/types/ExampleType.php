@@ -10,12 +10,6 @@ use yii\graphql\types\Types;
 use yiiunit\extensions\graphql\data\DataSource;
 use yiiunit\extensions\graphql\data\User;
 
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2016/11/18
- * Time: 上午9:46
- */
 class ExampleType extends GraphQLType
 {
     protected $attributes = [

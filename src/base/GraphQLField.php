@@ -2,7 +2,6 @@
 
 namespace yii\graphql\base;
 
-
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ResolveInfo;
 use yii\base\Model;
@@ -10,7 +9,8 @@ use yii\graphql\GraphQL;
 use yii\web\Application;
 
 /**
- * GraphQLField类对应于graphql描述文档中的类型系统中每一个节点.如
+ * The GraphQLField class corresponds to each node in the type system
+ * described in a GraphQL schema document. For example:
  *
  * ```json
  * type Person {
@@ -20,7 +20,7 @@ use yii\web\Application;
  *   relationship: Person
  * }
  * ```
- * 每一个节点包括了name,type,args,description等
+ * Each node includes properties such as name, type, args, and description.
  *
  * @package yii\graphql\base
  */

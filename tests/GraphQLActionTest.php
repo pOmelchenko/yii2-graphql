@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2017/5/18
- * Time: 下午5:53
- */
 
 namespace yiiunit\extensions\graphql;
 
@@ -125,13 +119,13 @@ class GraphQLActionTest extends TestCase
     function testJsonStringVariablesAreDecoded()
     {
         $query = <<<'GRAPHQL'
-query user($id: ID!) {
-    user(id: $id) {
-        id
-        email
-    }
-}
-GRAPHQL;
+        query user($id: ID!) {
+            user(id: $id) {
+                id
+                email
+            }
+        }
+        GRAPHQL;
 
         $_GET = [
             'query' => $query,

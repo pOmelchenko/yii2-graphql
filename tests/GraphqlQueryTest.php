@@ -2,10 +2,6 @@
 
 namespace yiiunit\extensions\graphql;
 
-/**
- * Created by PhpStorm.
-
- */
 class GraphqlQueryTest extends TestCase
 {
     /**

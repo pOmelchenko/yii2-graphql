@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2016/11/23
- * Time: 下午2:39
- */
 
 namespace yiiunit\extensions\graphql\objects\query;
-
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -48,6 +41,4 @@ class StoryListQuery extends GraphQLQuery
         $args += ['after' => null];
         return DataSource::findStories($args['limit'], $args['after']);
     }
-
-
 }

@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2017/7/3
- * Time: 下午3:44
- */
 
 namespace yiiunit\extensions\graphql\objects\types;
-
 
 use yii\graphql\base\GraphQLUnionType;
 use yii\graphql\GraphQL;

@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2017/6/30
- * Time: 下午5:57
- */
 
 namespace yii\graphql\types;
-
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -38,6 +31,7 @@ class PageInfoType extends ObjectType
                 ],
             ],
         ];
+
         parent::__construct($config);
     }
 }
