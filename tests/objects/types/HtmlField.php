@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2016/11/23
- * Time: 上午10:46
- */
 
 namespace yiiunit\extensions\graphql\objects\types;
-
 
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -63,5 +56,4 @@ class HtmlField extends GraphQLField
                 return $safeText;
         }
     }
-
 }

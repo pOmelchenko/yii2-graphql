@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2016/11/15
- * Time: 上午10:00
- */
 
 namespace yii\graphql\base;
 
@@ -74,6 +68,4 @@ class GraphQLModel extends Model
     {
         unset($this->attributes[$name]);
     }
-
-
 }

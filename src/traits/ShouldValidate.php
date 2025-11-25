@@ -9,7 +9,6 @@ use yii\helpers\ArrayHelper;
 /**
  * Trait ShouldValidate
  *
- *
  * @package yii\graphql\traits
  */
 trait ShouldValidate

@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2016/11/29
- * Time: 下午2:49
- */
 
 namespace yiiunit\extensions\graphql\objects\mutation;
-
 
 use GraphQL\Type\Definition\Type;
 use yii\graphql\base\GraphQLMutation;
@@ -63,5 +56,4 @@ class UpdateUserPwdMutation extends GraphQLMutation
             ['id', 'email']
         ];
     }
-
 }

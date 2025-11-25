@@ -1,4 +1,5 @@
 <?php
+
 namespace yiiunit\extensions\graphql\objects\types;
 
 use GraphQL\Examples\Blog\Type\BaseType;

@@ -9,15 +9,8 @@ use yii\graphql\exceptions\SchemaNotFound;
 use yiiunit\extensions\graphql\objects\types\ExampleType;
 use yiiunit\extensions\graphql\objects\types\ResultItemType;
 
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2016/11/16
- * Time: 下午1:39
- */
 class GraphQLTest extends TestCase
 {
-
     /**
      * @var GraphQL
      */
@@ -29,7 +22,6 @@ class GraphQLTest extends TestCase
         $this->mockWebApplication();
         $this->graphql = \Yii::$app->getModule('graphql')->getGraphQL();
     }
-
 
     /**
      * Test schema default

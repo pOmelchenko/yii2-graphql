@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2017/7/4
- * Time: 下午2:57
- */
 
 namespace yii\graphql;
 

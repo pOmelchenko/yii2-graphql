@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2017/9/15
- * Time: 上午10:51
- */
 
 namespace yii\graphql\exceptions;
-
 
 use Throwable;
 use yii\base\Exception;

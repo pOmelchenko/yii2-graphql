@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2016/11/23
- * Time: 下午2:59
- */
 
 namespace yiiunit\extensions\graphql\objects\query;
-
 
 use GraphQL\Type\Definition\ResolveInfo;
 use yii\graphql\base\GraphQLQuery;
@@ -30,6 +23,4 @@ class LastStoryPostedQuery extends GraphQLQuery
     {
         return DataSource::findLatestStory();
     }
-
-
 }

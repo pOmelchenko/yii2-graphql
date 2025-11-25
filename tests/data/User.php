@@ -1,4 +1,5 @@
 <?php
+
 namespace yiiunit\extensions\graphql\data;
 
 use GraphQL\Utils\Utils;
@@ -49,6 +50,4 @@ class User implements IdentityInterface
     {
         // TODO: Implement validateAuthKey() method.
     }
-
-
 }

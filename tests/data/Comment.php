@@ -1,6 +1,6 @@
 <?php
-namespace yiiunit\extensions\graphql\data;
 
+namespace yiiunit\extensions\graphql\data;
 
 use GraphQL\Utils\Utils;
 

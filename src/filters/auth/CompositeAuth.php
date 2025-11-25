@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2017/5/19
- * Time: 下午1:42
- */
 
 namespace yii\graphql\filters\auth;
 
@@ -14,8 +8,11 @@ use yii\filters\auth\AuthInterface;
 use yii\graphql\GraphQLAction;
 
 /**
- * CompositeAuth 用于解决Graphql单入口请求的授权验证。
- * 在graqhql查询中，可以多个请求同时查询，相比较MVC可以认为在一次请求中，发生了多个action的执行行为。
+ * CompositeAuth is used to handle authorization checks
+ * for GraphQL’s single-entry request model.
+ * In a GraphQL query, multiple sub-requests may be executed at once;
+ * compared to MVC, this can be considered as executing multiple actions
+ * within a single request.
  * @package yii\graphql\filters\auth
  */
 class CompositeAuth extends \yii\filters\auth\AuthMethod
@@ -28,7 +25,7 @@ class CompositeAuth extends \yii\filters\auth\AuthMethod
      *
      * Note that an auth method class must implement the [[\yii\filters\auth\AuthInterface]] interface.
      */
-    public $authMethods = [];
+    public array $authMethods = [];
 
 
     /**
@@ -108,6 +105,4 @@ class CompositeAuth extends \yii\filters\auth\AuthMethod
             return parent::isActive($action);
         }
     }
-
-
 }

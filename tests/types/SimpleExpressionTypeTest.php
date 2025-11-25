@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2017/6/30
- * Time: 上午9:55
- */
 
 namespace yiiunit\extensions\graphql\objects\types;
 

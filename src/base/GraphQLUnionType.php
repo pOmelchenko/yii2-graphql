@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: tsingsun
- * Date: 2016/11/15
- * Time: 上午10:25
- */
 
 namespace yii\graphql\base;
 
@@ -12,7 +6,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use yii\base\InvalidConfigException;
 use yii\graphql\GraphQL;
-
 
 /**
  * Class GraphQLUnionType for UnionType
