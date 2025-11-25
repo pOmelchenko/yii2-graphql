@@ -160,6 +160,6 @@ GRAPHQL;
         $this->assertSame('2', $result['data']['user']['id']);
         $this->assertSame('jane@example.com', $result['data']['user']['email']);
         $this->assertArrayHasKey('url', $result['data']['user']['photo']);
-        $this->assertStringContainsString('/images/user/2-ICON.jpg', $result['data']['user']['photo']['url']);
+        $this->assertStringContainsString('/images/user/2-icon.jpg', $result['data']['user']['photo']['url']);
     }
 }
