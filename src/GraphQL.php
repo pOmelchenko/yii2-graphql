@@ -22,6 +22,7 @@ use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 use Yii;
 use yii\base\InvalidConfigException;
+use yii\graphql\exceptions\SchemaNotFound;
 use yii\graphql\exceptions\TypeNotFound;
 use yii\helpers\ArrayHelper;
 
@@ -110,10 +111,16 @@ class GraphQL
         if ($schema instanceof Schema) {
             return $schema;
         }
+        if ($schema === null && empty($this->queries) && empty($this->mutations)) {
+            throw new SchemaNotFound('Schema not defined.', 404);
+        }
         if ($schema === null) {
             list($schemaQuery, $schemaMutation, $schemaTypes) = [$this->queries, $this->mutations, $this->types];
         } else {
             list($schemaQuery, $schemaMutation, $schemaTypes) = $schema;
+        }
+        if (empty($schemaQuery) && empty($schemaMutation)) {
+            throw new SchemaNotFound('Schema not found for requested operation.', 404);
         }
         $types = [];
         if (sizeof($schemaTypes)) {

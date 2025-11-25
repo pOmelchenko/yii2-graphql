@@ -5,6 +5,7 @@ namespace yii\graphql;
 use Yii;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
+use yii\graphql\exceptions\SchemaNotFound;
 use yii\graphql\exceptions\ValidatorException;
 use yii\web\HttpException;
 
@@ -21,6 +22,9 @@ class ErrorFormatter
             Yii::$app->getErrorHandler()->logException($previous);
             if ($previous instanceof ValidatorException) {
                 return $previous->formatErrors;
+            }
+            if ($previous instanceof SchemaNotFound) {
+                return ['code' => $previous->getCode() ?: 404, 'message' => $previous->getMessage()];
             }
             if ($previous instanceof HttpException) {
                 return ['code' => $previous->statusCode, 'message' => $previous->getMessage()];

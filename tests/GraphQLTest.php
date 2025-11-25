@@ -5,6 +5,7 @@ namespace yiiunit\extensions\graphql;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use yii\graphql\GraphQL;
+use yii\graphql\exceptions\SchemaNotFound;
 use yiiunit\extensions\graphql\objects\types\ExampleType;
 use yiiunit\extensions\graphql\objects\types\ResultItemType;
 
@@ -93,5 +94,13 @@ class GraphQLTest extends TestCase
         $query = $this->queries['multiQuery'];
         $ret = $this->graphql->parseRequestQuery($query);
         $this->assertNotEmpty($ret);
+    }
+
+    public function testSchemaNotFoundIsThrownWhenSchemaIsEmpty()
+    {
+        $graphql = new GraphQL();
+
+        $this->expectException(SchemaNotFound::class);
+        $graphql->buildSchema();
     }
 }
