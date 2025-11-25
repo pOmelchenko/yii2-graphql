@@ -12,8 +12,11 @@ use Yii;
 use yii\base\Action;
 use yii\web\Response;
 use yii\base\InvalidParamException;
+use GraphQL\Error\Error as GQLError;
+use GraphQL\Executor\ExecutionResult;
 use GraphQL\Upload\UploadMiddleware;
 use Laminas\Diactoros\ServerRequestFactory;
+use yii\graphql\exceptions\SchemaNotFound;
 
 /**
  * GraphQLAction implements the access method of the graph server and returns the query results in the JSON format
@@ -144,12 +147,17 @@ class GraphQLAction extends Action
                 $fn($childAction);
             }
         }
-        $schema = $this->graphQL->buildSchema($this->schemaArray === true ? null : $this->schemaArray);
-        //TODO the graphql-php's valid too strict,the lazy load has can't pass when execute mutation(must has query node)
+        try {
+            $schema = $this->graphQL->buildSchema($this->schemaArray === true ? null : $this->schemaArray);
+            //TODO the graphql-php's valid too strict,the lazy load has can't pass when execute mutation(must has query node)
 //        if ($this->enableSchemaAssertValid) {
 //            $this->graphQL->assertValid($schema);
 //        }
-        $val = $this->graphQL->execute($schema, null, Yii::$app, $this->variables, $this->operationName);
+            $val = $this->graphQL->execute($schema, null, Yii::$app, $this->variables, $this->operationName);
+        } catch (SchemaNotFound $exception) {
+            $error = new GQLError($exception->getMessage(), null, null, [], null, $exception);
+            $val = new ExecutionResult(null, [$error]);
+        }
         $result = $this->graphQL->getResult($val);
         return $result;
     }

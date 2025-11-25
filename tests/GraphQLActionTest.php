@@ -49,6 +49,9 @@ class GraphQLActionTest extends TestCase
         $ret = $action->runWithParams([]);
         $this->assertNotEmpty($ret);
         $this->assertArrayHasKey('errors', $ret);
+        $this->assertArrayHasKey('code', $ret['errors'][0]);
+        $this->assertSame(404, $ret['errors'][0]['code']);
+        $this->assertSame('Schema not found for requested operation.', $ret['errors'][0]['message']);
     }
 
     function testAuthBehavior()
