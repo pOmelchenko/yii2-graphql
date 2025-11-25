@@ -121,4 +121,45 @@ class GraphQLActionTest extends TestCase
         $ret = $controller->runAction('index');
         $this->assertNotEmpty($ret);
     }
+
+    function testJsonStringVariablesAreDecoded()
+    {
+        $query = <<<'GRAPHQL'
+query user($id: ID!) {
+    user(id: $id) {
+        id
+        email
+    }
+}
+GRAPHQL;
+
+        $_GET = [
+            'query' => $query,
+            'variables' => json_encode(['id' => '2']),
+        ];
+
+        $result = $this->controller->runAction('index');
+
+        $this->assertSame('2', $result['data']['user']['id']);
+        $this->assertSame('jane@example.com', $result['data']['user']['email']);
+    }
+
+    function testRawBodyIsUsedWhenBodyParamsAreEmpty()
+    {
+        $request = \Yii::$app->request;
+        $previousRequestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $request->setBodyParams([]);
+        $request->setRawBody($this->queries['singleObject']);
+
+        $result = $this->controller->createAction('index')->runWithParams([]);
+
+        $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
+        $request->setRawBody('');
+
+        $this->assertSame('2', $result['data']['user']['id']);
+        $this->assertSame('jane@example.com', $result['data']['user']['email']);
+        $this->assertArrayHasKey('url', $result['data']['user']['photo']);
+        $this->assertStringContainsString('/images/user/2-icon.jpg', $result['data']['user']['photo']['url']);
+    }
 }
