@@ -7,9 +7,9 @@ Using Facebook [GraphQL](http://facebook.github.io/graphql/) PHP server implemen
 [![Coverage Status](https://codecov.io/gh/pOmelchenko/yii2-graphql/branch/master/graph/badge.svg)](https://codecov.io/gh/pOmelchenko/yii2-graphql)
 [![Total Downloads](https://poser.pugx.org/pomelchenko/yii2-graphql/downloads.svg)](https://packagist.org/packages/pomelchenko/yii2-graphql)
 
---------
+Languages: [English](/README.md) | [Русский](/docs/README-ru.md) | [中文](/docs/README-zh.md)
 
-[Chinese document](/docs/README-zh.md)
+> Originally created by [tsingsun](https://github.com/tsingsun); continued development in this fork.
 
 -------
 
@@ -26,8 +26,6 @@ Using [composer](https://getcomposer.org/)
 ```
 composer require pomelchenko/yii2-graphql
 ```
-
-> Проект изначально был создан [tsingsun](https://github.com/tsingsun) и продолжает развиваться в этом форке.
 
 ### Type
 The type system is the core of GraphQL, which is embodied in `GraphQLType`. By deconstructing the GraphQL protocol and using the [graph-php](https://github.com/webonyx/graphql-php) library to achieve fine-grained control of all elements, it is convenient to extend the class according to its own needs
