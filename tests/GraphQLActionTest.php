@@ -124,7 +124,7 @@ class GraphQLActionTest extends TestCase
 
     function testJsonStringVariablesAreDecoded()
     {
-        $query = <<<GRAPHQL
+        $query = <<<'GRAPHQL'
 query user($id: ID!) {
     user(id: $id) {
         id
@@ -147,11 +147,15 @@ GRAPHQL;
     function testRawBodyIsUsedWhenBodyParamsAreEmpty()
     {
         $request = \Yii::$app->request;
-        $request->setMethod('POST');
+        $previousRequestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
         $request->setBodyParams([]);
         $request->setRawBody($this->queries['singleObject']);
 
         $result = $this->controller->createAction('index')->runWithParams([]);
+
+        $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
+        $request->setRawBody('');
 
         $this->assertSame('2', $result['data']['user']['id']);
         $this->assertSame('jane@example.com', $result['data']['user']['email']);
