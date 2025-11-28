@@ -12,6 +12,8 @@ jobs:
     strategy:
       matrix:
         php-version: ['7.4']
+    env:
+      COVERAGE_DIR: coverage
     steps:
       - uses: actions/checkout@v3
       - name: Setup PHP
@@ -26,23 +28,27 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-interaction --no-suggest
       - name: Run tests with coverage
         run: |
-          mkdir -p coverage
-          vendor/bin/phpunit --verbose --configuration phpunit.xml.dist --coverage-text=coverage/coverage.txt --coverage-clover=coverage/clover.xml
+          mkdir -p "$COVERAGE_DIR"
+          XDEBUG_MODE=coverage vendor/bin/phpunit \
+            --verbose \
+            --configuration phpunit.xml.dist \
+            --coverage-text="$COVERAGE_DIR/coverage.txt" \
+            --coverage-clover="$COVERAGE_DIR/clover.xml"
       - name: Upload coverage to Codecov
         if: success()
         uses: codecov/codecov-action@v4
         with:
-          files: coverage/clover.xml
+          files: ${{ env.COVERAGE_DIR }}/clover.xml
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
       - name: Publish coverage summary
         if: success()
         run: |
           echo "## Code coverage" >> $GITHUB_STEP_SUMMARY
-          cat coverage/coverage.txt >> $GITHUB_STEP_SUMMARY
+          cat "$COVERAGE_DIR/coverage.txt" >> $GITHUB_STEP_SUMMARY
       - name: Upload coverage artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage
+          path: ${{ env.COVERAGE_DIR }}
