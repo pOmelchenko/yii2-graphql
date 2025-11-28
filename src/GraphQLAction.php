@@ -70,7 +70,7 @@ class GraphQLAction extends Action
         } else {
             $body = $request->getBodyParams();
             if (empty($body)) {
-                //取原始文件当查询,这时只支持如其他方式下的query的节点的查询
+                // Use raw body as query (supports simple queries when no structured body is provided)
                 $this->query = $request->getRawBody();
             } else {
                 if (!empty($body['operations'])) {
@@ -104,7 +104,7 @@ class GraphQLAction extends Action
     }
 
     /**
-     * 返回本次查询的所有graphql action,如果本次查询为introspection时，则为查询的
+     * Return all GraphQL actions participating in the request; for introspection it returns only __schema.
      * @return array
      */
     public function getGraphQLActions()

@@ -184,7 +184,7 @@ class TypeResolution
 
     /**
      * build ObjectType from classname  config
-     * @param Object|array $type 能够转换为ObjectType的类实例或者类配置
+     * @param Object|array $type Class instance or config that can be converted to an ObjectType
      * @param array $opts
      * @return object
      * @throws InvalidConfigException

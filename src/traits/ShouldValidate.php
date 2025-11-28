@@ -26,7 +26,7 @@ trait ShouldValidate
 
             $rules = $this->rules();
             if (sizeof($rules)) {
-                //索引1的为args参数.
+                // Index 1 in the resolver arguments holds the field arguments.
                 $args = ArrayHelper::getValue($arguments, 1, []);
                 $val = DynamicModel::validateData($args, $rules);
                 if ($error = $val->getFirstErrors()) {

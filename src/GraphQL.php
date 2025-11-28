@@ -78,7 +78,7 @@ class GraphQL
      *   'mutation'=>[],
      *   'types'=>[],
      * ];
-     * @param null|array $schema 配置数组,该数组会导入对象自身的配置持久化下来
+     * @param null|array $schema Configuration array merged into the instance for persistence
      */
     public function schema($schema = null)
     {
@@ -122,7 +122,7 @@ class GraphQL
                 $types[] = $this->getTypeResolution()->parseType($name, true);
             }
         }
-        //graqhql的validator要求query必须有
+        // GraphQL validator requires every schema to have a query entry
         $query = $this->getTypeResolution()->objectType($schemaQuery, [
             'name' => 'Query'
         ]);
@@ -254,9 +254,9 @@ class GraphQL
     }
 
     /**
-     * 将查询请求转换为可以转换为schema方法的数组
+     * Convert a raw query into an array consumable by the schema builder.
      * @param $requestString
-     * @return array|bool 数组元素为0：query,1:mutation,2:types,当返回true时，表示为IntrospectionQuery
+     * @return array|bool Array indexes: 0 query, 1 mutation, 2 types. True indicates IntrospectionQuery.
      */
     public function parseRequestQuery($requestString)
     {
