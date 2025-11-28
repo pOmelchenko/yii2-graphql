@@ -1,4 +1,5 @@
 .DStore
+.env
 .idea
 vendor
 tests/runtime
