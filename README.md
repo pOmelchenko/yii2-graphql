@@ -26,6 +26,7 @@ Using [composer](https://getcomposer.org/)
 ```
 composer require pomelchenko/yii2-graphql
 ```
+Requires PHP ≥ 7.4 and is tested against [webonyx/graphql-php](https://github.com/webonyx/graphql-php) 14.x and [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.1.x.
 
 ### Type
 The type system is the core of GraphQL, which is embodied in `GraphQLType`. By deconstructing the GraphQL protocol and using the [graph-php](https://github.com/webonyx/graphql-php) library to achieve fine-grained control of all elements, it is convenient to extend the class according to its own needs
@@ -240,6 +241,23 @@ class GraphqlController extends Controller
     }
 }
 ```
+
+### Multipart upload support
+
+`GraphQLAction` detects [`operations`/`map`](https://github.com/jaydenseric/graphql-multipart-request-spec) payloads and delegates parsing to `ecodev/graphql-upload`. Ensure `multipart/form-data` requests include those keys so uploaded files are injected into GraphQL variables.
+
+### Testing
+
+Run the test suite locally or via Docker:
+
+```bash
+docker compose up -d --build
+docker compose exec app composer install
+docker compose exec app composer test
+docker compose exec app composer test-coverage
+```
+
+This exercises the GraphQL facade, controller action, upload middleware, and custom types to guard against regressions when dependencies are upgraded.
 
 ### Demo
 

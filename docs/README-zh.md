@@ -28,6 +28,7 @@ yii-graphql 特点
 ```
 composer require pomelchenko/yii2-graphql
 ```
+需要 PHP ≥ 7.4；项目已在 [webonyx/graphql-php](https://github.com/webonyx/graphql-php) 14.x 与 [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.1.x 上测试。
 
 ### Type ###
 类型系统是 GraphQL 的核心，体现在 `GraphQLType` 中。通过解构 GraphQL 协议并利用 [graphql-php](https://github.com/webonyx/graphql-php) 库，可对各元素进行细粒度控制，便于按需扩展类。
@@ -132,6 +133,23 @@ class MyController extends Controller
    }
 }
 ```
+
+### Multipart 上传支持
+
+`GraphQLAction` 支持 [`operations`/`map`](https://github.com/jaydenseric/graphql-multipart-request-spec) 规范，并借助 `ecodev/graphql-upload` middleware 将上传文件注入 GraphQL 变量。请确保请求使用 `multipart/form-data` 并携带上述字段。
+
+### 测试
+
+在本地或 Docker 中运行：
+
+```
+docker compose up -d --build
+docker compose exec app composer install
+docker compose exec app composer test
+docker compose exec app composer test-coverage
+```
+
+覆盖 GraphQL facade、控制器、上传中间件和自定义类型，便于升级依赖时发现回归。
 
 #### 组件支持
 也可以在自定义组件中引入该 trait 并自行初始化：

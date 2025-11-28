@@ -26,6 +26,7 @@ yii-graphql
 ```
 composer require pomelchenko/yii2-graphql
 ```
+Требуется PHP ≥ 7.4; протестировано с [webonyx/graphql-php](https://github.com/webonyx/graphql-php) 14.x и [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.1.x.
 
 ### Типы (`GraphQLType`)
 Типовая система — ядро GraphQL и представлена классом `GraphQLType`. Путём декомпозиции протокола GraphQL и использования библиотеки [graphql-php](https://github.com/webonyx/graphql-php) обеспечивается тонкий контроль над элементами и удобное расширение классов.
@@ -214,6 +215,23 @@ class GraphqlController extends Controller
     }
 }
 ```
+
+### Поддержка мультизагрузки (multipart)
+
+`GraphQLAction` поддерживает спецификацию [`operations`/`map`](https://github.com/jaydenseric/graphql-multipart-request-spec) и автоматически подставляет файлы в переменные GraphQL через middleware `ecodev/graphql-upload`. Отправляйте `multipart/form-data` запросы с указанными полями.
+
+### Тестирование
+
+Запустить тесты (можно внутри Docker):
+
+```
+docker compose up -d --build
+docker compose exec app composer install
+docker compose exec app composer test
+docker compose exec app composer test-coverage
+```
+
+Эти команды прогоняют фасад GraphQL, контроллер, поддержку загрузок и кастомные типы, фиксируя регрессии при обновлении зависимостей.
 
 ### Демонстрация
 
