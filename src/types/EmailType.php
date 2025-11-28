@@ -4,7 +4,7 @@ namespace yii\graphql\types;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\CustomScalarType;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils as GraphQLUtils;
 
 class EmailType extends CustomScalarType
 {
@@ -45,7 +45,7 @@ class EmailType extends CustomScalarType
     public function parseValue($value)
     {
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            throw new \UnexpectedValueException("Cannot represent value as email: " . Utils::printSafe($value));
+            throw new \UnexpectedValueException("Cannot represent value as email: " . GraphQLUtils::printSafe($value));
         }
         return $value;
     }

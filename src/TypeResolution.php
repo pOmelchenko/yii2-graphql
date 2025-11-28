@@ -7,7 +7,8 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
-use GraphQL\Utils;
+use GraphQL\Utils\TypeInfo;
+use GraphQL\Utils\Utils as GraphQLUtils;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\graphql\base\GraphQLType;
@@ -61,7 +62,7 @@ class TypeResolution
             $graphTypes[] = Introspection::_schema();
         }
         foreach ($graphTypes as $type) {
-            $typeMap = Utils\TypeInfo::extractTypes($type, $typeMap);
+            $typeMap = TypeInfo::extractTypes($type, $typeMap);
         }
         $this->typeMap = $typeMap + Type::getStandardTypes();
 
@@ -110,7 +111,7 @@ class TypeResolution
         }
 
         /** @var InterfaceType $abstractType */
-        Utils::invariant($abstractType instanceof InterfaceType);
+        GraphQLUtils::invariant($abstractType instanceof InterfaceType);
         return isset($this->implementations[$abstractType->name]) ? $this->implementations[$abstractType->name] : [];
     }
 

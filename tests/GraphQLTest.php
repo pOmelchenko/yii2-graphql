@@ -2,10 +2,13 @@
 
 namespace yiiunit\extensions\graphql;
 
-use GraphQL\Type\Schema;
+use GraphQL\Error\Error as GraphQLError;
+use GraphQL\Executor\ExecutionResult;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Schema;
 use yii\graphql\GraphQL;
 use yii\graphql\exceptions\SchemaNotFound;
+use yiiunit\extensions\graphql\objects\query\HelloQuery;
 use yiiunit\extensions\graphql\objects\types\ExampleType;
 use yiiunit\extensions\graphql\objects\types\ResultItemType;
 
@@ -86,6 +89,75 @@ class GraphQLTest extends TestCase
         $query = $this->queries['multiQuery'];
         $ret = $this->graphql->parseRequestQuery($query);
         $this->assertNotEmpty($ret);
+    }
+
+    public function testParseRequestQueryReturnsTrueForIntrospection()
+    {
+        $ret = $this->graphql->parseRequestQuery($this->queries['introspectionQuery']);
+        $this->assertTrue($ret);
+    }
+
+    public function testSchemaMergesProvidedConfiguration()
+    {
+        $graphql = new GraphQL();
+        $graphql->schema([
+            'query' => [
+                'hello' => HelloQuery::class,
+            ],
+            'types' => [
+                'example' => ExampleType::class,
+            ],
+        ]);
+        $parsed = $graphql->parseRequestQuery('query { hello }');
+
+        $this->assertArrayHasKey('hello', $parsed[0], 'Custom query should be registered');
+        $type = $graphql->getTypeResolution()->parseType('example', true);
+        $this->assertSame('example', $type->name);
+    }
+
+    public function testGetResultAppliesCustomErrorFormatter()
+    {
+        $graphql = new GraphQL();
+        $graphql->setErrorFormatter(function (GraphQLError $error) {
+            return ['message' => 'formatted ' . $error->getMessage()];
+        });
+        $executionResult = new ExecutionResult(null, [new GraphQLError('boom')]);
+
+        $result = $graphql->getResult($executionResult);
+
+        $this->assertSame('formatted boom', $result['errors'][0]['message']);
+    }
+
+    public function testGetResultThrowsOnUnexpectedValue()
+    {
+        $this->expectException(\GraphQL\Error\InvariantViolation::class);
+        $this->graphql->getResult('invalid');
+    }
+
+    public function testQueryReturnsValidationErrorsForInvalidDocument()
+    {
+        $result = $this->graphql->query('query { hello { id } }', null, \Yii::$app);
+
+        $this->assertArrayHasKey('errors', $result);
+        $this->assertStringContainsString('must not have a sub selection', $result['errors'][0]['message']);
+    }
+
+    public function testGetResultResolvesPromises()
+    {
+        $schema = $this->graphql->buildSchema();
+        $adapter = new \GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter();
+        $document = \GraphQL\Language\Parser::parse('query { hello }');
+        $promise = \GraphQL\Executor\Executor::promiseToExecute(
+            $adapter,
+            $schema,
+            $document,
+            \Yii::$app
+        );
+
+        $resultPromise = $this->graphql->getResult($promise);
+        $result = $adapter->wait($resultPromise);
+        $this->assertArrayHasKey('data', $result);
+        $this->assertArrayHasKey('hello', $result['data']);
     }
 
     public function testSchemaNotFoundIsThrownWhenSchemaIsEmpty()

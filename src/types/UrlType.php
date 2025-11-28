@@ -6,7 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\ScalarType;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils as GraphQLUtils;
 
 class UrlType extends ScalarType
 {
@@ -42,7 +42,7 @@ class UrlType extends ScalarType
     public function parseValue($value)
     {
         if (!is_string($value) || !filter_var($value, FILTER_VALIDATE_URL)) { // quite naive, but after all this is example
-            throw new \UnexpectedValueException("Cannot represent value as URL: " . Utils::printSafe($value));
+            throw new \UnexpectedValueException("Cannot represent value as URL: " . GraphQLUtils::printSafe($value));
         }
         return $value;
     }
