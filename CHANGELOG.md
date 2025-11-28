@@ -1,5 +1,10 @@
 Yii2 Graphql Changelog
 =======================
+# 0.15
+- Added Docker-based dev environment with MySQL, PHP 7.4, Xdebug, and composer scripts for headless testing
+- Improved documentation (EN/RU/ZH) with dependency requirements, multipart upload notes, and testing instructions
+- Translated remaining Chinese inline comments to English and expanded unit tests across GraphQL, uploads, union types, and scalars (coverage ~80%)
+- Adjusted GraphQL facade to treat missing operation names as null for compatibility with graphql-php 14.x
 # 0.14
 - GraphQL action coverage tests for variables/raw body plus fixes to assertions
 - Throw SchemaNotFound when referenced schema is missing
