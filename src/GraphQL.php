@@ -157,7 +157,7 @@ class GraphQL
      * @param string $operationName
      * @return array|Error\InvariantViolation
      */
-    public function query($requestString, $rootValue = null, $contextValue = null, $variableValues = null, $operationName = '')
+    public function query($requestString, $rootValue = null, $contextValue = null, $variableValues = null, $operationName = null)
     {
         $sl = $this->parseRequestQuery($requestString);
         if ($sl === true) {
@@ -245,6 +245,7 @@ class GraphQL
             if (!empty($validationErrors)) {
                 return new ExecutionResult(null, $validationErrors);
             }
+            $operationName = $operationName === '' ? null : $operationName;
             return Executor::execute($schema, $this->currentDocument, $rootValue, $contextValue, $variableValues, $operationName);
         } catch (Error\Error $e) {
             return new ExecutionResult(null, [$e]);
