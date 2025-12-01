@@ -67,7 +67,7 @@ class GraphQLField extends GraphQLModel
 
         $type = $this->type();
         if (isset($type)) {
-            if(!is_object($type)){
+            if (!is_object($type)) {
                 $type = GraphQL::type($type);
             }
             $attributes['type'] = $type;

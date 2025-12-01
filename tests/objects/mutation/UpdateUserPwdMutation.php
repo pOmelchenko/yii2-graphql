@@ -41,8 +41,7 @@ class UpdateUserPwdMutation extends GraphQLMutation
         }
         $user = DataSource::findUser($args['id']);
 
-        if(!$user)
-        {
+        if (!$user) {
             return null;
         }
 

@@ -93,7 +93,6 @@ class GraphQLType extends GraphQLModel
                     'name' => $name,
                     'type' => $field
                 ];
-
             }
             $resolver = $this->getFieldResolver($name, $field);
             if ($resolver) {

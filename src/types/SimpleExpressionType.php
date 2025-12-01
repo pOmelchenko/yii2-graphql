@@ -64,7 +64,7 @@ class SimpleExpressionType extends GraphQLType
                 $ret[$key] = $value;
             } elseif (is_array($value)) {
                 $opExp = key($value);
-                $op = self::$operatorMap[$opExp]??$opExp;
+                $op = self::$operatorMap[$opExp] ?? $opExp;
                 $ret[] = [$op, $key, $value[$opExp]];
             }
         }

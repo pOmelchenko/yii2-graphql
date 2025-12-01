@@ -21,8 +21,8 @@ class UserQuery extends GraphQLQuery
     public function args()
     {
         return [
-            'id'=>[
-                'type'=>Type::nonNull(Type::id())
+            'id' => [
+                'type' => Type::nonNull(Type::id())
             ],
         ];
     }

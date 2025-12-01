@@ -27,7 +27,7 @@ use yii\graphql\exceptions\SchemaNotFound;
  */
 class GraphQLAction extends Action
 {
-    const INTROSPECTIONQUERY = '__schema';
+    public const INTROSPECTIONQUERY = '__schema';
     /**
      * @var GraphQL
      */

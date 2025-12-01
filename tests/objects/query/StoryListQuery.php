@@ -12,8 +12,8 @@ use yiiunit\extensions\graphql\objects\types\StoryType;
 class StoryListQuery extends GraphQLQuery
 {
     protected $attributes = [
-        'name'=>'stories',
-        'description'=>'Returns subset of stories posted for this blog',
+        'name' => 'stories',
+        'description' => 'Returns subset of stories posted for this blog',
     ];
 
     public function type()
@@ -24,9 +24,9 @@ class StoryListQuery extends GraphQLQuery
     public function args()
     {
         return [
-            'after'=>[
-                'type'=>Type::id(),
-                'description'=>'Fetch stories listed after the story with this ID'
+            'after' => [
+                'type' => Type::id(),
+                'description' => 'Fetch stories listed after the story with this ID'
             ],
             'limit' => [
                 'type' => Type::int(),

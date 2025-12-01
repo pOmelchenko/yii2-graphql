@@ -1,4 +1,5 @@
 <?php
+
 namespace yii\graphql\types;
 
 use GraphQL\Error\Error;

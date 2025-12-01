@@ -68,7 +68,7 @@ abstract class TestCase extends BaseTestCase
                     'cachePath' => '@runtime/graphql',
                     'directoryLevel' => 0,
                 ],
-                'db'=>[
+                'db' => [
                     'class' => 'yii\db\Connection',
                     'dsn' => 'mysql:host=localhost;dbname=test',
                     'username' => 'root',

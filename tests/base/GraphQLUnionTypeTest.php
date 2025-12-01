@@ -65,7 +65,7 @@ class GraphQLUnionTypeTest extends TestCase
     public function testGetAttributesAcceptsTypeInstances()
     {
         $story = GraphQL::type(StoryType::class);
-        $type = new class(['instances' => [$story]]) extends GraphQLUnionType {
+        $type = new class (['instances' => [$story]]) extends GraphQLUnionType {
             public array $instances;
             protected $attributes = [
                 'name' => 'InstanceUnion',

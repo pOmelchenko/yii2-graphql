@@ -17,7 +17,8 @@ class GraphqlMutationTest extends TestCase
         $this->graphQL = \Yii::$app->getModule('graphql')->getGraphQL();
     }
 
-    public function testUpdateUserPwd(){
+    public function testUpdateUserPwd()
+    {
         $query = "mutation updateUserPwd{
             updateUserPwd(id: \"qsli@google.com\", password: \"123456\") {
                 id,

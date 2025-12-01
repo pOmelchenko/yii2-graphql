@@ -11,20 +11,20 @@ class ImageSizeEnumType extends EnumType
     {
         // Option #2: Define enum type using inheritance
         $config = [
-            'name'=>'imageSizeEnum',
+            'name' => 'imageSizeEnum',
             // Note: 'name' option is not needed in this form - it will be inferred from className
             'values' => [
                 'ICON' => [
-                    'value'=>Image::SIZE_ICON
+                    'value' => Image::SIZE_ICON
                 ],
                 'SMALL' => [
-                    'value'=> Image::SIZE_SMALL,
+                    'value' => Image::SIZE_SMALL,
                     ],
                 'MEDIUM' => [
-                    'value'=> Image::SIZE_MEDIUM,
+                    'value' => Image::SIZE_MEDIUM,
                     ],
                 'ORIGINAL' => [
-                    'value'=> Image::SIZE_ORIGINAL
+                    'value' => Image::SIZE_ORIGINAL
                     ],
             ]
         ];

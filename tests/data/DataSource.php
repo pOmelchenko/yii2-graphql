@@ -64,7 +64,7 @@ class DataSource
         self::$comments = [
             // thread #1:
             '100' => new Comment(['id' => '100', 'authorId' => '3', 'storyId' => '1', 'body' => 'Likes']),
-                '110' => new Comment(['id' =>'110', 'authorId' =>'2', 'storyId' => '1', 'body' => 'Reply <b>#1</b>', 'parentId' => '100']),
+                '110' => new Comment(['id' => '110', 'authorId' => '2', 'storyId' => '1', 'body' => 'Reply <b>#1</b>', 'parentId' => '100']),
                     '111' => new Comment(['id' => '111', 'authorId' => '1', 'storyId' => '1', 'body' => 'Reply #1-1', 'parentId' => '110']),
                     '112' => new Comment(['id' => '112', 'authorId' => '3', 'storyId' => '1', 'body' => 'Reply #1-2', 'parentId' => '110']),
                     '113' => new Comment(['id' => '113', 'authorId' => '2', 'storyId' => '1', 'body' => 'Reply #1-3', 'parentId' => '110']),
@@ -120,7 +120,7 @@ class DataSource
 
     public static function findLastStoryFor($authorId)
     {
-        $storiesFound = array_filter(self::$stories, function(Story $story) use ($authorId) {
+        $storiesFound = array_filter(self::$stories, function (Story $story) use ($authorId) {
             return $story->authorId == $authorId;
         });
         return !empty($storiesFound) ? $storiesFound[count($storiesFound) - 1] : null;
@@ -130,7 +130,7 @@ class DataSource
     {
         $likes = isset(self::$storyLikes[$storyId]) ? self::$storyLikes[$storyId] : [];
         $result = array_map(
-            function($userId) {
+            function ($userId) {
                 return self::$users[$userId];
             },
             $likes
@@ -174,7 +174,7 @@ class DataSource
         $storyComments = array_slice($storyComments, $start, $limit);
 
         return array_map(
-            function($commentId) {
+            function ($commentId) {
                 return self::$comments[$commentId];
             },
             $storyComments
@@ -185,11 +185,11 @@ class DataSource
     {
         $commentReplies = isset(self::$commentReplies[$commentId]) ? self::$commentReplies[$commentId] : [];
 
-        $start = isset($after) ? (int) array_search($afterId, $commentReplies) + 1: 0;
+        $start = isset($after) ? (int) array_search($afterId, $commentReplies) + 1 : 0;
         $commentReplies = array_slice($commentReplies, $start, $limit);
 
         return array_map(
-            function($replyId) {
+            function ($replyId) {
                 return self::$comments[$replyId];
             },
             $commentReplies
@@ -208,6 +208,6 @@ class DataSource
 
     public static function findStoryMentions($storyId)
     {
-        return isset(self::$storyMentions[$storyId]) ? self::$storyMentions[$storyId] :[];
+        return isset(self::$storyMentions[$storyId]) ? self::$storyMentions[$storyId] : [];
     }
 }

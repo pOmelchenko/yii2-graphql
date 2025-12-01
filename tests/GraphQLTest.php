@@ -75,7 +75,6 @@ class GraphQLTest extends TestCase
 
         $typeOther = GraphQL::type('example', true);
         $this->assertTrue($type === $typeOther);
-
     }
 
     public function testUnionType()

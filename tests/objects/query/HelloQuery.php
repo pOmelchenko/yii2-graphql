@@ -9,7 +9,7 @@ use yii\graphql\base\GraphQLQuery;
 class HelloQuery extends GraphQLQuery
 {
     protected $attributes = [
-        'name'=>'hello',
+        'name' => 'hello',
     ];
 
     public function type()

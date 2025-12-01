@@ -11,7 +11,7 @@ use yii\graphql\GraphQL;
 class HtmlField extends GraphQLField
 {
     protected $attributes = [
-        'description'=>'a html tag',
+        'description' => 'a html tag',
     ];
 
     public function type()
@@ -30,7 +30,7 @@ class HtmlField extends GraphQLField
         ];
     }
 
-    public function resolve($root, $args,$context,ResolveInfo $info)
+    public function resolve($root, $args, $context, ResolveInfo $info)
     {
 //        $fields = $info->getFieldSelection($depth = 3);
         $html = $root->{$info->fieldName};

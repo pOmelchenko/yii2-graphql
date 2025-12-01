@@ -38,7 +38,6 @@ class TypeResolution
      */
     public function __construct()
     {
-
     }
 
     /**
@@ -137,7 +136,7 @@ class TypeResolution
                 foreach ($type->getTypes() as $innerType) {
                     $possibleTypesMap[$type->name][$innerType->name] = 1;
                 }
-            } else if ($type instanceof InterfaceType) {
+            } elseif ($type instanceof InterfaceType) {
                 foreach ($this->implementations[$type->name] as $obj) {
                     $possibleTypesMap[$type->name][$obj->name] = 1;
                 }
@@ -259,7 +258,6 @@ class TypeResolution
             if (strpos($class, '\\') !== false && !class_exists($class)) {
                 throw new TypeNotFound('Type ' . $name . ' not found.');
             }
-
         } elseif (!is_object($class)) {
             throw new TypeNotFound('Type ' . $name . ' not found.');
         }

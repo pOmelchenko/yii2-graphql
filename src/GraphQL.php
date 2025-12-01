@@ -50,7 +50,7 @@ class GraphQL
      */
     private $typeResolution;
 
-    function __construct()
+    public function __construct()
     {
     }
 
@@ -342,7 +342,7 @@ class GraphQL
      * set error formatter
      * @param Callable $errorFormatter
      */
-    public function setErrorFormatter(Callable $errorFormatter)
+    public function setErrorFormatter(callable $errorFormatter)
     {
         $this->errorFormatter = $errorFormatter;
     }

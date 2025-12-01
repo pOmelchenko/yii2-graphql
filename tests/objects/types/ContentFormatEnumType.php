@@ -7,8 +7,8 @@ use GraphQL\Type\Definition\EnumType;
 
 class ContentFormatEnumType extends EnumType
 {
-    const FORMAT_TEXT = 'TEXT';
-    const FORMAT_HTML = 'HTML';
+    public const FORMAT_TEXT = 'TEXT';
+    public const FORMAT_HTML = 'HTML';
 
     public function __construct()
     {

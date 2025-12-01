@@ -82,7 +82,7 @@ return [
     'hello' =>  "
         query hello{hello}
     ",
-      
+
     'singleObject' =>  "
         query user {
             user(id:\"2\") {
@@ -131,7 +131,7 @@ return [
             }
         }
     ",
-    'userModel'=>"
+    'userModel' => "
         query userModel{
             userModel(id: \"1001\") {
                 id

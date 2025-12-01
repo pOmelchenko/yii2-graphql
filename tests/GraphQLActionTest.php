@@ -22,7 +22,7 @@ class GraphQLActionTest extends TestCase
     }
 
 
-    function testAction()
+    public function testAction()
     {
         $_GET = [
             'query' => $this->queries['hello'],
@@ -32,7 +32,7 @@ class GraphQLActionTest extends TestCase
         $this->assertNotEmpty($ret);
     }
 
-    function testRunError()
+    public function testRunError()
     {
         $_GET = [
             'query' => 'query error{error}',
@@ -48,7 +48,7 @@ class GraphQLActionTest extends TestCase
         $this->assertSame('Schema not found for requested operation.', $ret['errors'][0]['message']);
     }
 
-    function testAuthBehavior()
+    public function testAuthBehavior()
     {
         $_GET = [
             'query' => $this->queries['hello'],
@@ -62,7 +62,7 @@ class GraphQLActionTest extends TestCase
         $this->assertNotEmpty($ret);
     }
 
-    function testAuthBehaviorDoesNotStartSession()
+    public function testAuthBehaviorDoesNotStartSession()
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_write_close();
@@ -82,7 +82,7 @@ class GraphQLActionTest extends TestCase
         $this->assertSame(PHP_SESSION_NONE, session_status(), 'Auth should not start PHP session');
     }
 
-    function testAuthBehaviorExcept()
+    public function testAuthBehaviorExcept()
     {
         $_GET = [
             'query' => $this->queries['hello'],
@@ -99,7 +99,7 @@ class GraphQLActionTest extends TestCase
         $this->assertNotEmpty($ret);
     }
 
-    function testIntrospectionQuery()
+    public function testIntrospectionQuery()
     {
         $_GET = [
             'query' => $this->queries['introspectionQuery'],
@@ -116,7 +116,7 @@ class GraphQLActionTest extends TestCase
         $this->assertNotEmpty($ret);
     }
 
-    function testJsonStringVariablesAreDecoded()
+    public function testJsonStringVariablesAreDecoded()
     {
         $query = <<<'GRAPHQL'
         query user($id: ID!) {
@@ -138,7 +138,7 @@ class GraphQLActionTest extends TestCase
         $this->assertSame('jane@example.com', $result['data']['user']['email']);
     }
 
-    function testRawBodyIsUsedWhenBodyParamsAreEmpty()
+    public function testRawBodyIsUsedWhenBodyParamsAreEmpty()
     {
         $request = \Yii::$app->request;
         $previousRequestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -157,7 +157,7 @@ class GraphQLActionTest extends TestCase
         $this->assertStringContainsString('/images/user/2-icon.jpg', $result['data']['user']['photo']['url']);
     }
 
-    function testCheckAccessCallbacksAreInvokedForEachRequestedAction()
+    public function testCheckAccessCallbacksAreInvokedForEachRequestedAction()
     {
         $_GET = [
             'query' => $this->queries['multiObject'],
@@ -177,7 +177,7 @@ class GraphQLActionTest extends TestCase
         $this->assertSame(['stories', 'user'], $invoked);
     }
 
-    function testRunReturns404WhenSchemaMissing()
+    public function testRunReturns404WhenSchemaMissing()
     {
         $_GET = [
             'query' => 'query { unknown }',
@@ -189,7 +189,7 @@ class GraphQLActionTest extends TestCase
         $this->assertSame(404, $result['errors'][0]['code']);
     }
 
-    function testMultipartUploadRequestIsParsed()
+    public function testMultipartUploadRequestIsParsed()
     {
         $request = \Yii::$app->request;
         $previousBody = $request->getBodyParams();
@@ -246,7 +246,7 @@ class GraphQLActionTest extends TestCase
         $this->assertSame('1', $result['data']['user']['id']);
     }
 
-    function testIntrospectionQueryReturnsSpecialActions()
+    public function testIntrospectionQueryReturnsSpecialActions()
     {
         $_GET = [
             'query' => $this->queries['introspectionQuery'],
