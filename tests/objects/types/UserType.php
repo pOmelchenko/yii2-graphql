@@ -19,7 +19,7 @@ class UserType extends GraphQLType
 
     public function interfaces()
     {
-        return [GraphQL::type(NodeType::className())];
+        return [GraphQL::type(NodeType::class)];
     }
 
     public function fields()

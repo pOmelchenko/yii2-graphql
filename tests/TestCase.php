@@ -93,8 +93,8 @@ abstract class TestCase extends BaseTestCase
                             'viewer' => ViewerQuery::class,
                             'stories' => StoryListQuery::class,
                             'lastStoryPosted' => LastStoryPostedQuery::class,
-                            'search' => SearchQuery::className(),
-                            'node' => NodeQuery::className(),
+                            'search' => SearchQuery::class,
+                            'node' => NodeQuery::class,
                         ],
                         'mutation' => [
                             'updateUserPwd' => UpdateUserPwdMutation::class

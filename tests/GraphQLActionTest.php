@@ -56,7 +56,7 @@ class GraphQLActionTest extends TestCase
         ];
         $controller = $this->controller;
         $controller->attachBehavior('authenticator', [
-            'class' => QueryParamAuth::className()
+            'class' => QueryParamAuth::class
         ]);
         $ret = $controller->runAction('index');
         $this->assertNotEmpty($ret);
@@ -74,7 +74,7 @@ class GraphQLActionTest extends TestCase
         ];
         $controller = $this->controller;
         $controller->attachBehavior('authenticator', [
-            'class' => QueryParamAuth::className()
+            'class' => QueryParamAuth::class
         ]);
 
         $controller->runAction('index');
@@ -89,9 +89,9 @@ class GraphQLActionTest extends TestCase
         ];
         $controller = $this->controller;
         $controller->attachBehavior('authenticator', [
-            'class' => CompositeAuth::className(),
+            'class' => CompositeAuth::class,
             'authMethods' => [
-                \yii\filters\auth\QueryParamAuth::className(),
+                \yii\filters\auth\QueryParamAuth::class,
             ],
             'except' => ['hello'],
         ]);
@@ -106,9 +106,9 @@ class GraphQLActionTest extends TestCase
         ];
         $controller = $this->controller;
         $controller->attachBehavior('authenticator', [
-            'class' => CompositeAuth::className(),
+            'class' => CompositeAuth::class,
             'authMethods' => [
-                \yii\filters\auth\QueryParamAuth::className(),
+                \yii\filters\auth\QueryParamAuth::class,
             ],
             'except' => ['__schema'],
         ]);

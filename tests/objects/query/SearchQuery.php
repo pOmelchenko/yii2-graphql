@@ -32,7 +32,7 @@ class SearchQuery extends GraphQLQuery
 
     public function type()
     {
-        return GraphQL::type(ResultItemConnectionType::className());
+        return GraphQL::type(ResultItemConnectionType::class);
     }
 
     protected function resolve($value, $args, Application $context, ResolveInfo $info)

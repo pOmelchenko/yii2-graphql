@@ -17,17 +17,17 @@ class ResultItemType extends GraphQLUnionType
     public function types()
     {
         return [
-            StoryType::className(),
-            UserType::className()
+            StoryType::class,
+            UserType::class
         ];
     }
 
     protected function resolveType($value)
     {
         if ($value instanceof Story) {
-            return GraphQL::type(StoryType::className());
+            return GraphQL::type(StoryType::class);
         } elseif ($value instanceof User) {
-            return GraphQL::type(UserType::className());
+            return GraphQL::type(UserType::class);
         }
     }
 }

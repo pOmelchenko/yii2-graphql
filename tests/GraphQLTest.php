@@ -80,7 +80,7 @@ class GraphQLTest extends TestCase
 
     public function testUnionType()
     {
-        $type = GraphQL::type(ResultItemType::className());
+        $type = GraphQL::type(ResultItemType::class);
         $this->assertInstanceOf(\GraphQL\Type\Definition\UnionType::class, $type);
     }
 
