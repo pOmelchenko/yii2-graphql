@@ -28,6 +28,14 @@ composer require pomelchenko/yii2-graphql
 ```
 Requires PHP ≥ 7.4 and is tested against [webonyx/graphql-php](https://github.com/webonyx/graphql-php) 14.x and [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.1.x.
 
+### Development
+
+Run PHP_CodeSniffer locally to keep pull requests clean:
+
+```
+composer lint
+```
+
 ### Type
 The type system is the core of GraphQL, which is embodied in `GraphQLType`. By deconstructing the GraphQL protocol and using the [graph-php](https://github.com/webonyx/graphql-php) library to achieve fine-grained control of all elements, it is convenient to extend the class according to its own needs
 

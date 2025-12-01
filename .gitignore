@@ -5,3 +5,5 @@ vendor
 tests/runtime
 composer.lock
 coverage/
+.phpcs-cache
+.phpunit.result.cache

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<ruleset name="Yii2 GraphQL Coding Standard">
+    <description>PSR-12 baseline for source and test suites.</description>
+
+    <arg name="basepath" value="."/>
+    <arg name="cache" value=".phpcs-cache"/>
+    <arg name="colors"/>
+
+    <file>src</file>
+    <file>tests</file>
+
+    <exclude-pattern>vendor/</exclude-pattern>
+
+    <rule ref="PSR12"/>
+</ruleset>
