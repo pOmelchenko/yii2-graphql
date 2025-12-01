@@ -15,12 +15,13 @@
         }
     ],
     "minimum-stability":"dev",
+    "prefer-stable": true,
     "require":{
         "php": ">=7.4.0",
         "ecodev/graphql-upload": "^6",
         "laminas/laminas-diactoros": "^2.17",
         "webonyx/graphql-php": "^14",
-        "yiisoft/yii2": "^2.0"
+        "yiisoft/yii2": "~2.0.10"
     },
     "require-dev":{
         "phpunit/phpunit": "^9.6",
@@ -29,6 +30,11 @@
     "autoload":{
         "psr-4":{
             "yii\\graphql\\":"src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "yiiunit\\extensions\\graphql\\": "tests"
         }
     },
     "scripts": {
