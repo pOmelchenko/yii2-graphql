@@ -34,6 +34,9 @@ Run PHP_CodeSniffer locally to keep pull requests clean:
 
 ```
 composer lint
+
+# See all warnings (line length, legacy bootstrap, etc.)
+composer lint:strict
 ```
 
 ### Type

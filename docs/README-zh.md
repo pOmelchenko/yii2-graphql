@@ -28,6 +28,17 @@ composer require pomelchenko/yii2-graphql
 ```
 需要 PHP ≥ 7.4；项目已在 [webonyx/graphql-php](https://github.com/webonyx/graphql-php) 14.x 与 [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.1.x 上测试。
 
+### 开发
+
+在提交之前本地运行代码风格检查：
+
+```
+composer lint
+
+# 查看全部警告（例如超长行）
+composer lint:strict
+```
+
 ### Type
 类型系统是 GraphQL 的核心，体现在 `GraphQLType` 中。通过解构 GraphQL 协议并利用 [graphql-php](https://github.com/webonyx/graphql-php) 库，可对各元素进行细粒度控制，便于按需扩展类。
 
