@@ -1,5 +1,10 @@
 Yii2 Graphql Changelog
 =======================
+# 0.15.3
+- Added PHPStan with baseline, `composer lint:strict` / `composer stan` scripts, and CI steps for every supported PHP version.
+- Introduced `GraphQLModuleInterface` and base `yii\graphql\GraphQLModule`; legacy modules using only the trait now trigger deprecation warnings (temporary fallback tested).
+- README (+ RU/ZH translations) document the new commands and recommend inheriting from the base module.
+
 # 0.15.2
 - Simplified the GitLab CI pipeline to a single tag-triggered Composer release job suited for mirrored repositories.
 - Updated the English, Russian, and Chinese READMEs with instructions for enabling GitLab mirror triggers instead of UPSTREAM variables.
