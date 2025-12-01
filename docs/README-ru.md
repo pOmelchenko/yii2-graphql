@@ -9,16 +9,16 @@ yii-graphql
 
 Языки: [English](/README.md) | [Русский](/docs/README-ru.md) | [中文](/docs/README-zh.md)
 
--------
-
 > Проект изначально был создан [tsingsun](https://github.com/tsingsun) и продолжает развиваться в этом форке.
 
-### Особенности
+-------
 
-- Упрощённая конфигурация, включая декларации стандартных протоколов GraphQL.
-- Поддержка отложенной и по‑требованию загрузки типов по их полным именам классов (FQCN) — не нужно загружать все типы на старте.
-- Поддержка валидации входных данных для `mutation`.
-- Интеграция с контроллерами и поддержка авторизации.
+Особенности
+
+* Упрощённая конфигурация, включая декларации стандартных протоколов GraphQL.
+* Поддержка отложенной и по‑требованию загрузки типов по их полным именам классов (FQCN) — не нужно загружать все типы на старте.
+* Поддержка валидации входных данных для `mutation`.
+* Интеграция с контроллерами и поддержка авторизации.
 
 ### Установка
 
@@ -81,7 +81,7 @@ composer require pomelchenko/yii2-graphql
 'components' => [
     'request' => [
         'parsers' => [
-            'application/json' => 'yii\\web\\JsonParser',
+            'application/json' => \yii\web\JsonParser::class,
         ],
     ],
 ];
@@ -90,9 +90,9 @@ composer require pomelchenko/yii2-graphql
 #### Модуль
 Подключите `yii\graphql\GraphQLModuleTrait` в модуле — трейт отвечает за инициализацию.
 ```php
-class MyModule extends \\yii\\base\\Module
+class MyModule extends \yii\base\Module
 {
-    use \\yii\\graphql\\GraphQLModuleTrait;
+    use \yii\graphql\GraphQLModuleTrait;
 }
 ```
 
@@ -100,11 +100,11 @@ class MyModule extends \\yii\\base\\Module
 ```php
 'modules'=>[
     'moduleName' => [
-        'class' => 'path\\to\\module',
+        'class' => 'path\to\module',
         // graphql config
         'schema' => [
             'query' => [
-                'user' => 'app\\graphql\\query\\UsersQuery'
+                'user' => \app\graphql\query\UsersQuery::class
             ],
             'mutation' => [
                 'login'
@@ -112,7 +112,7 @@ class MyModule extends \\yii\\base\\Module
             // если запросы содержат интерфейсы или фрагменты, можно не задавать types
             // ключ должен совпадать с именем класса
             'types' => [
-                'Story' => 'yiiunit\\extensions\\graphql\\objects\\types\\StoryType'
+                'Story' => \yiiunit\extensions\graphql\objects\types\StoryType::class
             ],
         ],
     ],
@@ -123,26 +123,27 @@ class MyModule extends \\yii\\base\\Module
 ```php
 class MyController extends Controller
 {
-   function actions() {
-       return [
-            'index'=>[
-                'class'=>'yii\\graphql\\GraphQLAction'
+    function actions()
+    {
+        return [
+            'index' => [
+                'class' => \yii\graphql\GraphQLAction::class,
             ],
-       ];
-   }
+        ];
+    }
 }
 ```
 
 #### Компонент
 Альтернативно, можно подключить трейт в собственный компонент и инициализировать его самостоятельно.
 ```php
-'components'=>[
+'components' => [
     'componentsName' => [
-        'class' => 'path\\to\\components',
+        'class' => 'path\to\components',
         // graphql config
         'schema' => [
             'query' => [
-                'user' => 'app\\graphql\\query\\UsersQuery'
+                'user' => \app\graphql\query\UsersQuery::class
             ],
             'mutation' => [
                 'login'
@@ -150,7 +151,7 @@ class MyController extends Controller
             // если запросы содержат интерфейсы или фрагменты, можно не задавать types
             // ключ должен совпадать с именем класса
             'types'=>[
-                'Story'=>'yiiunit\\extensions\\graphql\\objects\\types\\StoryType'
+                'Story' => \yiiunit\extensions\graphql\objects\types\StoryType::class,
             ],
         ],
     ],
@@ -160,9 +161,10 @@ class MyController extends Controller
 ### Валидация входных данных
 Поддерживаются правила валидации. Помимо встроенной в GraphQL, можно использовать валидацию моделей Yii для входных параметров. Добавьте метод `rules()` прямо в `mutation`.
 ```php
-public function rules() {
+public function rules()
+{
     return [
-        ['password','boolean']
+        ['password', 'boolean'],
     ];
 }
 ```
@@ -173,14 +175,15 @@ public function rules() {
 #### Аутентификация
 Задайте аутентификацию в `behaviors()` контроллера:
 ```php
-function behaviors() {
+function behaviors()
+{
     return [
-        'authenticator'=>[
-            'class' => 'yii\\graphql\\filter\\auth\\CompositeAuth',
+        'authenticator' => [
+            'class' => \yii\graphql\filter\auth\CompositeAuth::class,
             'authMethods' => [
-                \\yii\\filters\\auth\\QueryParamAuth::className(),
+                \yii\filters\auth\QueryParamAuth::class,
             ],
-            'except' => ['hello']
+            'except' => ['hello'],
         ],
     ];
 }
@@ -192,10 +195,11 @@ function behaviors() {
 ```php
 class GraphqlController extends Controller
 {
-    public function actions() {
+    public function actions()
+    {
         return [
             'index' => [
-                'class' => 'yii\\graphql\\GraphQLAction',
+                'class' => \yii\graphql\GraphQLAction::class,
                 'checkAccess'=> [$this,'checkAccess'],
             ]
         ];
@@ -204,13 +208,14 @@ class GraphqlController extends Controller
     /**
      * authorization
      * @param $actionName
-     * @throws yii\\web\\ForbiddenHttpException
+     * @throws \yii\web\ForbiddenHttpException
      */
-    public function checkAccess($actionName) {
+    public function checkAccess($actionName)
+    {
         $permissionName = $this->module->id . '/' . $actionName;
-        $pass = Yii::$app->getAuthManager()->checkAccess(Yii::$app->user->id,$permissionName);
-        if (!$pass){
-            throw new yii\\web\\ForbiddenHttpException('Access Denied');
+        $pass = Yii::$app->getAuthManager()->checkAccess(Yii::$app->user->id, $permissionName);
+        if (!$pass) {
+            throw new \yii\web\ForbiddenHttpException('Access Denied');
         }
     }
 }
@@ -224,7 +229,7 @@ class GraphqlController extends Controller
 
 Запустить тесты (можно внутри Docker):
 
-```
+```bash
 docker compose up -d --build
 docker compose exec app composer install
 docker compose exec app composer test
@@ -250,11 +255,13 @@ docker compose exec app composer test-coverage
 ```php
 class UserQuery extends GraphQLQuery
 {
-    public function type() {
+    public function type()
+    {
         return GraphQL::type(UserType::class);
     }
 
-    public function args() {
+    public function args()
+    {
         return [
             'id'=>[
                 'type' => Type::nonNull(Type::id())
@@ -262,7 +269,8 @@ class UserQuery extends GraphQLQuery
         ];
     }
 
-    public function resolve($value, $args, $context, ResolveInfo $info) {
+    public function resolve($value, $args, $context, ResolveInfo $info)
+    {
         return DataSource::findUser($args['id']);
     }
 }
@@ -300,14 +308,15 @@ class UserType extends GraphQLType
             'fieldWithError' => [
                 'type' => Type::string(),
                 'resolve' => function() {
-                    throw new \\Exception("This is error field");
+                    throw new \Exception("This is error field");
                 }
             ]
         ];
         return $result;
     }
 
-    public function resolvePhotoField(User $user,$args){
+    public function resolvePhotoField(User $user,$args)
+    {
         return DataSource::getUserPhoto($user->id, $args['size']);
     }
 
@@ -325,53 +334,53 @@ class UserType extends GraphQLType
 
 #### Примеры запросов
 ```php
-'hello' =>  "
-        query hello{hello}
-    ",
-
-    'singleObject' =>  "
-        query user {
-            user(id:\"2\") {
+'hello' => '
+    query hello {
+        hello
+    }
+',
+'singleObject' => '
+    query user {
+        user(id:"2") {
+            id
+            email
+            email2
+            photo(size:ICON) {
                 id
-                email
-                email2
-                photo(size:ICON){
-                    id
-                    url
-                }
-                firstName
-                lastName
-
+                url
+            }
+            firstName
+            lastName
+        }
+    }
+',
+'multiObject' => '
+    query multiObject {
+        user(id: "2") {
+            id
+            email
+            photo(size:ICON) {
+                id
+                url
             }
         }
-    ",
-    'multiObject' =>  "
-        query multiObject {
-            user(id: \"2\") {
+        stories(after: "1") {
+            id
+            author{
                 id
-                email
-                photo(size:ICON){
-                    id
-                    url
-                }
             }
-            stories(after: \"1\") {
-                id
-                author{
-                    id
-                }
-                body
-            }
+            body
         }
-    ",
-    'updateObject' =>  "
-        mutation updateUserPwd{
-            updateUserPwd(id: \"1001\", password: \"123456\") {
-                id,
-                username
-            }
+    }
+',
+'updateObject' => '
+    mutation updateUserPwd{
+        updateUserPwd(id: "1001", password: "123456") {
+            id,
+            username
         }
-    "
+    }
+'
 ```
 
 ### Обработка исключений
@@ -379,8 +388,8 @@ class UserType extends GraphQLType
 ```php
 'modules'=>[
     'moduleName' => [
-       'class' => 'path\\to\\module',
-       'errorFormatter' => ['yii\\graphql\\ErrorFormatter', 'formatError'],
+       'class' => 'path\to\module'
+       'errorFormatter' => [\yii\graphql\ErrorFormatter::class, 'formatError'],
     ],
 ];
 ```

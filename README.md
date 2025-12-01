@@ -40,8 +40,8 @@ Element  | Type | Description
 ----- | ----- | -----
 `name` | string | **Required** Each type needs to be named, with unique names preferred to resolve potential conflicts. The property needs to be defined in the `$attributes` property.
 `description` | string | A description of the type and its use. The property needs to be defined in the `$attributes` property.
-`fields` | array | **Required** The included field content is represented by the fields () method.
-`resolveField` | callback | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** For the interpretation of a field. For example: the fields definition of the user property, the corresponding method is `resolveUserField()`, and `$value` is the passed type instance defined by `type`.
+`fields` | array | **Required** The included field content is represented by the `fields()` method.
+`resolveField` | callback | `function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)` For the interpretation of a field. For example: the fields definition of the user property, the corresponding method is `resolveUserField()`, and `$value` is the passed type instance defined by `type`.
 
 ### Query
 
@@ -54,7 +54,7 @@ Each query of `Graphql` needs to correspond to a `GraphQLQuery` object
 ----- | ----- | -----
 `type` | ObjectType | For the corresponding query type. The single type is specified by `GraphQL::type`, and a list by `Type::listOf(GraphQL::type)`.
 `args` | array | The available query parameters, each of which is defined by `Field`.
-`resolve` | callback | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** `$value` is the root data, `$args` is the query parameters, `$context` is the `yii\web\Application` object, and `$info` resolves the object for the query. The root object is handled in this method.
+`resolve` | callback | `function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)` `$value` is the root data, `$args` is the query parameters, `$context` is the `yii\web\Application` object, and `$info` resolves the object for the query. The root object is handled in this method.
 
 ### Mutation
 
@@ -92,7 +92,7 @@ JsonParser configuration required
 'components' => [
     'request' => [
         'parsers' => [
-            'application/json' => 'yii\web\JsonParser',
+            'application/json' => \yii\web\JsonParser::class,
         ],
     ],
 ];
@@ -118,7 +118,7 @@ In your application configuration file:
         //graphql config
         'schema' => [
             'query' => [
-                'user' => 'app\graphql\query\UsersQuery'
+                'user' => \app\graphql\query\UsersQuery::class
             ],
             'mutation' => [
                 'login'
@@ -126,7 +126,7 @@ In your application configuration file:
             // you do not need to set the types if your query contains interfaces or fragments
             // the key must same as your defined class
             'types' => [
-                'Story' => 'yiiunit\extensions\graphql\objects\types\StoryType'
+                'Story' => \yiiunit\extensions\graphql\objects\types\StoryType::class
             ],
         ],
     ],
@@ -138,26 +138,27 @@ Use the controller to receive requests by using `yii\graphql\GraphQLAction`
 ```php
 class MyController extends Controller
 {
-   function actions() {
-       return [
-            'index'=>[
-                'class'=>'yii\graphql\GraphQLAction'
+    function actions()
+    {
+        return [
+            'index' => [
+                'class' => \yii\graphql\GraphQLAction::class,
             ],
-       ];
-   }
+        ];
+    }
 }
 ```
 
 #### Component Support
 also you can include the trait with your own components,then initialization yourself.
 ```php
-'components'=>[
+'components' => [
     'componentsName' => [
         'class' => 'path\to\components'
         //graphql config
         'schema' => [
             'query' => [
-                'user' => 'app\graphql\query\UsersQuery'
+                'user' => \app\graphql\query\UsersQuery::class
             ],
             'mutation' => [
                 'login'
@@ -165,7 +166,7 @@ also you can include the trait with your own components,then initialization your
             // you do not need to set the types if your query contains interfaces or fragments
             // the key must same as your defined class
             'types'=>[
-                'Story'=>'yiiunit\extensions\graphql\objects\types\StoryType'
+                'Story' => \yiiunit\extensions\graphql\objects\types\StoryType::class,
             ],
         ],
     ],
@@ -179,9 +180,10 @@ Validation rules are supported.
 In addition to graphql based validation, you can also use Yii Model validation, which is currently used for the validation of input parameters. The rules method is added directly to the mutation definition.
 
 ```php
-public function rules() {
+public function rules() 
+{
     return [
-        ['password','boolean']
+        ['password', 'boolean'],
     ];
 }
 ```
@@ -196,14 +198,15 @@ I refer to this query as "graphql actions"; when all graphql actions conditions 
 In the behavior method of controller, the authorization method is set as follows
 
 ```php
-function behaviors() {
+function behaviors() 
+{
     return [
-        'authenticator'=>[
-            'class' => 'yii\graphql\filter\auth\CompositeAuth',
+        'authenticator' => [
+            'class' => \yii\graphql\filter\auth\CompositeAuth::class,
             'authMethods' => [
-                \yii\filters\auth\QueryParamAuth::className(),
+                \yii\filters\auth\QueryParamAuth::class,
             ],
-            'except' => ['hello']
+            'except' => ['hello'],
         ],
     ];
 }
@@ -218,10 +221,11 @@ in the controller. It will check all graphql actions.
 ```php
 class GraphqlController extends Controller
 {
-    public function actions() {
+    public function actions() 
+    {
         return [
             'index' => [
-                'class' => 'yii\graphql\GraphQLAction',
+                'class' => \yii\graphql\GraphQLAction::class,
                 'checkAccess'=> [$this,'checkAccess'],
             ]
         ];
@@ -230,14 +234,15 @@ class GraphqlController extends Controller
     /**
      * authorization
      * @param $actionName
-     * @throws yii\web\ForbiddenHttpException
+     * @throws \yii\web\ForbiddenHttpException
      */
-    public function checkAccess($actionName) {
-        $permissionName = $this->module->id . '/' . $actionName;
-        $pass = Yii::$app->getAuthManager()->checkAccess(Yii::$app->user->id,$permissionName);
-        if (!$pass){
-            throw new yii\web\ForbiddenHttpException('Access Denied');
-        }
+     public function checkAccess($actionName)
+     {
+         $permissionName = $this->module->id . '/' . $actionName;
+         $pass = Yii::$app->getAuthManager()->checkAccess(Yii::$app->user->id, $permissionName);
+         if (!$pass) {
+             throw new \yii\web\ForbiddenHttpException('Access Denied');
+         }
     }
 }
 ```
@@ -278,11 +283,13 @@ Each query corresponds to a GraphQLQuery file.
 ```php
 class UserQuery extends GraphQLQuery
 {
-    public function type() {
+    public function type()
+    {
         return GraphQL::type(UserType::class);
     }
 
-    public function args() {
+    public function args()
+    {
         return [
             'id'=>[
                 'type' => Type::nonNull(Type::id())
@@ -290,18 +297,16 @@ class UserQuery extends GraphQLQuery
         ];
     }
 
-    public function resolve($value, $args, $context, ResolveInfo $info) {
+    public function resolve($value, $args, $context, ResolveInfo $info)
+    {
         return DataSource::findUser($args['id']);
     }
-
-
 }
 ```
 
 Define type files based on query protocols
 
 ```php
-
 class UserType extends GraphQLType
 {
     protected $attributes = [
@@ -312,7 +317,9 @@ class UserType extends GraphQLType
     public function fields()
     {
         $result = [
-            'id' => ['type'=>Type::id()],
+            'id' => [
+                'type'=>Type::id()
+            ],
             'email' => Types::email(),
             'email2' => Types::email(),
             'photo' => [
@@ -339,7 +346,8 @@ class UserType extends GraphQLType
         return $result;
     }
 
-    public function resolvePhotoField(User $user,$args){
+    public function resolvePhotoField(User $user,$args)
+    {
         return DataSource::getUserPhoto($user->id, $args['size']);
     }
 
@@ -352,61 +360,59 @@ class UserType extends GraphQLType
     {
         return $user->email2.'test';
     }
-
-
 }
 ```
 
 #### Query instance
 
 ```php
-'hello' =>  "
-        query hello{hello}
-    ",
-
-    'singleObject' =>  "
-        query user {
-            user(id:\"2\") {
+'hello' => '
+    query hello {
+        hello
+    }
+',
+'singleObject' => '
+    query user {
+        user(id:"2") {
+            id
+            email
+            email2
+            photo(size:ICON) {
                 id
-                email
-                email2
-                photo(size:ICON){
-                    id
-                    url
-                }
-                firstName
-                lastName
-
+                url
+            }
+            firstName
+            lastName
+        }
+    }
+',
+'multiObject' => '
+    query multiObject {
+        user(id: "2") {
+            id
+            email
+            photo(size:ICON) {
+                id
+                url
             }
         }
-    ",
-    'multiObject' =>  "
-        query multiObject {
-            user(id: \"2\") {
+        stories(after: "1") {
+            id
+            author{
                 id
-                email
-                photo(size:ICON){
-                    id
-                    url
-                }
             }
-            stories(after: \"1\") {
-                id
-                author{
-                    id
-                }
-                body
-            }
+            body
         }
-    ",
-    'updateObject' =>  "
-        mutation updateUserPwd{
-            updateUserPwd(id: \"1001\", password: \"123456\") {
-                id,
-                username
-            }
+    }
+',
+'updateObject' => '
+    mutation updateUserPwd{
+        updateUserPwd(id: "1001", password: "123456") {
+            id,
+            username
         }
-    "
+    }
+'
 ```
 
 ### Exception Handling
@@ -415,10 +421,10 @@ You can config the error formater for graph. The default handle uses `yii\graphq
 which optimizes the processing of Model validation results.
 
 ```php
-'modules'=>[
+'modules' => [
     'moduleName' => [
        'class' => 'path\to\module'
-       'errorFormatter' => ['yii\graphql\ErrorFormatter', 'formatError'],
+       'errorFormatter' => [\yii\graphql\ErrorFormatter::class, 'formatError'],
     ],
 ];
 ```

@@ -1,5 +1,5 @@
-# yii-graphql #
-
+yii-graphql
+==========
 使用 Facebook [GraphQL](http://facebook.github.io/graphql/) 的 PHP 服务端实现。扩展 [graphql-php](https://github.com/webonyx/graphql-php) 以适用于 YII2。
 
 [![Latest Stable Version](https://poser.pugx.org/pomelchenko/yii2-graphql/v/stable.svg)](https://packagist.org/packages/pomelchenko/yii2-graphql)
@@ -7,13 +7,11 @@
 [![Coverage Status](https://codecov.io/gh/pOmelchenko/yii2-graphql/branch/master/graph/badge.svg)](https://codecov.io/gh/pOmelchenko/yii2-graphql)
 [![Total Downloads](https://poser.pugx.org/pomelchenko/yii2-graphql/downloads.svg)](https://packagist.org/packages/pomelchenko/yii2-graphql)
 
---------
-
 Languages: [English](/README.md) | [Русский](/docs/README-ru.md) | [中文](/docs/README-zh.md)
 
 > 最初由 [tsingsun](https://github.com/tsingsun) 创建；在此分支中持续开发。
 
---------
+-------
 
 yii-graphql 特点
 
@@ -22,7 +20,7 @@ yii-graphql 特点
 * 支持 mutation 输入验证。
 * 提供控制器集成与授权支持。
 
-### 安装 ###
+### 安装
 
 使用 [composer](https://getcomposer.org/):
 ```
@@ -30,7 +28,7 @@ composer require pomelchenko/yii2-graphql
 ```
 需要 PHP ≥ 7.4；项目已在 [webonyx/graphql-php](https://github.com/webonyx/graphql-php) 14.x 与 [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.1.x 上测试。
 
-### Type ###
+### Type
 类型系统是 GraphQL 的核心，体现在 `GraphQLType` 中。通过解构 GraphQL 协议并利用 [graphql-php](https://github.com/webonyx/graphql-php) 库，可对各元素进行细粒度控制，便于按需扩展类。
 
 #### `GraphQLType` 的主要元素
@@ -44,11 +42,11 @@ composer require pomelchenko/yii2-graphql
 `fields` | array | **必须** — 字段集合，由 `fields()` 方法返回。
 `resolveField` | callback | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** 字段解析器。例如 `user` 字段对应方法 `resolveUserField()`；`$value` 为 `type` 定义的类型实例。
 
-### Query ###
+### Query
 
 `GraphQLQuery` 与 `GraphQLMutation` 继承自 `GraphQLField`，元素结构一致；若需要可复用的 `Field`，可以继承它。每个 GraphQL 查询都对应一个 `GraphQLQuery` 对象。
 
-GraphQLField的主要元素
+#### GraphQLField 的主要元素
 
  元素 | 类型  | 说明
 ----- | ----- | -----
@@ -56,11 +54,11 @@ GraphQLField的主要元素
 `args` | array | 可用的查询参数；每个参数按 `Field` 定义。
 `resolve` | callback | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** — `$value` 为根数据，`$args` 为参数，`$context` 为 `yii\web\Application`，`$info` 为解析信息。
 
-### Mutation ###
+### Mutation
 
 定义与 `GraphQLQuery` 类似，参考上述说明。
 
-### 简化的字段定义 ###
+### 简化的字段定义
 
 简化 `Field` 声明：可直接给出字段的类型，而无需包一层数组。
 
@@ -74,7 +72,7 @@ GraphQLField的主要元素
 'id' => Type::id(),
 ```
 
-### 在 YII 中的实现 ###
+### 在 YII 中的实现
 
 #### 通用配置
 启用 `request` 的 JSON 解析：
@@ -82,7 +80,7 @@ GraphQLField的主要元素
 'components' => [
     'request' => [
         'parsers' => [
-            'application/json' => 'yii\\web\\JsonParser',
+            'application/json' => \yii\web\JsonParser::class,
         ],
     ],
 ];
@@ -91,9 +89,9 @@ GraphQLField的主要元素
 #### 模块支持
 在模块中引入 `yii\graphql\GraphQLModuleTrait`，该 trait 负责初始化。
 ```php
-class MyModule extends \\yii\\base\\Module
+class MyModule extends \yii\base\Module
 {
-    use \\yii\\graphql\\GraphQLModuleTrait;
+    use \yii\graphql\GraphQLModuleTrait;
 }
 ```
 
@@ -101,11 +99,11 @@ class MyModule extends \\yii\\base\\Module
 ```php
 'modules'=>[
     'moduleName' => [
-        'class' => 'path\\to\\module',
+        'class' => 'path\to\module',
         // graphql config
         'schema' => [
             'query' => [
-                'user' => 'app\\graphql\\query\\UsersQuery'
+                'user' => \app\graphql\query\UsersQuery::class
             ],
             'mutation' => [
                 'login'
@@ -113,7 +111,7 @@ class MyModule extends \\yii\\base\\Module
             // 如果查询包含 interface 或 fragment，可不显式设置 types；
             // 键需与定义的类名一致
             'types' => [
-                'Story' => 'yiiunit\\extensions\\graphql\\objects\\types\\StoryType'
+                'Story' => \yiiunit\extensions\graphql\objects\types\StoryType::class
             ],
         ],
     ],
@@ -124,25 +122,58 @@ class MyModule extends \\yii\\base\\Module
 ```php
 class MyController extends Controller
 {
-   function actions() {
-       return [
-            'index'=>[
-                'class'=>'yii\\graphql\\GraphQLAction'
+    function actions()
+    {
+        return [
+            'index' => [
+                'class' => \yii\graphql\GraphQLAction::class,
             ],
-       ];
-   }
+        ];
+    }
 }
 ```
 
-### Multipart 上传支持
+#### 组件支持
+也可以在自定义组件中引入该 trait 并自行初始化：
+```php
+'components' => [
+    'componentsName' => [
+        'class' => 'path\to\components'
+        // graphql config
+        'schema' => [
+            'query' => [
+                'user' => \app\graphql\query\UsersQuery::class
+            ],
+            'mutation' => [
+                'login'
+            ],
+            // 如果查询包含 interface 或 fragment，可不显式设置 types；
+            // 键需与定义的类名一致
+            'types'=>[
+                'Story' => \yiiunit\extensions\graphql\objects\types\StoryType::class,
+            ],
+        ],
+    ],
+];
+```
 
-`GraphQLAction` 支持 [`operations`/`map`](https://github.com/jaydenseric/graphql-multipart-request-spec) 规范，并借助 `ecodev/graphql-upload` middleware 将上传文件注入 GraphQL 变量。请确保请求使用 `multipart/form-data` 并携带上述字段。
+### 输入验证
+
+支持验证规则。除基于 GraphQL 的验证外，也可使用 Yii Model 的验证来验证输入参数。直接在 mutation 中添加 `rules()` 方法：
+```php
+public function rules()
+{
+    return [
+        ['password', 'boolean'],
+    ];
+}
+```
 
 ### 测试
 
 在本地或 Docker 中运行：
 
-```
+```bash
 docker compose up -d --build
 docker compose exec app composer install
 docker compose exec app composer test
@@ -161,42 +192,6 @@ docker compose exec app composer test-coverage
 2. 在镜像条目上勾选 “Trigger pipelines when updates are mirrored”，让拉取操作触发 CI。
 3. 在源仓库创建标签（例如 `v0.15.2`），GitLab 同步后会自动发布对应的 Composer 包，无需额外变量或手动触发。
 
-#### 组件支持
-也可以在自定义组件中引入该 trait 并自行初始化：
-```php
-'components'=>[
-    'componentsName' => [
-        'class' => 'path\\to\\components',
-        // graphql config
-        'schema' => [
-            'query' => [
-                'user' => 'app\\graphql\\query\\UsersQuery'
-            ],
-            'mutation' => [
-                'login'
-            ],
-            // 如果查询包含 interface 或 fragment，可不显式设置 types；
-            // 键需与定义的类名一致
-            'types'=>[
-                'Story'=>'yiiunit\\extensions\\graphql\\objects\\types\\StoryType'
-            ],
-        ],
-    ],
-];
-```
-
-### 输入验证
-
-支持验证规则。除基于 GraphQL 的验证外，也可使用 Yii Model 的验证来验证输入参数。直接在 mutation 中添加 `rules()` 方法：
-```php
-public function rules()
-{
-    return [
-        ['password','boolean']
-    ];
-}
-```
-
 ### 认证与授权验证
 
 由于 GraphQL 查询可以组合（例如一次请求包含多个 query），且不同 query 可能有不同的授权约束，因此需要对每个单独的 GraphQL 查询（下称 “GraphQL action”）进行校验；当所有 action 满足配置条件时才通过授权检查。
@@ -204,14 +199,15 @@ public function rules()
 #### 认证（Authenticate）
 在控制器的 `behaviors()` 方法中设置认证器：
 ```php
-function behaviors() {
+function behaviors()
+{
     return [
-        'authenticator'=>[
-            'class' => 'yii\\graphql\\filter\\auth\\CompositeAuth',
+        'authenticator' => [
+            'class' => \yii\graphql\filter\auth\CompositeAuth::class,
             'authMethods' => [
-                \\yii\\filters\\auth\\QueryParamAuth::className(),
+                \yii\filters\auth\QueryParamAuth::class,
             ],
-            'except' => ['hello']
+            'except' => ['hello'],
         ],
     ];
 }
@@ -223,11 +219,12 @@ function behaviors() {
 ```php
 class GraphqlController extends Controller
 {
-    public function actions() {
+    public function actions()
+    {
         return [
             'index' => [
-                'class' => 'yii\\graphql\\GraphQLAction',
-                'checkAccess'=> [$this,'checkAccess'],
+                'class' => \yii\graphql\GraphQLAction::class,
+                'checkAccess'=> [$this, 'checkAccess'],
             ]
         ];
     }
@@ -235,25 +232,29 @@ class GraphqlController extends Controller
     /**
      * authorization
      * @param $actionName
-     * @throws yii\\web\\ForbiddenHttpException
+     * @throws \yii\web\ForbiddenHttpException
      */
-    public function checkAccess($actionName) {
+    public function checkAccess($actionName)
+    {
         $permissionName = $this->module->id . '/' . $actionName;
-        $pass = Yii::$app->getAuthManager()->checkAccess(Yii::$app->user->id,$permissionName);
-        if (!$pass){
-            throw new yii\\web\\ForbiddenHttpException('Access Denied');
+        $pass = Yii::$app->getAuthManager()->checkAccess(Yii::$app->user->id, $permissionName);
+        if (!$pass) {
+            throw new \yii\web\ForbiddenHttpException('Access Denied');
         }
     }
 }
 ```
 
-### Demo ###
+### Multipart 上传支持
 
-#### 创建基于graphql协议的查询 ####
+`GraphQLAction` 支持 [`operations`/`map`](https://github.com/jaydenseric/graphql-multipart-request-spec) 规范，并借助 `ecodev/graphql-upload` middleware 将上传文件注入 GraphQL 变量。请确保请求使用 `multipart/form-data` 并携带上述字段。
+
+### Demo
+
+#### 创建基于 GraphQL 协议的查询
 
 每次查询对应一个GraphQLQuery文件,
 ```php
-
 class UserQuery extends GraphQLQuery
 {
     public function type()
@@ -274,14 +275,11 @@ class UserQuery extends GraphQLQuery
     {
         return DataSource::findUser($args['id']);
     }
-
-
 }
 ```
 
 根据查询协议定义类型文件
 ```php
-
 class UserType extends GraphQLType
 {
     protected $attributes = [
@@ -319,7 +317,8 @@ class UserType extends GraphQLType
         return $result;
     }
 
-    public function resolvePhotoField(User $user,$args){
+    public function resolvePhotoField(User $user,$args)
+    {
         return DataSource::getUserPhoto($user->id, $args['size']);
     }
 
@@ -337,65 +336,65 @@ class UserType extends GraphQLType
 }
 ```
 
-#### 查询实例 ####
+#### 查询实例
 
 ```php
-'hello' =>  "
-        query hello{hello}
-    ",
-
-    'singleObject' =>  "
-        query user {
-            user(id:\"2\") {
+'hello' => '
+    query hello {
+        hello
+    }
+',
+'singleObject' => '
+    query user {
+        user(id:"2") {
+            id
+            email
+            email2
+            photo(size:ICON) {
                 id
-                email
-                email2
-                photo(size:ICON){
-                    id
-                    url
-                }
-                firstName
-                lastName
-
+                url
+            }
+            firstName
+            lastName
+        }
+    }
+',
+'multiObject' => '
+    query multiObject {
+        user(id: "2") {
+            id
+            email
+            photo(size:ICON) {
+                id
+                url
             }
         }
-    ",
-    'multiObject' =>  "
-        query multiObject {
-            user(id: \"2\") {
+        stories(after: "1") {
+            id
+            author{
                 id
-                email
-                photo(size:ICON){
-                    id
-                    url
-                }
             }
-            stories(after: \"1\") {
-                id
-                author{
-                    id
-                }
-                body
-            }
+            body
         }
-    ",
-    'updateObject' =>  "
-        mutation updateUserPwd{
-            updateUserPwd(id: \"1001\", password: \"123456\") {
-                id,
-                username
-            }
+    }
+',
+'updateObject' => '
+    mutation updateUserPwd{
+        updateUserPwd(id: "1001", password: "123456") {
+            id,
+            username
         }
-    "
+    }
+'
 ```
 
-### 异常处理 ###
+### 异常处理
 
 可以为 GraphQL 配置错误格式化器。默认处理器使用 `yii\graphql\ErrorFormatter`，它优化了对 Model 验证结果的处理。
 ```php
 'modules'=>[
     'moduleName' => [
-       'class' => 'path\\to\\module'
+       'class' => 'path\to\module'
        'errorFormatter' => ['yii\\graphql\\ErrorFormatter', 'formatError'],
     ],
 ];
