@@ -5,6 +5,7 @@ namespace yii\graphql;
 use Yii;
 use yii\base\Action;
 use yii\web\Response;
+use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use GraphQL\Error\Error as GQLError;
 use GraphQL\Executor\ExecutionResult;
@@ -96,9 +97,16 @@ class GraphQLAction extends Action
             $this->variables = json_decode($this->variables, true);
         }
 
-        /** @var GraphQLModuleTrait $module */
         $module = $this->controller->module;
-        $this->graphQL = $module->getGraphQL();
+        if ($module instanceof GraphQLModuleInterface) {
+            $this->graphQL = $module->getGraphQL();
+        } elseif (method_exists($module, 'getGraphQL')) {
+            // TODO: drop legacy trait fallback and throw InvalidConfigException in the next major release.
+            trigger_error('Using GraphQLModuleTrait without implementing GraphQLModuleInterface is deprecated and will throw an exception in a future release.', E_USER_DEPRECATED);
+            $this->graphQL = $module->getGraphQL();
+        } else {
+            throw new InvalidConfigException('GraphQL module must implement GraphQLModuleInterface.');
+        }
 
         $this->schemaArray = $this->graphQL->parseRequestQuery($this->query);
     }

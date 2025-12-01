@@ -3,12 +3,10 @@
 namespace yiiunit\extensions\graphql;
 
 use GraphQL\Type\Definition\Config;
-use yii\graphql\GraphQLModuleTrait;
+use yii\graphql\GraphQLModule;
 
-class Module extends \yii\base\Module
+class Module extends GraphQLModule
 {
-    use GraphQLModuleTrait;
-
     public function init()
     {
     }

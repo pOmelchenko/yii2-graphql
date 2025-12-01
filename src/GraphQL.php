@@ -16,6 +16,7 @@ use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 use Yii;
 use yii\base\InvalidConfigException;
+use yii\base\Module as YiiModule;
 use yii\graphql\exceptions\SchemaNotFound;
 use yii\graphql\exceptions\TypeNotFound;
 use yii\helpers\ArrayHelper;
@@ -304,9 +305,21 @@ class GraphQL
      */
     public static function type($name, $byAlias = false)
     {
-        /** @var GraphQLModuleTrait $module */
+        /** @var YiiModule|null $module */
         $module = Yii::$app->controller ? Yii::$app->controller->module : Yii::$app->getModule('graphql');
-        $gql = $module->getGraphQL();
+        if ($module === null) {
+            throw new InvalidConfigException('GraphQL module "graphql" is not registered.');
+        }
+
+        if ($module instanceof GraphQLModuleInterface) {
+            $gql = $module->getGraphQL();
+        } elseif (method_exists($module, 'getGraphQL')) {
+            // TODO: drop legacy trait fallback and throw InvalidConfigException in the next major release.
+            trigger_error('Using GraphQLModuleTrait without implementing GraphQLModuleInterface is deprecated and will throw an exception in a future release.', E_USER_DEPRECATED);
+            $gql = $module->getGraphQL();
+        } else {
+            throw new InvalidConfigException('GraphQL module must implement GraphQLModuleInterface.');
+        }
 
         return $gql->getTypeResolution()->parseType($name, $byAlias);
     }

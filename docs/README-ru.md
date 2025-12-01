@@ -102,11 +102,10 @@ composer stan
 ```
 
 #### Модуль
-Подключите `yii\graphql\GraphQLModuleTrait` в модуле — трейт отвечает за инициализацию.
+Подключите базовый `yii\graphql\GraphQLModule` (или реализуйте `GraphQLModuleInterface`, используя трейт) — он отвечает за инициализацию.
 ```php
-class MyModule extends \yii\base\Module
+class MyModule extends \yii\graphql\GraphQLModule
 {
-    use \yii\graphql\GraphQLModuleTrait;
 }
 ```
 

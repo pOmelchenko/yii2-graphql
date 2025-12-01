@@ -114,12 +114,11 @@ JsonParser configuration required
 
 #### Module support
 
-Can easily be implemented with `yii\graphql\GraphQLModuleTrait`. The trait is responsible for initialization.
+Can easily be implemented by extending `yii\graphql\GraphQLModule` (or implementing `GraphQLModuleInterface` and using the trait). The trait is responsible for initialization.
 
 ```php
-class MyModule extends \yii\base\Module
+class MyModule extends \yii\graphql\GraphQLModule
 {
-    use \yii\graphql\GraphQLModuleTrait;
 }
 ```
 

@@ -34,9 +34,9 @@ trait GraphQLModuleTrait
     public $schema = [];
 
     /**
-     * @var GraphQL the Graph handle
+     * @var GraphQL|null the Graph handle
      */
-    private $graphQL;
+    private ?GraphQL $graphQL = null;
 
     /**
      * @var callable if don't set error formatter,it will use php-graphql default
@@ -46,9 +46,8 @@ trait GraphQLModuleTrait
 
     /**
      * get graphql handler
-     * @return GraphQL
      */
-    public function getGraphQL()
+    public function getGraphQL(): GraphQL
     {
         if ($this->graphQL == null) {
             $this->graphQL = new GraphQL();

@@ -101,11 +101,10 @@ composer stan
 ```
 
 #### 模块支持
-在模块中引入 `yii\graphql\GraphQLModuleTrait`，该 trait 负责初始化。
+继承 `yii\graphql\GraphQLModule`（或实现 `GraphQLModuleInterface` 并使用该 trait），即可完成初始化。
 ```php
-class MyModule extends \yii\base\Module
+class MyModule extends \yii\graphql\GraphQLModule
 {
-    use \yii\graphql\GraphQLModuleTrait;
 }
 ```
 
