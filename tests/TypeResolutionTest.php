@@ -13,7 +13,7 @@ use yiiunit\extensions\graphql\objects\types\ExampleType;
 
 class TypeResolutionTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->mockWebApplication();

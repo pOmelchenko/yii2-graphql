@@ -30,7 +30,7 @@ abstract class TestCase extends BaseTestCase
      * Clean up after test.
      * By default the application created with [[mockApplication]] will be destroyed.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         $this->destroyApplication();
@@ -142,7 +142,7 @@ abstract class TestCase extends BaseTestCase
         return $result;
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->queries = include(__DIR__ . '/objects/queries.php');
