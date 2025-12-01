@@ -15,34 +15,50 @@ jobs:
         include:
           - php-version: '7.4'
             coverage: xdebug
+            supported: true
           - php-version: '8.0'
             coverage: xdebug
+            supported: true
           - php-version: '8.1'
             coverage: xdebug
+            supported: true
           - php-version: '8.2'
             coverage: xdebug
+            supported: true
           - php-version: '8.3'
             coverage: xdebug
+            supported: true
           - php-version: '8.4'
             coverage: xdebug
+            supported: false
+            skip_reason: laminas/laminas-diactoros supports PHP 8.3 and below
           - php-version: '8.5'
             coverage: none
+            supported: false
+            skip_reason: laminas/laminas-diactoros supports PHP 8.3 and below
     env:
       COVERAGE_DIR: coverage
     steps:
       - uses: actions/checkout@v3
+      - name: Skip unsupported PHP version
+        if: matrix.supported == false
+        run: |
+          echo "::notice::Skipping PHP ${{ matrix.php-version }}: ${{ matrix.skip_reason }}"
       - name: Setup PHP
+        if: matrix.supported == true
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
           tools: composer:v2
           coverage: ${{ matrix.coverage }}
       - name: Validate composer files
+        if: matrix.supported == true
         run: composer validate --strict
       - name: Install dependencies
+        if: matrix.supported == true
         run: composer install --prefer-dist --no-progress --no-interaction --no-suggest
       - name: Run tests with coverage
-        if: matrix.coverage == 'xdebug'
+        if: matrix.supported == true && matrix.coverage == 'xdebug'
         run: |
           mkdir -p "$COVERAGE_DIR"
           XDEBUG_MODE=coverage vendor/bin/phpunit \
@@ -51,22 +67,22 @@ jobs:
             --coverage-text="$COVERAGE_DIR/coverage.txt" \
             --coverage-clover="$COVERAGE_DIR/clover.xml"
       - name: Run tests
-        if: matrix.coverage != 'xdebug'
+        if: matrix.supported == true && matrix.coverage != 'xdebug'
         run: vendor/bin/phpunit --verbose --configuration phpunit.xml.dist
       - name: Upload coverage to Codecov
-        if: matrix.coverage == 'xdebug' && success()
+        if: matrix.supported == true && matrix.coverage == 'xdebug' && success()
         uses: codecov/codecov-action@v4
         with:
           files: ${{ env.COVERAGE_DIR }}/clover.xml
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
       - name: Publish coverage summary
-        if: matrix.coverage == 'xdebug' && success()
+        if: matrix.supported == true && matrix.coverage == 'xdebug' && success()
         run: |
           echo "## Code coverage" >> $GITHUB_STEP_SUMMARY
           cat "$COVERAGE_DIR/coverage.txt" >> $GITHUB_STEP_SUMMARY
       - name: Upload coverage artifact
-        if: matrix.coverage == 'xdebug' && always()
+        if: matrix.supported == true && matrix.coverage == 'xdebug' && always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
