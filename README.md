@@ -259,6 +259,15 @@ docker compose exec app composer test-coverage
 
 This exercises the GraphQL facade, controller action, upload middleware, and custom types to guard against regressions when dependencies are upgraded.
 
+### GitLab release pipeline
+
+The bundled `.gitlab-ci.yml` can fast-forward this fork from an upstream repository before publishing Composer packages to a private GitLab registry. Configure the following CI/CD variables when you need that automation:
+
+- `UPSTREAM_URL` — HTTPS or SSH URL of the upstream repository to mirror. Leave it undefined when this repository is the canonical source.
+- `UPSTREAM_BRANCH` — branch name to sync from upstream (for example `master` or `main`). The `sync_upstream` job runs only when the pipeline branch matches this value.
+
+Set both variables only for forks that must track another canonical repository. When present, `sync_upstream` fetches and fast-forwards upstream before the manual, tag-triggered `publish_package` job notifies GitLab Packages to update the Composer artifact.
+
 ### Demo
 
 #### Creating queries based on graphql protocols

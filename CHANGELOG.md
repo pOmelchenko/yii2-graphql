@@ -1,5 +1,8 @@
 Yii2 Graphql Changelog
 =======================
+# 0.15.1
+- Added GitLab CI pipeline capable of syncing upstream forks before publishing Composer packages to GitLab Packages.
+- Documented the `UPSTREAM_URL` and `UPSTREAM_BRANCH` CI variables in the English, Russian, and Chinese READMEs.
 # 0.15
 - Added Docker-based dev environment with MySQL, PHP 7.4, Xdebug, and composer scripts for headless testing
 - Improved documentation (EN/RU/ZH) with dependency requirements, multipart upload notes, and testing instructions

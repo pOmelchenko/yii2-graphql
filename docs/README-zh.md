@@ -151,6 +151,15 @@ docker compose exec app composer test-coverage
 
 覆盖 GraphQL facade、控制器、上传中间件和自定义类型，便于升级依赖时发现回归。
 
+### GitLab 发布流水线
+
+仓库中的 `.gitlab-ci.yml` 可以在将 Composer 包发布到私有 GitLab Registry 之前同步上游仓库。如需该功能，请在项目的 CI/CD 变量中配置：
+
+- `UPSTREAM_URL` —— 需要跟进的上游仓库地址（HTTPS 或 SSH）。如果当前仓库就是唯一来源，可以留空。
+- `UPSTREAM_BRANCH` —— 要同步的上游分支（如 `master`、`main`）。只有当流水线运行的分支与该值一致时，`sync_upstream` job 才会执行。
+
+只有需要跟踪外部仓库的 fork 才需要设置这两个变量。启用后，`sync_upstream` 会在手动、基于标签触发的 `publish_package` job 通知 GitLab Packages 更新 Composer 构件之前拉取并 fast-forward 上游代码；纯发布场景可不配置这些变量。
+
 #### 组件支持
 也可以在自定义组件中引入该 trait 并自行初始化：
 ```php
