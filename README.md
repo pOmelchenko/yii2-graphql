@@ -261,12 +261,13 @@ This exercises the GraphQL facade, controller action, upload middleware, and cus
 
 ### GitLab release pipeline
 
-The bundled `.gitlab-ci.yml` can fast-forward this fork from an upstream repository before publishing Composer packages to a private GitLab registry. Configure the following CI/CD variables when you need that automation:
+When this repository is mirrored into GitLab (Settings → Repository → Mirroring repositories) and the **Trigger pipelines when updates are mirrored** option is enabled, the bundled `.gitlab-ci.yml` automatically runs whenever a tag arrives. The single `publish_package` job uses the GitLab Packages API plus the job token to update your private Composer registry entry based on `CI_COMMIT_TAG`.
 
-- `UPSTREAM_URL` — HTTPS or SSH URL of the upstream repository to mirror. Leave it undefined when this repository is the canonical source.
-- `UPSTREAM_BRANCH` — branch name to sync from upstream (for example `master` or `main`). The `sync_upstream` job runs only when the pipeline branch matches this value.
+Steps to keep releases automated:
 
-Set both variables only for forks that must track another canonical repository. When present, `sync_upstream` fetches and fast-forwards upstream before the manual, tag-triggered `publish_package` job notifies GitLab Packages to update the Composer artifact.
+1. Configure mirroring (or push from GitHub Actions) so GitLab sees every new tag.
+2. Enable the “trigger pipelines” flag on the mirror or push directly so GitLab CI starts for mirrored updates.
+3. Create/push a semantic tag like `v0.15.2`; once the mirror updates, the pipeline publishes that version to the Composer registry without extra manual jobs or variables.
 
 ### Demo
 

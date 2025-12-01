@@ -1,5 +1,8 @@
 Yii2 Graphql Changelog
 =======================
+# 0.15.2
+- Simplified the GitLab CI pipeline to a single tag-triggered Composer release job suited for mirrored repositories.
+- Updated the English, Russian, and Chinese READMEs with instructions for enabling GitLab mirror triggers instead of UPSTREAM variables.
 # 0.15.1
 - Added GitLab CI pipeline capable of syncing upstream forks before publishing Composer packages to GitLab Packages.
 - Documented the `UPSTREAM_URL` and `UPSTREAM_BRANCH` CI variables in the English, Russian, and Chinese READMEs.

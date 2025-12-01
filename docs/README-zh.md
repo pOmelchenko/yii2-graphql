@@ -153,12 +153,13 @@ docker compose exec app composer test-coverage
 
 ### GitLab 发布流水线
 
-仓库中的 `.gitlab-ci.yml` 可以在将 Composer 包发布到私有 GitLab Registry 之前同步上游仓库。如需该功能，请在项目的 CI/CD 变量中配置：
+`.gitlab-ci.yml` 只包含一个 `publish_package` job，它利用 `CI_JOB_TOKEN` 调用 GitLab Packages API，根据 `CI_COMMIT_TAG` 将版本推送到私有 Composer Registry。若在 GitLab 中配置了仓库镜像（Settings → Repository → Mirroring repositories）并启用了 **Trigger pipelines when updates are mirrored**，每次从 GitHub 拉取到新标签时都会自动运行该 job。
 
-- `UPSTREAM_URL` —— 需要跟进的上游仓库地址（HTTPS 或 SSH）。如果当前仓库就是唯一来源，可以留空。
-- `UPSTREAM_BRANCH` —— 要同步的上游分支（如 `master`、`main`）。只有当流水线运行的分支与该值一致时，`sync_upstream` job 才会执行。
+推荐流程：
 
-只有需要跟踪外部仓库的 fork 才需要设置这两个变量。启用后，`sync_upstream` 会在手动、基于标签触发的 `publish_package` job 通知 GitLab Packages 更新 Composer 构件之前拉取并 fast-forward 上游代码；纯发布场景可不配置这些变量。
+1. 配置镜像或从 GitHub Actions 直接 push 到 GitLab，保证 GitLab 能收到所有标签。
+2. 在镜像条目上勾选 “Trigger pipelines when updates are mirrored”，让拉取操作触发 CI。
+3. 在源仓库创建标签（例如 `v0.15.2`），GitLab 同步后会自动发布对应的 Composer 包，无需额外变量或手动触发。
 
 #### 组件支持
 也可以在自定义组件中引入该 trait 并自行初始化：
