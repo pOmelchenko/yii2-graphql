@@ -30,13 +30,16 @@ composer require pomelchenko/yii2-graphql
 
 ### 开发
 
-在提交之前本地运行代码风格检查：
+在提交之前本地运行代码风格和静态分析：
 
 ```
 composer lint
 
 # 查看全部警告（例如超长行）
 composer lint:strict
+
+# 静态分析
+composer stan
 ```
 
 ### Type

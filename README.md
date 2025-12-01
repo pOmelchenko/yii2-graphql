@@ -30,13 +30,16 @@ Requires PHP ≥ 7.4 and is tested against [webonyx/graphql-php](https://github.
 
 ### Development
 
-Run PHP_CodeSniffer locally to keep pull requests clean:
+Run PHP_CodeSniffer and PHPStan locally before opening PRs:
 
 ```
 composer lint
 
 # See all warnings (line length, legacy bootstrap, etc.)
 composer lint:strict
+
+# Static analysis
+composer stan
 ```
 
 ### Type

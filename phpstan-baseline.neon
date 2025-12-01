@@ -1,0 +1,115 @@
+parameters:
+	ignoreErrors:
+		-
+			rawMessage: Access to an undefined property GraphQL\Language\AST\Node&GraphQL\Language\AST\SelectionNode::$name.
+			identifier: property.notFound
+			count: 1
+			path: src/GraphQL.php
+
+		-
+			rawMessage: 'Call to method getGraphQL() on an unknown class yii\graphql\GraphQLModuleTrait.'
+			identifier: class.notFound
+			count: 1
+			path: src/GraphQL.php
+
+		-
+			rawMessage: If condition is always false.
+			identifier: if.alwaysFalse
+			count: 1
+			path: src/GraphQL.php
+
+		-
+			rawMessage: Negated boolean expression is always false.
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: src/GraphQL.php
+
+		-
+			rawMessage: PHPDoc tag @var for variable $module has invalid type yii\graphql\GraphQLModuleTrait.
+			identifier: varTag.trait
+			count: 1
+			path: src/GraphQL.php
+
+		-
+			rawMessage: Ternary operator condition is always true.
+			identifier: ternary.alwaysTrue
+			count: 1
+			path: src/GraphQL.php
+
+		-
+			rawMessage: 'Call to method getGraphQL() on an unknown class yii\graphql\GraphQLModuleTrait.'
+			identifier: class.notFound
+			count: 1
+			path: src/GraphQLAction.php
+
+		-
+			rawMessage: PHPDoc tag @var for variable $module has invalid type yii\graphql\GraphQLModuleTrait.
+			identifier: varTag.trait
+			count: 1
+			path: src/GraphQLAction.php
+
+		-
+			rawMessage: Right side of && is always true.
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 1
+			path: src/GraphQLAction.php
+
+		-
+			rawMessage: Trait yii\graphql\GraphQLModuleTrait is used zero times and is not analysed.
+			identifier: trait.unused
+			count: 1
+			path: src/GraphQLModuleTrait.php
+
+		-
+			rawMessage: Access to an undefined property GraphQL\Type\Definition\AbstractType::$name.
+			identifier: property.notFound
+			count: 1
+			path: src/TypeResolution.php
+
+		-
+			rawMessage: 'Call to function is_object() with string will always evaluate to false.'
+			identifier: function.impossibleType
+			count: 1
+			path: src/TypeResolution.php
+
+		-
+			rawMessage: Instanceof between GraphQL\Type\Definition\InterfaceType and GraphQL\Type\Definition\InterfaceType will always evaluate to true.
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/TypeResolution.php
+
+		-
+			rawMessage: 'PHPDoc tag @param references unknown parameter: $opts'
+			identifier: parameter.notFound
+			count: 1
+			path: src/TypeResolution.php
+
+		-
+			rawMessage: 'Method yii\graphql\base\GraphQLInterfaceType::toType() should return GraphQL\Type\Definition\InputObjectType|GraphQL\Type\Definition\ObjectType but returns GraphQL\Type\Definition\InterfaceType.'
+			identifier: return.type
+			count: 1
+			path: src/base/GraphQLInterfaceType.php
+
+		-
+			rawMessage: 'Call to function is_string() with GraphQL\Type\Definition\Type will always evaluate to false.'
+			identifier: function.impossibleType
+			count: 1
+			path: src/base/GraphQLUnionType.php
+
+		-
+			rawMessage: 'Method yii\graphql\base\GraphQLUnionType::toType() should return GraphQL\Type\Definition\InputObjectType|GraphQL\Type\Definition\ObjectType but returns GraphQL\Type\Definition\UnionType.'
+			identifier: return.type
+			count: 1
+			path: src/base/GraphQLUnionType.php
+
+		-
+			rawMessage: Trait yii\graphql\traits\GlobalIdTrait is used zero times and is not analysed.
+			identifier: trait.unused
+			count: 1
+			path: src/traits/GlobalIdTrait.php
+
+		-
+			rawMessage: 'Call to function is_string() with string will always evaluate to true.'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/types/UrlType.php
