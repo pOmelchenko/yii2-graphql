@@ -2,6 +2,10 @@
 
 namespace yii\graphql\traits;
 
+/**
+ * TODO: Expand Relay support (Node interface, node(id) query, optional module config)
+ * so these helpers integrate with the built-in schema instead of being standalone utilities.
+ */
 trait GlobalIdTrait
 {
     /**
