@@ -182,6 +182,45 @@ public function rules()
 }
 ```
 
+#### Хелпер валидации мутаций
+
+`GraphQLMutation` подключает трейт `yii\graphql\traits\ShouldValidate`. Если в мутации определён метод `rules()` (формат такой же, как у моделей Yii), трейт обёртывает резолвер и вызывает `DynamicModel::validateData()` до выполнения `resolve()`. При ошибке валидации автоматически выбрасывается `InvalidParamException`, и резолвер не запускается.
+
+```php
+use yii\graphql\base\GraphQLMutation;
+use GraphQL\Type\Definition\Type;
+
+class UpdatePasswordMutation extends GraphQLMutation
+{
+    public function type()
+    {
+        return Type::boolean();
+    }
+
+    public function args()
+    {
+        return [
+            'password' => ['type' => Type::nonNull(Type::string())],
+        ];
+    }
+
+    public function rules()
+    {
+        return [
+            ['password', 'string', 'min' => 12],
+        ];
+    }
+
+    public function resolve($root, $args)
+    {
+        // На этом этапе аргументы уже провалидированы.
+        return true;
+    }
+}
+```
+
+Можно использовать как встроенные валидаторы Yii, так и собственные классы/inline-правила — всё будет выполняться до вызова резолвера, что избавляет от дублирования проверки внутри бизнес-логики.
+
 ### Аутентификация и авторизация
 Поскольку запросы GraphQL могут комбинироваться, разные части запроса могут иметь разные ограничения. Отдельные части называем «GraphQL actions»; проверка проходит, когда условия выполнены для всех действий.
 

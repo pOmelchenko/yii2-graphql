@@ -201,6 +201,46 @@ public function rules()
 }
 ```
 
+#### Mutation validation helper
+
+`GraphQLMutation` ships with the `yii\graphql\traits\ShouldValidate` trait. Whenever your mutation defines `rules()` (same format as a regular Yii model), the trait wraps the resolver and calls `DynamicModel::validateData()` before `resolve()` executes. If validation fails, an `InvalidParamException` is thrown automatically and the resolver is not executed.
+
+```php
+use yii\graphql\base\GraphQLMutation;
+use GraphQL\Type\Definition\Type;
+
+class UpdatePasswordMutation extends GraphQLMutation
+{
+    public function type()
+    {
+        return Type::boolean();
+    }
+
+    public function args()
+    {
+        return [
+            'password' => ['type' => Type::nonNull(Type::string())],
+        ];
+    }
+
+    public function rules()
+    {
+        return [
+            ['password', 'string', 'min' => 12],
+        ];
+    }
+
+    public function resolve($root, $args)
+    {
+        // Arguments are already validated here.
+        // ...
+        return true;
+    }
+}
+```
+
+Custom validators, inline callbacks, and any other Yii rule syntax are fully supported, so you can reuse existing validation logic without duplicating it inside resolvers.
+
 ### Authorization verification
 
 Since graphql queries can be combined, such as when a query merges two query, and the two query have different authorization constraints, custom authentication is required.

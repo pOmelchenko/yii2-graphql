@@ -182,6 +182,45 @@ public function rules()
 }
 ```
 
+#### Mutation 验证助手
+
+`GraphQLMutation` 内置 `yii\graphql\traits\ShouldValidate` trait。只要 mutation 定义了 `rules()`（语法与常规 Yii 模型一致），该 trait 就会在执行 `resolve()` 之前调用 `DynamicModel::validateData()`。一旦验证失败会自动抛出 `InvalidParamException`，并阻止解析器继续执行。
+
+```php
+use yii\graphql\base\GraphQLMutation;
+use GraphQL\Type\Definition\Type;
+
+class UpdatePasswordMutation extends GraphQLMutation
+{
+    public function type()
+    {
+        return Type::boolean();
+    }
+
+    public function args()
+    {
+        return [
+            'password' => ['type' => Type::nonNull(Type::string())],
+        ];
+    }
+
+    public function rules()
+    {
+        return [
+            ['password', 'string', 'min' => 12],
+        ];
+    }
+
+    public function resolve($root, $args)
+    {
+        // 执行到这里时，参数已经通过验证。
+        return true;
+    }
+}
+```
+
+可复用任意 Yii 验证器（包含自定义类或匿名验证规则），从而在进入业务逻辑之前统一处理所有输入验证。
+
 ### 测试
 
 在本地或 Docker 中运行：
