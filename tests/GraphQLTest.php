@@ -5,6 +5,7 @@ namespace yiiunit\extensions\graphql;
 use GraphQL\Error\Error as GraphQLError;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use yii\graphql\GraphQL;
 use yii\graphql\exceptions\SchemaNotFound;
@@ -165,5 +166,75 @@ class GraphQLTest extends TestCase
 
         $this->expectException(SchemaNotFound::class);
         $graphql->buildSchema();
+    }
+
+    public function testInlineQueryDefinitionExecutesResolver()
+    {
+        $graphql = new GraphQL();
+        $graphql->schema([
+            'query' => [
+                'inlineGreeting' => [
+                    'type' => Type::nonNull(Type::string()),
+                    'resolve' => function () {
+                        return 'hello';
+                    },
+                ],
+            ],
+        ]);
+
+        $result = $graphql->query('query { inlineGreeting }', null, \Yii::$app);
+
+        $this->assertSame('hello', $result['data']['inlineGreeting']);
+    }
+
+    public function testInlineMutationDefinitionExecutesResolver()
+    {
+        $graphql = new GraphQL();
+        $graphql->schema([
+            'query' => [
+                'placeholder' => [
+                    'type' => Type::string(),
+                    'resolve' => function () {
+                        return 'ok';
+                    },
+                ],
+            ],
+            'mutation' => [
+                'shout' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'text' => ['type' => Type::nonNull(Type::string())],
+                    ],
+                    'resolve' => function ($root, $args) {
+                        return strtoupper($args['text']);
+                    },
+                ],
+            ],
+        ]);
+
+        $result = $graphql->query('mutation { shout(text: "hello") }', null, \Yii::$app);
+
+        $this->assertSame('HELLO', $result['data']['shout']);
+    }
+
+    public function testInlineDefinitionCanReferenceGraphQLTypeClass()
+    {
+        $graphql = new GraphQL();
+        $graphql->schema([
+            'query' => [
+                'inlineTypeQuery' => [
+                    'type' => GraphQL::type(ExampleType::class),
+                    'resolve' => function () {
+                        return \yiiunit\extensions\graphql\data\DataSource::findUser(1);
+                    },
+                ],
+            ],
+        ]);
+
+        $result = $graphql->query('query { inlineTypeQuery { id firstName } }', null, \Yii::$app);
+
+        $this->assertArrayHasKey('data', $result);
+        $this->assertSame('1test', $result['data']['inlineTypeQuery']['id']);
+        $this->assertSame('John', $result['data']['inlineTypeQuery']['firstName']);
     }
 }

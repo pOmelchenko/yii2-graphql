@@ -51,6 +51,11 @@ class GraphQL
      */
     private $typeResolution;
 
+    /**
+     * @var TypeResolution|null standalone resolver used when module context is unavailable
+     */
+    private static ?TypeResolution $standaloneTypeResolution = null;
+
     public function __construct()
     {
     }
@@ -309,25 +314,29 @@ class GraphQL
      */
     public static function type($name, $byAlias = false)
     {
-        /** @var \yii\base\Controller|null $controller */
-        $controller = Yii::$app->controller;
-        /** @var YiiModule|null $module */
-        $module = $controller !== null ? $controller->module : Yii::$app->getModule('graphql');
-        if ($module === null) {
-            throw new InvalidConfigException('GraphQL module "graphql" is not registered.');
+        $module = null;
+        if (Yii::$app !== null) {
+            /** @var \yii\base\Controller|null $controller */
+            $controller = Yii::$app->controller;
+            /** @var YiiModule|null $module */
+            $module = $controller !== null ? $controller->module : Yii::$app->getModule('graphql');
         }
 
-        if ($module instanceof GraphQLModuleInterface) {
-            $gql = $module->getGraphQL();
-        } elseif (method_exists($module, 'getGraphQL')) {
-            // TODO: drop legacy trait fallback and throw InvalidConfigException in the next major release.
-            trigger_error('Using GraphQLModuleTrait without implementing GraphQLModuleInterface is deprecated and will throw an exception in a future release.', E_USER_DEPRECATED);
-            $gql = $module->getGraphQL();
-        } else {
-            throw new InvalidConfigException('GraphQL module must implement GraphQLModuleInterface.');
+        if ($module !== null) {
+            if ($module instanceof GraphQLModuleInterface) {
+                $gql = $module->getGraphQL();
+            } elseif (method_exists($module, 'getGraphQL')) {
+                // TODO: drop legacy trait fallback and throw InvalidConfigException in the next major release.
+                trigger_error('Using GraphQLModuleTrait without implementing GraphQLModuleInterface is deprecated and will throw an exception in a future release.', E_USER_DEPRECATED);
+                $gql = $module->getGraphQL();
+            } else {
+                throw new InvalidConfigException('GraphQL module must implement GraphQLModuleInterface.');
+            }
+
+            return $gql->getTypeResolution()->parseType($name, $byAlias);
         }
 
-        return $gql->getTypeResolution()->parseType($name, $byAlias);
+        return self::getStandaloneTypeResolution()->parseType($name, $byAlias);
     }
 
     /**
@@ -355,6 +364,22 @@ class GraphQL
 
         $type = is_object($class) ? $class : Yii::createObject($class);
         return $type->name;
+    }
+
+    /**
+     * Reset standalone type resolution cache (primarily for tests).
+     */
+    public static function resetStandaloneTypeResolution(): void
+    {
+        self::$standaloneTypeResolution = null;
+    }
+
+    private static function getStandaloneTypeResolution(): TypeResolution
+    {
+        if (self::$standaloneTypeResolution === null) {
+            self::$standaloneTypeResolution = new TypeResolution();
+        }
+        return self::$standaloneTypeResolution;
     }
 
     /**

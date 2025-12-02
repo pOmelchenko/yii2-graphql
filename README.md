@@ -74,6 +74,26 @@ Each query of `Graphql` needs to correspond to a `GraphQLQuery` object
 
 Definition is similar to `GraphQLQuery`, please refer to the above.
 
+#### Inline query definitions
+
+If you prefer not to create a dedicated `GraphQLQuery` class, schema entries may also be declared as plain arrays using the same structure that `webonyx/graphql-php` expects. Provide the type, args, and resolver (closure, callable array, etc.) directly in the configuration. `GraphQL::type()` can be referenced even before `Yii::$app` is instantiated, so simply pass the resulting `Type`:
+
+```php
+'schema' => [
+    'query' => [
+        'me' => [
+            'type' => GraphQL::type(UserType::class),
+            'args' => [
+                'id' => ['type' => Type::id()],
+            ],
+            'resolve' => [UserResolver::class, 'resolveMe'],
+        ],
+    ],
+],
+```
+
+This is useful for simple fields or when you already have reusable resolver classes. For more complex logic you can still rely on dedicated `GraphQLQuery`/`GraphQLMutation` classes so that `type()`, `args()`, `resolve()` and `rules()` remain encapsulated.
+
 ### Simplified Field Definition
 
 Simplifies the declarations of `Field`, removing the need to defined as an array with the type key.

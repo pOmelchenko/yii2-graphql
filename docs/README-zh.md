@@ -72,6 +72,26 @@ composer stan
 
 定义与 `GraphQLQuery` 类似，参考上述说明。
 
+#### 内联查询定义
+
+如果某个字段足够简单，不想为它创建单独的 `GraphQLQuery` 类，可以直接在配置中使用数组（格式与 `webonyx/graphql-php` 的 `fields` 一致），显式提供类型、参数和解析器。`GraphQL::type()` 即使在 `Yii::$app` 尚未初始化时也能解析类型，因此直接传入生成好的 `Type` 即可：
+
+```php
+'schema' => [
+    'query' => [
+        'me' => [
+            'type' => GraphQL::type(UserType::class),
+            'args' => [
+                'id' => ['type' => Type::id()],
+            ],
+            'resolve' => [UserResolver::class, 'resolveMe'],
+        ],
+    ],
+],
+```
+
+这种方式适合非常简单的字段或已存在的可复用解析器；若需要封装更复杂的逻辑，仍然可以保留独立的 `GraphQLQuery`/`GraphQLMutation` 类，将 `type()`, `args()`, `resolve()` 与 `rules()` 写在类里。
+
 ### 简化的字段定义
 
 简化 `Field` 声明：可直接给出字段的类型，而无需包一层数组。
