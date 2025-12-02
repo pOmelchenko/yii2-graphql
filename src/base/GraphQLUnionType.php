@@ -14,7 +14,7 @@ use yii\graphql\GraphQL;
 class GraphQLUnionType extends GraphQLType
 {
     /**
-     * @return Type[]
+     * @return array<int, Type|string>
      */
     public function types()
     {
@@ -60,7 +60,7 @@ class GraphQLUnionType extends GraphQLType
         return $attributes;
     }
 
-    public function toType()
+    public function toType(): UnionType
     {
         return new UnionType($this->toArray());
     }

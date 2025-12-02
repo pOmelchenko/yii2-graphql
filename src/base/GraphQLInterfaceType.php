@@ -36,7 +36,7 @@ class GraphQLInterfaceType extends GraphQLType
         return $attributes;
     }
 
-    public function toType()
+    public function toType(): InterfaceType
     {
         return new InterfaceType($this->toArray());
     }

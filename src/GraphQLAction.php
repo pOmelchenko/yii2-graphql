@@ -42,7 +42,7 @@ class GraphQLAction extends Action
      */
     private $authActions = [];
     /**
-     * @var callable a PHP callable that will be called when running an action to determine
+     * @var callable|null a PHP callable that will be called when running an action to determine
      * if the current user has the permission to execute the action. If not set, the access
      * check will not be performed. The signature of the callable should be as follows,
      *

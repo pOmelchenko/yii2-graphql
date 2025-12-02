@@ -129,9 +129,9 @@ class GraphQLType extends GraphQLModel
     /**
      * Convert this class to its ObjectType.
      *
-     * @return ObjectType |InputObjectType
+     * @return Type
      */
-    public function toType()
+    public function toType(): Type
     {
         if ($this->inputObject) {
             return new InputObjectType($this->toArray());

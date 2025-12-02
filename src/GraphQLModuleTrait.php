@@ -39,7 +39,7 @@ trait GraphQLModuleTrait
     private ?GraphQL $graphQL = null;
 
     /**
-     * @var callable if don't set error formatter,it will use php-graphql default
+     * @var callable|null if don't set error formatter,it will use php-graphql default
      * @see \GraphQL\Executor\ExecutionResult
      */
     public $errorFormatter;

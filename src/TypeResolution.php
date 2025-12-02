@@ -8,7 +8,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\TypeInfo;
-use GraphQL\Utils\Utils as GraphQLUtils;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\graphql\base\GraphQLType;
@@ -101,7 +100,12 @@ class TypeResolution
      */
     public function resolvePossibleTypes(AbstractType $abstractType)
     {
-        if (!isset($this->typeMap[$abstractType->name])) {
+        if (!($abstractType instanceof Type)) {
+            return [];
+        }
+
+        $typeName = $abstractType->name;
+        if (!isset($this->typeMap[$typeName])) {
             return [];
         }
 
@@ -109,9 +113,11 @@ class TypeResolution
             return $abstractType->getTypes();
         }
 
-        /** @var InterfaceType $abstractType */
-        GraphQLUtils::invariant($abstractType instanceof InterfaceType);
-        return isset($this->implementations[$abstractType->name]) ? $this->implementations[$abstractType->name] : [];
+        if (!($abstractType instanceof InterfaceType)) {
+            return [];
+        }
+
+        return $this->implementations[$typeName] ?? [];
     }
 
     /**
@@ -231,7 +237,7 @@ class TypeResolution
 
     /**
      * get type by name,this method is use in Type definition class for TypeSystem
-     * @param $name
+     * @param string|Type|GraphQLType|GraphQLField $name
      * @param bool $byAlias if use alias;
      * @return Type|null
      * @throws TypeNotFound | NotSupportedException
@@ -239,8 +245,9 @@ class TypeResolution
     public function parseType($name, $byAlias = false)
     {
         $class = $name;
-        if (is_object($class)) {
-            $name = get_class($class);
+        if (is_object($name)) {
+            $class = $name;
+            $name = get_class($name);
         }
 
         if ($byAlias && isset($this->alias[$name])) {
@@ -258,29 +265,31 @@ class TypeResolution
             if (strpos($class, '\\') !== false && !class_exists($class)) {
                 throw new TypeNotFound('Type ' . $name . ' not found.');
             }
-        } elseif (!is_object($class)) {
+            $classInstance = Yii::createObject($class);
+        } elseif (is_object($class)) {
+            $classInstance = $class;
+        } else {
             throw new TypeNotFound('Type ' . $name . ' not found.');
         }
-        $type = $this->buildType($class);
+
+        $type = $this->buildType($classInstance);
         $this->alias[$type->name] = $class;
-        $this->alias[$class] = $type->name;
+        if (is_string($class)) {
+            $this->alias[$class] = $type->name;
+        }
         $this->typeMap[$type->name] = $type;
         $this->transformType($type);
         return $type;
     }
 
     /**
-     * @param string $type type name
-     * @param array $opts return Type's attribute set
+     * @param object $type type instance
      * @return ObjectType|Type|GraphQLField
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     protected function buildType($type)
     {
-        if (!is_object($type)) {
-            $type = Yii::createObject($type);
-        }
         if ($type instanceof Type) {
             return $type;
         } elseif ($type instanceof GraphQLType) {

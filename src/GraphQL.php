@@ -6,7 +6,7 @@ use GraphQL\Error;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Executor\Promise\Promise;
-use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
@@ -47,7 +47,7 @@ class GraphQL
 
     private $currentDocument;
     /**
-     * @var TypeResolution
+     * @var TypeResolution|null
      */
     private $typeResolution;
 
@@ -98,7 +98,7 @@ class GraphQL
      * GraphQl Schema is built according to input. Especially,
      * due to the need of Module and Controller in the process of building ObjectType,
      * the execution position of the method is restricted to a certain extent.
-     * @param Schema|array $schema schema data
+     * @param Schema|array|null $schema schema data
      * @return Schema
      */
     public function buildSchema($schema = null)
@@ -269,27 +269,31 @@ class GraphQL
         $types = [];
         $isAll = false;
         foreach ($this->currentDocument->definitions as $definition) {
-            if ($definition instanceof OperationDefinitionNode) {
-                $selections = $definition->selectionSet->selections;
-                foreach ($selections as $selection) {
-                    $node = $selection->name;
-                    if ($node instanceof NameNode) {
-                        if ($definition->operation == 'query') {
-                            if ($definition->name && $definition->name->value == 'IntrospectionQuery') {
-                                $isAll = true;
-                                break 2;
-                            }
-                            if (isset($this->queries[$node->value])) {
-                                $queryTypes[$node->value] = $this->queries[$node->value];
-                            }
-                            if (isset($this->types[$node->value])) {
-                                $types[$node->value] = $this->types[$node->value];
-                            }
-                        } elseif ($definition->operation == 'mutation') {
-                            if (isset($this->mutations[$node->value])) {
-                                $mutation[$node->value] = $this->mutations[$node->value];
-                            }
-                        }
+            if (!($definition instanceof OperationDefinitionNode)) {
+                continue;
+            }
+
+            foreach ($definition->selectionSet->selections as $selection) {
+                if (!($selection instanceof FieldNode)) {
+                    continue;
+                }
+
+                $node = $selection->name;
+
+                if ($definition->operation === 'query') {
+                    if ($definition->name && $definition->name->value === 'IntrospectionQuery') {
+                        $isAll = true;
+                        break 2;
+                    }
+                    if (isset($this->queries[$node->value])) {
+                        $queryTypes[$node->value] = $this->queries[$node->value];
+                    }
+                    if (isset($this->types[$node->value])) {
+                        $types[$node->value] = $this->types[$node->value];
+                    }
+                } elseif ($definition->operation === 'mutation') {
+                    if (isset($this->mutations[$node->value])) {
+                        $mutation[$node->value] = $this->mutations[$node->value];
                     }
                 }
             }
@@ -305,8 +309,10 @@ class GraphQL
      */
     public static function type($name, $byAlias = false)
     {
+        /** @var \yii\base\Controller|null $controller */
+        $controller = Yii::$app->controller;
         /** @var YiiModule|null $module */
-        $module = Yii::$app->controller ? Yii::$app->controller->module : Yii::$app->getModule('graphql');
+        $module = $controller !== null ? $controller->module : Yii::$app->getModule('graphql');
         if ($module === null) {
             throw new InvalidConfigException('GraphQL module "graphql" is not registered.');
         }
@@ -336,12 +342,12 @@ class GraphQL
 
     /**
      *
-     * @param $class
-     * @param null $name
-     * @return null
+     * @param string|object $class
+     * @param string|null $name
+     * @return string
      * @throws InvalidConfigException
      */
-    protected function getTypeName($class, $name = null)
+    protected function getTypeName($class, $name = null): string
     {
         if ($name) {
             return $name;
