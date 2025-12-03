@@ -1,5 +1,11 @@
 Yii2 Graphql Changelog
 =======================
+# 0.16.1
+- Fixed SchemaNotFound during IDE capability probes by treating `__schema` / `__type` selections as introspection in `GraphQL::parseRequestQuery()`.
+- Added a regression test for PhpStorm's `IntrospectionCapabilitiesQuery` to ensure GraphQLAction returns data or standard errors instead of SchemaNotFound.
+- Created lightweight tests for the `PageInfo` and `Pagination` types to keep coverage high without constraining implementation details.
+- Migrated `phpunit.xml.dist` to the PHPUnit 9 schema, removing deprecated-config warnings.
+
 # 0.15.3
 - Added PHPStan with baseline, `composer lint:strict` / `composer stan` scripts, and CI steps for every supported PHP version.
 - Introduced `GraphQLModuleInterface` and base `yii\graphql\GraphQLModule`; legacy modules using only the trait now trigger deprecation warnings (temporary fallback tested).
