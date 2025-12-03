@@ -285,6 +285,11 @@ class GraphQL
 
                 $node = $selection->name;
 
+                if ($node->value === '__schema' || $node->value === '__type') {
+                    $isAll = true;
+                    break 2;
+                }
+
                 if ($definition->operation === 'query') {
                     if ($definition->name && $definition->name->value === 'IntrospectionQuery') {
                         $isAll = true;

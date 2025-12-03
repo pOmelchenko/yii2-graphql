@@ -116,6 +116,23 @@ class GraphQLActionTest extends TestCase
         $this->assertNotEmpty($ret);
     }
 
+    public function testIntrospectionCapabilitiesQueryDoesNotThrowSchemaNotFound()
+    {
+        $_GET = [
+            'query' => $this->queries['introspectionCapabilitiesQuery'],
+        ];
+
+        $result = $this->controller->runAction('index');
+
+        $this->assertArrayHasKey('data', $result);
+        if (isset($result['errors'])) {
+            $messages = array_map(static function ($error) {
+                return $error['message'] ?? '';
+            }, $result['errors']);
+            $this->assertNotContains('Schema not found for requested operation.', $messages);
+        }
+    }
+
     public function testJsonStringVariablesAreDecoded()
     {
         $query = <<<'GRAPHQL'

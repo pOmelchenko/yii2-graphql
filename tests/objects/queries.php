@@ -79,6 +79,21 @@ return [
             }
         }
     ",
+    'introspectionCapabilitiesQuery' => "
+        query IntrospectionCapabilitiesQuery {
+            __schema {
+                types {
+                    name
+                    fields {
+                        name
+                        args {
+                            name
+                        }
+                    }
+                }
+            }
+        }
+    ",
     'hello' =>  "
         query hello{hello}
     ",
