@@ -75,6 +75,9 @@ jobs:
       - name: Run tests
         if: matrix.supported == true && matrix.coverage != 'xdebug'
         run: vendor/bin/phpunit --verbose --configuration phpunit.xml.dist
+      - name: Run Infection mutation tests
+        if: matrix.supported == true && matrix.php-version == '8.3'
+        run: composer mutation
       - name: Upload coverage to Codecov
         if: matrix.supported == true && matrix.coverage == 'xdebug' && success()
         uses: codecov/codecov-action@v4
