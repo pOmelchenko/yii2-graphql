@@ -71,7 +71,7 @@ jobs:
         if: matrix.coverage != 'xdebug'
         run: vendor/bin/phpunit --verbose --configuration phpunit.xml.dist
       - name: Run Infection mutation tests
-        if: matrix.coverage == 'xdebug' && matrix.experimental == false
+        if: matrix.coverage == 'xdebug'
         run: composer mutation
       - name: Upload coverage to Codecov
         if: matrix.coverage == 'xdebug' && success()
@@ -92,7 +92,7 @@ jobs:
           name: coverage-report-php-${{ matrix.php-version }}
           path: ${{ env.COVERAGE_DIR }}
       - name: Upload Infection logs artifact
-        if: matrix.coverage == 'xdebug' && matrix.experimental == false && always()
+        if: matrix.coverage == 'xdebug' && always()
         uses: actions/upload-artifact@v4
         with:
           name: infection-logs-php-${{ matrix.php-version }}
