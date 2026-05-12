@@ -71,7 +71,7 @@ jobs:
         if: matrix.coverage != 'xdebug'
         run: vendor/bin/phpunit --verbose --configuration phpunit.xml.dist
       - name: Run Infection mutation tests
-        if: matrix.coverage == 'xdebug'
+        if: matrix.coverage == 'xdebug' && matrix.experimental == false
         run: composer mutation
       - name: Upload coverage to Codecov
         if: matrix.coverage == 'xdebug' && success()
