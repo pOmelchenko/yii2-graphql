@@ -56,7 +56,7 @@ jobs:
         run: composer validate --strict
       - name: Install dependencies
         if: matrix.supported == true
-        run: composer install --prefer-dist --no-progress --no-interaction --no-suggest
+        run: composer install --prefer-dist --no-progress --no-interaction
       - name: Run PHP_CodeSniffer
         if: matrix.supported == true
         run: vendor/bin/phpcs --standard=phpcs.xml.dist
