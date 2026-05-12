@@ -48,7 +48,12 @@ jobs:
       - name: Validate composer files
         run: composer validate --strict
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+        run: |
+          if [ "${{ matrix.experimental }}" = "true" ]; then
+            composer install --prefer-dist --no-progress --no-interaction --ignore-platform-req=php
+          else
+            composer install --prefer-dist --no-progress --no-interaction
+          fi
       - name: Run PHP_CodeSniffer
         run: vendor/bin/phpcs --standard=phpcs.xml.dist
       - name: Run PHPStan
