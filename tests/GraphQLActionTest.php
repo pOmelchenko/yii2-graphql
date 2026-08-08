@@ -263,6 +263,32 @@ class GraphQLActionTest extends TestCase
         $this->assertSame('1', $result['data']['user']['id']);
     }
 
+    public function testMutationOverGetIsRejected()
+    {
+        $_GET = [
+            'query' => 'mutation { updateUserPwd(id: "1", password: "newpwd") { id } }',
+        ];
+
+        $this->expectException(\yii\web\MethodNotAllowedHttpException::class);
+        $this->controller->createAction('index')->runWithParams([]);
+    }
+
+    public function testMutationWithoutAccessCheckIsRejected()
+    {
+        $request = \Yii::$app->request;
+        $previousRequestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $request->setBodyParams([
+            'query' => 'mutation { updateUserPwd(id: "1", password: "newpwd") { id } }',
+        ]);
+        try {
+            $this->expectException(\yii\web\ForbiddenHttpException::class);
+            $this->controller->createAction('index')->runWithParams([]);
+        } finally {
+            $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
+        }
+    }
+
     public function testIntrospectionQueryReturnsSpecialActions()
     {
         $_GET = [

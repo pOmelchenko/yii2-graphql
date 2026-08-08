@@ -5,6 +5,8 @@ namespace yii\graphql;
 use Yii;
 use yii\base\Action;
 use yii\web\Response;
+use yii\web\ForbiddenHttpException;
+use yii\web\MethodNotAllowedHttpException;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use GraphQL\Error\Error as GQLError;
@@ -109,6 +111,18 @@ class GraphQLAction extends Action
         }
 
         $this->schemaArray = $this->graphQL->parseRequestQuery($this->query);
+
+        $hasMutation = is_array($this->schemaArray)
+            && isset($this->schemaArray[1])
+            && !empty($this->schemaArray[1]);
+
+        if ($hasMutation && $request->isGet) {
+            throw new MethodNotAllowedHttpException('GraphQL mutations must use POST requests.');
+        }
+
+        if ($hasMutation && !$this->checkAccess) {
+            throw new ForbiddenHttpException('Mutation execution requires access check configuration.');
+        }
     }
 
     /**
