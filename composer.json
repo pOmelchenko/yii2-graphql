@@ -24,6 +24,7 @@
         "yiisoft/yii2": "~2.0.10"
     },
     "require-dev":{
+        "infection/infection": "^0.26 || ^0.31",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^9.6",
         "squizlabs/php_codesniffer": "^3.10",
@@ -42,7 +43,14 @@
     "scripts": {
         "lint": "php ./vendor/bin/phpcs --standard=phpcs.xml.dist",
         "lint:strict": "php ./vendor/bin/phpcs --standard=phpcs.xml.dist --warning-severity=1",
+        "mutation": "XDEBUG_MODE=coverage php ./vendor/bin/infection --configuration=infection.json.dist --threads=max",
         "stan": "php ./vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=512M",
+        "ci": [
+            "@lint",
+            "@stan",
+            "@test",
+            "@mutation"
+        ],
         "test": "php -d xdebug.mode=off ./vendor/bin/phpunit",
         "test-coverage": "XDEBUG_MODE=coverage php -d xdebug.mode=coverage ./vendor/bin/phpunit --coverage-text"
     },
@@ -57,6 +65,7 @@
     "config": {
         "sort-packages": true,
         "allow-plugins": {
+            "infection/extension-installer": true,
             "yiisoft/yii2-composer": true,
             "yidas/yii2-composer-bower-skip": true
         }
