@@ -320,6 +320,26 @@ class GraphqlController extends Controller
 }
 ```
 
+When `checkAccess` is configured, `GraphQLAction` invokes it for every requested GraphQL action even when
+`CompositeAuth` is not attached. Mutation transport and access-check requirements are available as opt-in
+hardening so existing applications keep their current behavior:
+
+```php
+'index' => [
+    'class' => \yii\graphql\GraphQLAction::class,
+    'checkAccess' => [$this, 'checkAccess'],
+    'requirePostForMutations' => true,
+    'requireAccessCheckForMutations' => true,
+],
+```
+
+With these options enabled, the selected mutation must use POST and must have a configured `checkAccess`
+callback. `requirePostForMutations` defaults to `null`: a non-POST mutation keeps the legacy behavior but emits an
+`E_USER_DEPRECATED` warning. Set it explicitly to `false` to retain that behavior without a warning; its default will
+become `true` in the next major release. `requireAccessCheckForMutations` defaults to `false` and remains opt-in.
+Mutation detection follows the operation selected by `operationName`, so other operations in the same document do
+not activate these requirements.
+
 ### Multipart upload support
 
 `GraphQLAction` detects [`operations`/`map`](https://github.com/jaydenseric/graphql-multipart-request-spec) payloads and delegates parsing to `ecodev/graphql-upload`. Ensure `multipart/form-data` requests include those keys so uploaded files are injected into GraphQL variables.
