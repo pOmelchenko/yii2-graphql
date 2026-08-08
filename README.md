@@ -359,13 +359,13 @@ This exercises the GraphQL facade, controller action, upload middleware, and cus
 
 ### GitLab release pipeline
 
-When this repository is mirrored into GitLab (Settings → Repository → Mirroring repositories) and the **Trigger pipelines when updates are mirrored** option is enabled, GitLab creates a pipeline after a tag is mirrored. The bundled `.gitlab-ci.yml` includes the `publish_package` job only for tags in the strict `vMAJOR.MINOR.PATCH` format (for example, `v0.15.2`). The job uses the GitLab Packages API plus the job token to update your private Composer registry entry based on `CI_COMMIT_TAG`, but it must be started manually by a maintainer.
+When this repository is mirrored into GitLab (Settings → Repository → Mirroring repositories) and the **Trigger pipelines when updates are mirrored** option is enabled, GitLab creates a pipeline after a tag is mirrored. The bundled `.gitlab-ci.yml` includes the `publish_package` job only for tags in the strict `MAJOR.MINOR.PATCH` format without a `v` prefix (for example, `0.17.1`). The job uses the GitLab Packages API plus the job token to update your private Composer registry entry based on `CI_COMMIT_TAG`, but it must be started manually by a maintainer.
 
 Steps to publish a release:
 
 1. Configure mirroring (or push from GitHub Actions) so GitLab sees every new tag.
 2. Enable the “trigger pipelines” flag on the mirror or push directly so GitLab CI starts for mirrored updates.
-3. Create and push a tag in the `vMAJOR.MINOR.PATCH` format, such as `v0.15.2`.
+3. Create and push a tag in the `MAJOR.MINOR.PATCH` format without a `v` prefix, such as `0.17.1`.
 4. After GitLab receives the tag, open the resulting pipeline and manually start `publish_package`. The Composer package is not published until this job is approved and started.
 
 ### Demo

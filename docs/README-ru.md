@@ -332,13 +332,13 @@ docker compose exec app composer test-coverage
 
 ### Пайплайн GitLab
 
-Файл `.gitlab-ci.yml` содержит job `publish_package`, который добавляется в пайплайн только для тегов строгого формата `vMAJOR.MINOR.PATCH`, например `v0.15.2`. Job публикует версию в приватном GitLab Composer Registry через API и `CI_JOB_TOKEN`. Если в настройках репозитория (Settings → Repository → Mirroring repositories) включена опция **Trigger pipelines when updates are mirrored**, GitLab создаст пайплайн после синхронизации тега, но `publish_package` необходимо запустить вручную.
+Файл `.gitlab-ci.yml` содержит job `publish_package`, который добавляется в пайплайн только для тегов строгого формата `MAJOR.MINOR.PATCH` без префикса `v`, например `0.17.1`. Job публикует версию в приватном GitLab Composer Registry через API и `CI_JOB_TOKEN`. Если в настройках репозитория (Settings → Repository → Mirroring repositories) включена опция **Trigger pipelines when updates are mirrored**, GitLab создаст пайплайн после синхронизации тега, но `publish_package` необходимо запустить вручную.
 
 Сценарий использования:
 
 1. Настройте зеркалирование или отдельный push, чтобы GitLab видел новые теги.
 2. Убедитесь, что для зеркала включён запуск пайплайнов.
-3. Создайте и запушьте тег формата `vMAJOR.MINOR.PATCH`, например `v0.15.2`.
+3. Создайте и запушьте тег формата `MAJOR.MINOR.PATCH` без префикса `v`, например `0.17.1`.
 4. После синхронизации тега откройте пайплайн в GitLab и вручную запустите `publish_package`. До подтверждения и запуска job Composer-пакет не публикуется.
 
 ### Демонстрация
