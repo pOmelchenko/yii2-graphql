@@ -2,8 +2,7 @@
 
 This document records migration steps and intentional behavior changes that may affect existing applications.
 Read every section between the version currently installed and the version you are upgrading to. For example, an
-application upgrading directly from 0.16.1 to the current development version should follow all sections below in
-order.
+application upgrading directly from 0.16.1 to 0.18.0 should follow all sections below in order.
 
 ## Upgrade from 0.16.1 to 0.17.0
 
@@ -68,9 +67,9 @@ remove the unused configuration.
 Versions 0.17.3 through 0.17.5 changed release automation and tag publishing only. They require no application-code
 migration.
 
-## Upgrade from 0.17.5 to the next release
+## Upgrade from 0.17.5 to 0.18.0
 
-The next release changes mixed application/introspection authentication and corrects `CompositeAuth` matching for
+Version 0.18.0 changes mixed application/introspection authentication and corrects `CompositeAuth` matching for
 multi-field operations. It also makes strict mutation transport checks independent from Yii method overrides. These
 are intentional security behavior changes; no public API is removed.
 

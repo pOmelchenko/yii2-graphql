@@ -4,7 +4,8 @@ Yii2 Graphql Changelog
 
 > Before upgrading, follow each applicable version step in [UPGRADE.md](UPGRADE.md).
 
-- Optimized root-fragment expansion to avoid repeated traversal across operations.
+# 0.18.0
+- **Security:** cached root-fragment expansion across operations to prevent quadratic unauthenticated CPU work.
 - **Security behavior change:** secured mixed application/introspection operations by authorizing introspection
   independently and using the complete configured schema after authorization.
 - **Security behavior change:** applied `CompositeAuth` `only` and `except` patterns to each selected GraphQL action
