@@ -137,6 +137,20 @@ class GraphQLTest extends TestCase
         $this->assertArrayHasKey('user', $ret[0]);
     }
 
+    public function testParseRequestQueryFindsApplicationFieldsThroughRootInlineFragments()
+    {
+        $ret = $this->graphql->parseRequestQuery(<<<'GRAPHQL'
+            query ReadUser {
+                ... on Query {
+                    user(id: "1") { id }
+                }
+            }
+            GRAPHQL);
+
+        $this->assertIsArray($ret);
+        $this->assertArrayHasKey('user', $ret[0]);
+    }
+
     public function testParseRequestQueryUsesSelectedOperationForIntrospectionMode()
     {
         $document = <<<'GRAPHQL'
