@@ -44,6 +44,10 @@ class GraphQLAction extends Action
      */
     private $authActions = [];
     /**
+     * @var bool whether the actions participating in access checks were initialized
+     */
+    private $authActionsInitialized = false;
+    /**
      * @var callable|null a PHP callable that will be called when running an action to determine
      * if the current user has the permission to execute the action. If not set, the access
      * check will not be performed. The signature of the callable should be as follows,
@@ -56,6 +60,14 @@ class GraphQLAction extends Action
      * ```
      */
     public $checkAccess;
+    /**
+     * @var bool whether mutation requests must use POST. Disabled by default for backward compatibility.
+     */
+    public $requirePostForMutations = false;
+    /**
+     * @var bool whether mutations require a configured access check. Disabled by default for backward compatibility.
+     */
+    public $requireAccessCheckForMutations = false;
     /**
      * @var bool whether use Schema validation , and it is recommended only in the development environment
      */
@@ -112,15 +124,13 @@ class GraphQLAction extends Action
 
         $this->schemaArray = $this->graphQL->parseRequestQuery($this->query);
 
-        $hasMutation = is_array($this->schemaArray)
-            && isset($this->schemaArray[1])
-            && !empty($this->schemaArray[1]);
+        $hasMutation = $this->graphQL->getOperationType($this->operationName) === 'mutation';
 
-        if ($hasMutation && $request->isGet) {
+        if ($hasMutation && $this->requirePostForMutations && !$request->isPost) {
             throw new MethodNotAllowedHttpException('GraphQL mutations must use POST requests.');
         }
 
-        if ($hasMutation && !$this->checkAccess) {
+        if ($hasMutation && $this->requireAccessCheckForMutations && !$this->checkAccess) {
             throw new ForbiddenHttpException('Mutation execution requires access check configuration.');
         }
     }
@@ -132,12 +142,14 @@ class GraphQLAction extends Action
     public function getGraphQLActions()
     {
         if ($this->schemaArray === true) {
+            $this->authActionsInitialized = true;
             return [self::INTROSPECTIONQUERY => 'true'];
         }
         $ret = array_merge($this->schemaArray[0], $this->schemaArray[1]);
-        if (!$this->authActions) {
+        if (!$this->authActionsInitialized) {
             //init
-            $this->authActions = array_merge($this->schemaArray[0], $this->schemaArray[1]);
+            $this->authActions = $ret;
+            $this->authActionsInitialized = true;
         }
         return $ret;
     }
@@ -148,6 +160,9 @@ class GraphQLAction extends Action
      */
     public function removeGraphQlAction($key)
     {
+        if (!$this->authActionsInitialized) {
+            $this->getGraphQLActions();
+        }
         unset($this->authActions[$key]);
     }
 
@@ -157,7 +172,10 @@ class GraphQLAction extends Action
     public function run()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        if ($this->authActions && $this->checkAccess) {
+        if ($this->checkAccess) {
+            if (!$this->authActionsInitialized) {
+                $this->getGraphQLActions();
+            }
             foreach ($this->authActions as $childAction => $class) {
                 $fn = $this->checkAccess;
                 $fn($childAction);

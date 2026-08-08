@@ -181,7 +181,6 @@ class GraphQLActionTest extends TestCase
         ];
 
         $action = $this->controller->createAction('index');
-        $action->getGraphQLActions();
 
         $invoked = [];
         $action->checkAccess = function ($actionName) use (&$invoked) {
@@ -192,6 +191,27 @@ class GraphQLActionTest extends TestCase
 
         sort($invoked);
         $this->assertSame(['stories', 'user'], $invoked);
+    }
+
+    public function testRemovedGraphQLActionsAreNotReinitializedBeforeAccessCheck()
+    {
+        $_GET = [
+            'query' => $this->queries['hello'],
+        ];
+
+        $action = $this->controller->createAction('index');
+        $action->getGraphQLActions();
+        $action->removeGraphQlAction('hello');
+
+        $called = false;
+        $action->checkAccess = function () use (&$called) {
+            $called = true;
+        };
+
+        $result = $action->runWithParams([]);
+
+        $this->assertFalse($called);
+        $this->assertArrayHasKey('data', $result);
     }
 
     public function testRunReturns404WhenSchemaMissing()
@@ -263,30 +283,165 @@ class GraphQLActionTest extends TestCase
         $this->assertSame('1', $result['data']['user']['id']);
     }
 
-    public function testMutationOverGetIsRejected()
+    public function testMutationDefaultsRemainBackwardCompatible()
     {
         $_GET = [
-            'query' => 'mutation { updateUserPwd(id: "1", password: "newpwd") { id } }',
+            'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
         ];
 
-        $this->expectException(\yii\web\MethodNotAllowedHttpException::class);
-        $this->controller->createAction('index')->runWithParams([]);
+        $result = $this->controller->createAction('index')->runWithParams([]);
+
+        $this->assertSame('1', $result['data']['updateUserPwd']['id']);
     }
 
-    public function testMutationWithoutAccessCheckIsRejected()
+    /**
+     * @dataProvider nonPostMutationMethodsProvider
+     */
+    public function testMutationOverNonPostMethodIsRejectedWhenRequired($method)
     {
         $request = \Yii::$app->request;
+        $previousGet = $_GET;
+        $previousBody = $request->getBodyParams();
+        $previousRequestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $_SERVER['REQUEST_METHOD'] = $method;
+        $_GET = [
+            'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
+        ];
+        $request->setBodyParams([
+            'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
+        ]);
+
+        try {
+            $this->expectException(\yii\web\MethodNotAllowedHttpException::class);
+            new GraphQLAction('index', $this->controller, [
+                'requirePostForMutations' => true,
+            ]);
+        } finally {
+            $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
+            $_GET = $previousGet;
+            $request->setBodyParams($previousBody);
+        }
+    }
+
+    public function nonPostMutationMethodsProvider()
+    {
+        return [
+            'GET' => ['GET'],
+            'PUT' => ['PUT'],
+            'PATCH' => ['PATCH'],
+            'DELETE' => ['DELETE'],
+        ];
+    }
+
+    public function testPostMutationIsAllowedWhenPostIsRequired()
+    {
+        $request = \Yii::$app->request;
+        $previousBody = $request->getBodyParams();
         $previousRequestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $request->setBodyParams([
-            'query' => 'mutation { updateUserPwd(id: "1", password: "newpwd") { id } }',
+            'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
         ]);
+
         try {
-            $this->expectException(\yii\web\ForbiddenHttpException::class);
-            $this->controller->createAction('index')->runWithParams([]);
+            $action = new GraphQLAction('index', $this->controller, [
+                'requirePostForMutations' => true,
+            ]);
+            $result = $action->runWithParams([]);
         } finally {
             $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
+            $request->setBodyParams($previousBody);
         }
+
+        $this->assertSame('1', $result['data']['updateUserPwd']['id']);
+    }
+
+    public function testMutationWithoutAccessCheckIsRejectedWhenRequired()
+    {
+        $request = \Yii::$app->request;
+        $previousBody = $request->getBodyParams();
+        $previousRequestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $request->setBodyParams([
+            'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
+        ]);
+
+        try {
+            $this->expectException(\yii\web\ForbiddenHttpException::class);
+            new GraphQLAction('index', $this->controller, [
+                'requireAccessCheckForMutations' => true,
+            ]);
+        } finally {
+            $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
+            $request->setBodyParams($previousBody);
+        }
+    }
+
+    public function testConfiguredMutationAccessCheckIsInvokedWithoutCompositeAuth()
+    {
+        $request = \Yii::$app->request;
+        $previousBody = $request->getBodyParams();
+        $previousRequestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $request->setBodyParams([
+            'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
+        ]);
+        $invoked = [];
+
+        try {
+            $action = new GraphQLAction('index', $this->controller, [
+                'requireAccessCheckForMutations' => true,
+                'checkAccess' => function ($actionName) use (&$invoked) {
+                    $invoked[] = $actionName;
+                },
+            ]);
+            $result = $action->runWithParams([]);
+        } finally {
+            $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
+            $request->setBodyParams($previousBody);
+        }
+
+        $this->assertSame(['updateUserPwd'], $invoked);
+        $this->assertSame('1', $result['data']['updateUserPwd']['id']);
+    }
+
+    public function testSelectedQueryDoesNotTriggerMutationRequirements()
+    {
+        $_GET = [
+            'query' => <<<'GRAPHQL'
+                query ReadUser { user(id: "1") { id } }
+                mutation ChangePassword {
+                    updateUserPwd(id: "qsli@google.com", password: "newpwd") { id }
+                }
+                GRAPHQL,
+            'operationName' => 'ReadUser',
+        ];
+
+        $action = new GraphQLAction('index', $this->controller, [
+            'requirePostForMutations' => true,
+            'requireAccessCheckForMutations' => true,
+        ]);
+        $result = $action->runWithParams([]);
+
+        $this->assertSame('1', $result['data']['user']['id']);
+    }
+
+    public function testSelectedMutationTriggersPostRequirement()
+    {
+        $_GET = [
+            'query' => <<<'GRAPHQL'
+                query ReadUser { user(id: "1") { id } }
+                mutation ChangePassword {
+                    updateUserPwd(id: "qsli@google.com", password: "newpwd") { id }
+                }
+                GRAPHQL,
+            'operationName' => 'ChangePassword',
+        ];
+
+        $this->expectException(\yii\web\MethodNotAllowedHttpException::class);
+        new GraphQLAction('index', $this->controller, [
+            'requirePostForMutations' => true,
+        ]);
     }
 
     public function testIntrospectionQueryReturnsSpecialActions()

@@ -317,6 +317,22 @@ class GraphqlController extends Controller
 }
 ```
 
+配置 `checkAccess` 后，即使没有挂载 `CompositeAuth`，`GraphQLAction` 也会为每个请求的 GraphQL action
+调用该回调。Mutation 的传输和访问检查要求采用显式启用方式，以保持现有应用的行为不变：
+
+```php
+'index' => [
+    'class' => \yii\graphql\GraphQLAction::class,
+    'checkAccess' => [$this, 'checkAccess'],
+    'requirePostForMutations' => true,
+    'requireAccessCheckForMutations' => true,
+],
+```
+
+启用这些选项后，选中的 mutation 必须使用 POST，并且必须配置 `checkAccess` 回调。为保持向后兼容，
+两个选项默认均为 `false`。Mutation 检测以 `operationName` 选中的操作为准，因此同一文档中的其他操作
+不会触发这些要求。
+
 ### Multipart 上传支持
 
 `GraphQLAction` 支持 [`operations`/`map`](https://github.com/jaydenseric/graphql-multipart-request-spec) 规范，并借助 `ecodev/graphql-upload` middleware 将上传文件注入 GraphQL 变量。请确保请求使用 `multipart/form-data` 并携带上述字段。

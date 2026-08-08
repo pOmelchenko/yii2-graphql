@@ -12,6 +12,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\AST;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 use Yii;
@@ -309,6 +310,28 @@ class GraphQL
             }
         }
         return $isAll ?: [$queryTypes, $mutation, $types];
+    }
+
+    /**
+     * Return the operation type selected for execution.
+     *
+     * A document with multiple operations requires an operation name. When no
+     * operation can be selected, execution will report the corresponding
+     * GraphQL validation error and this method returns null.
+     *
+     * @param string|null $operationName
+     * @return string|null
+     */
+    public function getOperationType($operationName = null)
+    {
+        if ($this->currentDocument === null) {
+            return null;
+        }
+
+        $operationName = $operationName === '' ? null : $operationName;
+        $selectedOperation = AST::getOperationAST($this->currentDocument, $operationName);
+
+        return $selectedOperation === null ? null : $selectedOperation->operation;
     }
 
     /**

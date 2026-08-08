@@ -293,6 +293,23 @@ class GraphqlController extends Controller
 }
 ```
 
+Если `checkAccess` настроен, `GraphQLAction` вызывает его для каждого запрошенного GraphQL action даже без
+подключённого `CompositeAuth`. Строгие требования для mutations включаются явно, поэтому существующее поведение
+приложений сохраняется:
+
+```php
+'index' => [
+    'class' => \yii\graphql\GraphQLAction::class,
+    'checkAccess' => [$this, 'checkAccess'],
+    'requirePostForMutations' => true,
+    'requireAccessCheckForMutations' => true,
+],
+```
+
+При включённых опциях выбранная mutation должна использовать POST и иметь настроенный callback `checkAccess`.
+По умолчанию обе опции равны `false` для обратной совместимости. Mutation определяется по операции, выбранной
+через `operationName`, поэтому другие операции в том же документе не активируют эти требования.
+
 ### Поддержка мультизагрузки (multipart)
 
 `GraphQLAction` поддерживает спецификацию [`operations`/`map`](https://github.com/jaydenseric/graphql-multipart-request-spec) и автоматически подставляет файлы в переменные GraphQL через middleware `ecodev/graphql-upload`. Отправляйте `multipart/form-data` запросы с указанными полями.
