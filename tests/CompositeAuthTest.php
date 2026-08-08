@@ -53,10 +53,11 @@ class CompositeAuthTest extends TestCase
     public function testIsActiveEvaluatesPatterns()
     {
         $controller = new DefaultController('default', \Yii::$app->getModule('graphql'));
-        $action = new GraphQLActionStub($controller, [
+        $expectedActions = [
             'hello' => 'HelloQuery',
             'user' => 'UserQuery',
-        ]);
+        ];
+        $action = new GraphQLActionStub($controller, $expectedActions);
 
         $auth = new CompositeAuthStub();
         $this->assertTrue($auth->callIsActive($action));
@@ -68,7 +69,8 @@ class CompositeAuthTest extends TestCase
         $authExcept = new CompositeAuthStub();
         $authExcept->except = ['hello', 'user'];
         $this->assertFalse($authExcept->callIsActive($action));
-        $this->assertSame(['hello', 'user'], $action->removedKeys);
+        $this->assertSame([], $action->removedKeys);
+        $this->assertSame($expectedActions, $action->getGraphQLActions());
     }
 
     public function testChallengeInvokesAllAuthMethods()
