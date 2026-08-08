@@ -99,6 +99,42 @@ class GraphQLActionTest extends TestCase
         $this->assertNotEmpty($ret);
     }
 
+    public function testAuthBehaviorExceptStillInvokesCheckAccess()
+    {
+        $_GET = [
+            'query' => $this->queries['hello'],
+        ];
+        $invoked = [];
+        $controller = new class ('default', \Yii::$app->getModule('graphql')) extends DefaultController {
+            public $actionCheckAccess;
+
+            public function actions()
+            {
+                return [
+                    'index' => [
+                        'class' => GraphQLAction::class,
+                        'checkAccess' => $this->actionCheckAccess,
+                    ],
+                ];
+            }
+        };
+        $controller->actionCheckAccess = function ($actionName) use (&$invoked) {
+            $invoked[] = $actionName;
+        };
+        $controller->attachBehavior('authenticator', [
+            'class' => CompositeAuth::class,
+            'authMethods' => [
+                \yii\filters\auth\QueryParamAuth::class,
+            ],
+            'except' => ['hello'],
+        ]);
+
+        $result = $controller->runAction('index');
+
+        $this->assertArrayHasKey('data', $result);
+        $this->assertSame(['hello'], $invoked);
+    }
+
     public function testIntrospectionQuery()
     {
         $_GET = [
