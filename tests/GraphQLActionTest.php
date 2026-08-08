@@ -709,6 +709,53 @@ class GraphQLActionTest extends TestCase
         }
     }
 
+    public function testEffectiveNonPostMethodCannotSatisfyPostRequirement()
+    {
+        $previousRequest = \Yii::$app->getRequest();
+        $previousPost = $_POST;
+        $hadRequestMethod = array_key_exists('REQUEST_METHOD', $_SERVER);
+        $previousRequestMethod = $_SERVER['REQUEST_METHOD'] ?? null;
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = ['_method' => 'GET'];
+
+        // Yii 2.0.10 accepts safe method overrides that newer Yii releases reject.
+        $request = new class extends \yii\web\Request {
+            public function getMethod()
+            {
+                if (isset($_POST[$this->methodParam])) {
+                    return strtoupper($_POST[$this->methodParam]);
+                }
+
+                return parent::getMethod();
+            }
+        };
+        $request->setQueryParams([
+            'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
+        ]);
+        \Yii::$app->set('request', $request);
+
+        $this->assertSame('POST', $_SERVER['REQUEST_METHOD']);
+        $this->assertSame('GET', $request->method);
+        $this->assertTrue($request->isGet);
+        $this->assertFalse($request->isPost);
+
+        try {
+            $this->expectException(\yii\web\MethodNotAllowedHttpException::class);
+            new GraphQLAction('index', $this->controller, [
+                'requirePostForMutations' => true,
+            ]);
+        } finally {
+            \Yii::$app->set('request', $previousRequest);
+            $_POST = $previousPost;
+            if ($hadRequestMethod) {
+                $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
+            } else {
+                unset($_SERVER['REQUEST_METHOD']);
+            }
+        }
+    }
+
     public function testPostMutationIsAllowedWhenPostIsRequired()
     {
         $request = \Yii::$app->request;

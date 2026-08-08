@@ -335,8 +335,9 @@ hardening so existing applications keep their current behavior:
 ],
 ```
 
-With these options enabled, the selected mutation must use the original HTTP POST transport method and must have a
-configured `checkAccess` callback. Yii's `_method` parameter and `X-Http-Method-Override` header do not satisfy
+With these options enabled, the selected mutation must use POST as both the original HTTP transport method and Yii's
+effective method, and must have a configured `checkAccess` callback. Yii's `_method` parameter and
+`X-Http-Method-Override` header cannot upgrade a non-POST transport or downgrade a POST transport while satisfying
 `requirePostForMutations`. Applications that intentionally trust method overrides must set this flag to `false` and
 validate the proxy and override before `GraphQLAction` runs.
 
