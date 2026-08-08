@@ -108,7 +108,7 @@ class GraphQLAction extends Action
             throw new InvalidConfigException('GraphQL module must implement GraphQLModuleInterface.');
         }
 
-        $this->schemaArray = $this->graphQL->parseRequestQuery($this->query);
+        $this->schemaArray = $this->graphQL->parseRequestQuery($this->query, $this->operationName);
     }
 
     /**

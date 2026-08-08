@@ -263,9 +263,10 @@ class GraphQL
     /**
      * Convert a raw query into an array consumable by the schema builder.
      * @param $requestString
-     * @return array|bool Array indexes: 0 query, 1 mutation, 2 types. True indicates IntrospectionQuery.
+     * @param string|null $operationName
+     * @return array|bool Array indexes: 0 query, 1 mutation, 2 types. True indicates full introspection fields.
      */
-    public function parseRequestQuery($requestString)
+    public function parseRequestQuery($requestString, $operationName = null)
     {
         $source = new Source($requestString ?: '', 'GraphQL request');
         $this->currentDocument = Parser::parse($source);
@@ -276,6 +277,12 @@ class GraphQL
         foreach ($this->currentDocument->definitions as $definition) {
             if (!($definition instanceof OperationDefinitionNode)) {
                 continue;
+            }
+
+            if ($operationName !== null && $operationName !== '') {
+                if ($definition->name === null || $definition->name->value !== $operationName) {
+                    continue;
+                }
             }
 
             foreach ($definition->selectionSet->selections as $selection) {
@@ -291,10 +298,6 @@ class GraphQL
                 }
 
                 if ($definition->operation === 'query') {
-                    if ($definition->name && $definition->name->value === 'IntrospectionQuery') {
-                        $isAll = true;
-                        break 2;
-                    }
                     if (isset($this->queries[$node->value])) {
                         $queryTypes[$node->value] = $this->queries[$node->value];
                     }
@@ -306,6 +309,10 @@ class GraphQL
                         $mutation[$node->value] = $this->mutations[$node->value];
                     }
                 }
+            }
+
+            if ($operationName !== null && $operationName !== '') {
+                break;
             }
         }
         return $isAll ?: [$queryTypes, $mutation, $types];
