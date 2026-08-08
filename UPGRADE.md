@@ -71,7 +71,19 @@ migration.
 ## Upgrade from 0.17.5 to the next release
 
 The next release changes mixed application/introspection authentication and corrects `CompositeAuth` matching for
-multi-field operations. These are intentional security behavior changes; no public API is removed.
+multi-field operations. It also makes strict mutation transport checks independent from Yii method overrides. These
+are intentional security behavior changes; no public API is removed.
+
+### Require the original POST transport for mutations
+
+When `GraphQLAction::$requirePostForMutations` is `true`, the original `$_SERVER['REQUEST_METHOD']` must be `POST`.
+Yii's `_method` parameter and `X-Http-Method-Override` header affect the effective application method, but they do not
+satisfy this strict transport requirement. A raw GET, PUT, PATCH, or DELETE mutation overridden to POST now receives
+HTTP 405.
+
+Applications that intentionally accept method overrides from a trusted proxy must not use this strict flag for that
+contract. Set `requirePostForMutations` to `false` and validate the proxy identity, override header, and allowed raw
+methods before `GraphQLAction` runs.
 
 ### Audit mixed application and introspection operations
 
@@ -162,3 +174,5 @@ Integrations that need request metadata should use `GraphQL::getSelectedOperatio
 - Add `GraphQLAction::INTROSPECTIONQUERY` to `except` only when public introspection is intentional.
 - Ensure custom `checkAccess` callbacks handle the `__schema` action for mixed introspection.
 - Remove any authorization logic inferred only from the boolean return value of `parseRequestQuery()`.
+- If method overrides are intentionally supported, replace `requirePostForMutations` with an explicit trusted-proxy
+  policy before `GraphQLAction` runs.

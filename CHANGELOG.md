@@ -9,6 +9,8 @@ Yii2 Graphql Changelog
   independently and using the complete configured schema after authorization.
 - **Security behavior change:** applied `CompositeAuth` `only` and `except` patterns to each selected GraphQL action
   independently. Requests that previously relied on a mixed-field pattern mismatch may now require credentials.
+- **Security behavior change:** made `requirePostForMutations` validate the original HTTP transport method so Yii
+  method-override inputs cannot turn GET, PUT, PATCH, or DELETE mutations into accepted POST mutations.
 - Added a versioned migration guide covering intentional behavior changes.
 
 # 0.17.5

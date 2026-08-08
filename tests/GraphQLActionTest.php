@@ -666,6 +666,49 @@ class GraphQLActionTest extends TestCase
         ];
     }
 
+    /**
+     * @dataProvider nonPostMutationMethodsProvider
+     */
+    public function testMutationMethodOverrideCannotSatisfyPostRequirement($rawMethod)
+    {
+        $request = \Yii::$app->request;
+        $headers = $request->getHeaders();
+        $previousBody = $request->getBodyParams();
+        $hadRequestMethod = array_key_exists('REQUEST_METHOD', $_SERVER);
+        $previousRequestMethod = $_SERVER['REQUEST_METHOD'] ?? null;
+        $hadMethodOverride = $headers->has('X-Http-Method-Override');
+        $previousMethodOverride = $headers->get('X-Http-Method-Override');
+
+        $_SERVER['REQUEST_METHOD'] = $rawMethod;
+        $headers->set('X-Http-Method-Override', 'POST');
+        $request->setBodyParams([
+            'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
+        ]);
+
+        $this->assertSame('POST', $request->method);
+        $this->assertTrue($request->isPost);
+        $this->assertSame($rawMethod, $_SERVER['REQUEST_METHOD']);
+
+        try {
+            $this->expectException(\yii\web\MethodNotAllowedHttpException::class);
+            new GraphQLAction('index', $this->controller, [
+                'requirePostForMutations' => true,
+            ]);
+        } finally {
+            if ($hadRequestMethod) {
+                $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
+            } else {
+                unset($_SERVER['REQUEST_METHOD']);
+            }
+            $request->setBodyParams($previousBody);
+            if ($hadMethodOverride) {
+                $headers->set('X-Http-Method-Override', $previousMethodOverride);
+            } else {
+                $headers->remove('X-Http-Method-Override');
+            }
+        }
+    }
+
     public function testPostMutationIsAllowedWhenPostIsRequired()
     {
         $request = \Yii::$app->request;

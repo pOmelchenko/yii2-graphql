@@ -308,7 +308,11 @@ class GraphqlController extends Controller
 ],
 ```
 
-При включённых опциях выбранная mutation должна использовать POST и иметь настроенный callback `checkAccess`.
+При включённых опциях выбранная mutation должна использовать исходный транспортный HTTP-метод POST и иметь
+настроенный callback `checkAccess`. Параметр Yii `_method` и заголовок `X-Http-Method-Override` не удовлетворяют
+`requirePostForMutations`. Если приложение намеренно доверяет method override, задайте этому флагу `false` и
+проверяйте прокси и override до запуска `GraphQLAction`.
+
 По умолчанию `requirePostForMutations` равен `null`: mutation через non-POST сохраняет прежнее поведение, но вызывает
 предупреждение `E_USER_DEPRECATED`. Явно задайте `false`, чтобы оставить legacy-поведение без предупреждения; в
 следующей major-версии значением по умолчанию станет `true`. `requireAccessCheckForMutations` по умолчанию равен
