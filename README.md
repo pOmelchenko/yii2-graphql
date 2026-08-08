@@ -334,8 +334,11 @@ hardening so existing applications keep their current behavior:
 ```
 
 With these options enabled, the selected mutation must use POST and must have a configured `checkAccess`
-callback. Both options default to `false` for backward compatibility. Mutation detection follows the operation
-selected by `operationName`, so other operations in the same document do not activate these requirements.
+callback. `requirePostForMutations` defaults to `null`: a non-POST mutation keeps the legacy behavior but emits an
+`E_USER_DEPRECATED` warning. Set it explicitly to `false` to retain that behavior without a warning; its default will
+become `true` in the next major release. `requireAccessCheckForMutations` defaults to `false` and remains opt-in.
+Mutation detection follows the operation selected by `operationName`, so other operations in the same document do
+not activate these requirements.
 
 ### Multipart upload support
 

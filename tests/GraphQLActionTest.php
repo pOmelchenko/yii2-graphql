@@ -283,14 +283,87 @@ class GraphQLActionTest extends TestCase
         $this->assertSame('1', $result['data']['user']['id']);
     }
 
-    public function testMutationDefaultsRemainBackwardCompatible()
+    public function testUnsetPostRequirementPreservesLegacyMutationAndEmitsDeprecation()
     {
         $_GET = [
             'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
         ];
+        $deprecation = null;
+        set_error_handler(function ($severity, $message) use (&$deprecation) {
+            if ($severity === E_USER_DEPRECATED) {
+                $deprecation = $message;
+                return true;
+            }
+            return false;
+        });
 
-        $result = $this->controller->createAction('index')->runWithParams([]);
+        try {
+            $result = $this->controller->createAction('index')->runWithParams([]);
+        } finally {
+            restore_error_handler();
+        }
 
+        $this->assertSame('1', $result['data']['updateUserPwd']['id']);
+        $this->assertStringContainsString(
+            'GraphQLAction::$requirePostForMutations is deprecated',
+            $deprecation
+        );
+    }
+
+    public function testExplicitLegacyMutationOptOutDoesNotEmitDeprecation()
+    {
+        $_GET = [
+            'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
+        ];
+        $deprecation = null;
+        set_error_handler(function ($severity, $message) use (&$deprecation) {
+            if ($severity === E_USER_DEPRECATED) {
+                $deprecation = $message;
+                return true;
+            }
+            return false;
+        });
+
+        try {
+            $action = new GraphQLAction('index', $this->controller, [
+                'requirePostForMutations' => false,
+            ]);
+            $result = $action->runWithParams([]);
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertNull($deprecation);
+        $this->assertSame('1', $result['data']['updateUserPwd']['id']);
+    }
+
+    public function testPostMutationWithUnsetRequirementDoesNotEmitDeprecation()
+    {
+        $request = \Yii::$app->request;
+        $previousBody = $request->getBodyParams();
+        $previousRequestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $request->setBodyParams([
+            'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
+        ]);
+        $deprecation = null;
+        set_error_handler(function ($severity, $message) use (&$deprecation) {
+            if ($severity === E_USER_DEPRECATED) {
+                $deprecation = $message;
+                return true;
+            }
+            return false;
+        });
+
+        try {
+            $result = $this->controller->createAction('index')->runWithParams([]);
+        } finally {
+            restore_error_handler();
+            $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
+            $request->setBodyParams($previousBody);
+        }
+
+        $this->assertNull($deprecation);
         $this->assertSame('1', $result['data']['updateUserPwd']['id']);
     }
 

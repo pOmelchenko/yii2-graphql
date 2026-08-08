@@ -61,9 +61,10 @@ class GraphQLAction extends Action
      */
     public $checkAccess;
     /**
-     * @var bool whether mutation requests must use POST. Disabled by default for backward compatibility.
+     * @var bool|null whether mutation requests must use POST. Null preserves legacy behavior and emits a
+     * deprecation warning when a mutation uses a non-POST request. The default will become true in the next major.
      */
-    public $requirePostForMutations = false;
+    public $requirePostForMutations = null;
     /**
      * @var bool whether mutations require a configured access check. Disabled by default for backward compatibility.
      */
@@ -126,8 +127,18 @@ class GraphQLAction extends Action
 
         $hasMutation = $this->graphQL->getOperationType($this->operationName) === 'mutation';
 
-        if ($hasMutation && $this->requirePostForMutations && !$request->isPost) {
-            throw new MethodNotAllowedHttpException('GraphQL mutations must use POST requests.');
+        if ($hasMutation && !$request->isPost) {
+            if ($this->requirePostForMutations === null) {
+                // TODO: Remove this legacy branch and default the option to true in the next major release.
+                trigger_error(
+                    'Allowing GraphQL mutations over non-POST requests without explicitly configuring '
+                    . 'GraphQLAction::$requirePostForMutations is deprecated. Set it to true to require POST '
+                    . 'or false to keep the legacy behavior. The default will change to true in the next major release.',
+                    E_USER_DEPRECATED
+                );
+            } elseif ($this->requirePostForMutations) {
+                throw new MethodNotAllowedHttpException('GraphQL mutations must use POST requests.');
+            }
         }
 
         if ($hasMutation && $this->requireAccessCheckForMutations && !$this->checkAccess) {

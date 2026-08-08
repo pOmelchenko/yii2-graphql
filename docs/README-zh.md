@@ -329,9 +329,11 @@ class GraphqlController extends Controller
 ],
 ```
 
-启用这些选项后，选中的 mutation 必须使用 POST，并且必须配置 `checkAccess` 回调。为保持向后兼容，
-两个选项默认均为 `false`。Mutation 检测以 `operationName` 选中的操作为准，因此同一文档中的其他操作
-不会触发这些要求。
+启用这些选项后，选中的 mutation 必须使用 POST，并且必须配置 `checkAccess` 回调。
+`requirePostForMutations` 默认值为 `null`：non-POST mutation 会保留旧行为，但会触发
+`E_USER_DEPRECATED` 警告。显式设置为 `false` 可继续使用旧行为且不产生警告；下一个 major 版本会将默认值
+改为 `true`。`requireAccessCheckForMutations` 默认值仍为 `false`，继续采用 opt-in 方式。Mutation 检测以
+`operationName` 选中的操作为准，因此同一文档中的其他操作不会触发这些要求。
 
 ### Multipart 上传支持
 
