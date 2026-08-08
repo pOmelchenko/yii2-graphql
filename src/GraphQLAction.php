@@ -143,6 +143,7 @@ class GraphQLAction extends Action
     public function run()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
+        $this->getGraphQLActions();
         if ($this->authActions && $this->checkAccess) {
             foreach ($this->authActions as $childAction => $class) {
                 $fn = $this->checkAccess;
