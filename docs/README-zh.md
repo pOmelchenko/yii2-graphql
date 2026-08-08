@@ -256,13 +256,14 @@ docker compose exec app composer test-coverage
 
 ### GitLab 发布流水线
 
-`.gitlab-ci.yml` 只包含一个 `publish_package` job，它利用 `CI_JOB_TOKEN` 调用 GitLab Packages API，根据 `CI_COMMIT_TAG` 将版本推送到私有 Composer Registry。若在 GitLab 中配置了仓库镜像（Settings → Repository → Mirroring repositories）并启用了 **Trigger pipelines when updates are mirrored**，每次从 GitHub 拉取到新标签时都会自动运行该 job。
+`.gitlab-ci.yml` 中的 `publish_package` job 仅会出现在严格符合 `vMAJOR.MINOR.PATCH` 格式的标签流水线中，例如 `v0.15.2`。它利用 `CI_JOB_TOKEN` 调用 GitLab Packages API，将 `CI_COMMIT_TAG` 对应的版本发布到私有 Composer Registry。若在 GitLab 中配置了仓库镜像（Settings → Repository → Mirroring repositories）并启用 **Trigger pipelines when updates are mirrored**，GitLab 会在标签同步后自动创建流水线，但 `publish_package` 是手动 job，必须由维护者启动。
 
 推荐流程：
 
 1. 配置镜像或从 GitHub Actions 直接 push 到 GitLab，保证 GitLab 能收到所有标签。
 2. 在镜像条目上勾选 “Trigger pipelines when updates are mirrored”，让拉取操作触发 CI。
-3. 在源仓库创建标签（例如 `v0.15.2`），GitLab 同步后会自动发布对应的 Composer 包，无需额外变量或手动触发。
+3. 在源仓库创建并推送符合 `vMAJOR.MINOR.PATCH` 格式的标签，例如 `v0.15.2`。
+4. GitLab 同步标签后，打开生成的流水线并手动启动 `publish_package`。在批准并启动该 job 之前，Composer 包不会发布。
 
 ### 认证与授权验证
 
