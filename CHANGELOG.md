@@ -1,5 +1,13 @@
 Yii2 Graphql Changelog
 =======================
+# Unreleased
+- Added opt-in mutation hardening through `requirePostForMutations` and `requireAccessCheckForMutations`.
+- Deprecated the implicit allowance of mutations over non-POST requests. Leaving `requirePostForMutations` unset
+  preserves the legacy behavior with an `E_USER_DEPRECATED` warning; set it to `false` for an explicit legacy opt-out
+  or `true` to require POST. The default will change to `true` in the next major release.
+- Ensured configured `checkAccess` callbacks run without requiring `CompositeAuth`, while preserving excluded actions.
+- Applied mutation policies only to the operation selected through `operationName`.
+
 # 0.16.1
 - Fixed SchemaNotFound during IDE capability probes by treating `__schema` / `__type` selections as introspection in `GraphQL::parseRequestQuery()`.
 - Added a regression test for PhpStorm's `IntrospectionCapabilitiesQuery` to ensure GraphQLAction returns data or standard errors instead of SchemaNotFound.
