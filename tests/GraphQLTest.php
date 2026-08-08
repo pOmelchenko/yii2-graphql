@@ -164,6 +164,23 @@ class GraphQLTest extends TestCase
         $this->assertArrayHasKey('user', $ret[0]);
     }
 
+    public function testSharedRootFragmentExpansionScalesApproximatelyLinearly()
+    {
+        // Measure enough work to avoid timer noise while keeping the regression test fast.
+        $smallDuration = $this->measureSharedRootFragmentParsing(1000);
+        $largeDuration = $this->measureSharedRootFragmentParsing(2000);
+
+        $this->assertLessThan(
+            $smallDuration * 3,
+            $largeDuration,
+            sprintf(
+                'Doubling a shared-fragment document should remain approximately linear; %.6fs became %.6fs.',
+                $smallDuration,
+                $largeDuration
+            )
+        );
+    }
+
     public function testGetOperationTypeUsesSelectedOperation()
     {
         $this->graphql->parseRequestQuery(<<<'GRAPHQL'
@@ -177,6 +194,31 @@ class GraphQLTest extends TestCase
         $this->assertSame('mutation', $this->graphql->getOperationType('ChangePassword'));
         $this->assertNull($this->graphql->getOperationType());
         $this->assertNull($this->graphql->getOperationType('MissingOperation'));
+    }
+
+    private function measureSharedRootFragmentParsing($operationCount)
+    {
+        $operations = [];
+        $fields = [];
+        for ($index = 0; $index < $operationCount; $index++) {
+            $operations[] = sprintf('query Q%d { ...SharedRoot }', $index);
+            $fields[] = sprintf('field%d: hello', $index);
+        }
+
+        $document = implode("\n", $operations)
+            . "\nfragment SharedRoot on Query {\n"
+            . implode("\n", $fields)
+            . "\n}";
+        $durations = [];
+
+        for ($run = 0; $run < 3; $run++) {
+            $start = microtime(true);
+            $this->graphql->parseRequestQuery($document, 'Q0');
+            $durations[] = microtime(true) - $start;
+        }
+
+        sort($durations);
+        return $durations[1];
     }
 
     public function testGetOperationTypeUsesOnlyOperationWhenNameIsOmitted()
