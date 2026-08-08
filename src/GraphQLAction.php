@@ -36,6 +36,7 @@ class GraphQLAction extends Action
      */
     private $graphQL;
     private $schemaArray;
+    private $selectedOperationSchema;
     private $query;
     private $variables;
     private $operationName;
@@ -123,7 +124,8 @@ class GraphQLAction extends Action
             throw new InvalidConfigException('GraphQL module must implement GraphQLModuleInterface.');
         }
 
-        $this->schemaArray = $this->graphQL->parseRequestQuery($this->query);
+        $this->schemaArray = $this->graphQL->parseRequestQuery($this->query, $this->operationName);
+        $this->selectedOperationSchema = $this->graphQL->getSelectedOperationSchema();
 
         $hasMutation = $this->graphQL->getOperationType($this->operationName) === 'mutation';
 
@@ -152,11 +154,11 @@ class GraphQLAction extends Action
      */
     public function getGraphQLActions()
     {
-        if ($this->schemaArray === true) {
+        if ($this->selectedOperationSchema === true) {
             $this->authActionsInitialized = true;
             return [self::INTROSPECTIONQUERY => 'true'];
         }
-        $ret = array_merge($this->schemaArray[0], $this->schemaArray[1]);
+        $ret = array_merge($this->selectedOperationSchema[0], $this->selectedOperationSchema[1]);
         if (!$this->authActionsInitialized) {
             //init
             $this->authActions = $ret;

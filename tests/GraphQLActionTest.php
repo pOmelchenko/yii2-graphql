@@ -116,6 +116,76 @@ class GraphQLActionTest extends TestCase
         $this->assertNotEmpty($ret);
     }
 
+    public function testRootFragmentIntrospectionQueryUsesIntrospectionExemption()
+    {
+        $_GET = [
+            'query' => <<<'GRAPHQL'
+                query IntrospectionQuery {
+                    __typename
+                    ...RootIntrospection
+                }
+                fragment RootIntrospection on Query {
+                    __schema { queryType { name } }
+                }
+                GRAPHQL,
+        ];
+        $this->controller->attachBehavior('authenticator', [
+            'class' => CompositeAuth::class,
+            'authMethods' => [
+                \yii\filters\auth\QueryParamAuth::class,
+            ],
+            'except' => ['__schema'],
+        ]);
+
+        $result = $this->controller->runAction('index');
+
+        $this->assertSame('Query', $result['data']['__typename']);
+        $this->assertSame('Query', $result['data']['__schema']['queryType']['name']);
+    }
+
+    public function testSelectedApplicationOperationCannotUseIntrospectionExemption()
+    {
+        $_GET = [
+            'query' => <<<'GRAPHQL'
+                query Schema { __schema { queryType { name } } }
+                query ReadUser { user(id: "1") { id } }
+                GRAPHQL,
+            'operationName' => 'ReadUser',
+        ];
+        $this->controller->attachBehavior('authenticator', [
+            'class' => CompositeAuth::class,
+            'authMethods' => [
+                \yii\filters\auth\QueryParamAuth::class,
+            ],
+            'except' => ['__schema'],
+        ]);
+
+        $this->expectException(\yii\web\UnauthorizedHttpException::class);
+        $this->controller->runAction('index');
+    }
+
+    public function testMixedApplicationQueryCannotUseIntrospectionExemption()
+    {
+        $_GET = [
+            'query' => <<<'GRAPHQL'
+                query MixedQuery {
+                    __schema { queryType { name } }
+                    user(id: "1") { id }
+                }
+                GRAPHQL,
+        ];
+        $this->controller->attachBehavior('authenticator', [
+            'class' => CompositeAuth::class,
+            'authMethods' => [
+                \yii\filters\auth\QueryParamAuth::class,
+            ],
+            'except' => ['__schema'],
+        ]);
+
+        $this->expectException(\yii\web\UnauthorizedHttpException::class);
+        $this->controller->runAction('index');
+    }
+
     public function testIntrospectionCapabilitiesQueryDoesNotThrowSchemaNotFound()
     {
         $_GET = [
