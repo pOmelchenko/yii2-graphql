@@ -97,6 +97,73 @@ class GraphQLTest extends TestCase
         $this->assertTrue($ret);
     }
 
+    public function testParseRequestQueryDoesNotTreatNamedNonIntrospectionAsIntrospection()
+    {
+        $ret = $this->graphql->parseRequestQuery($this->queries['spoofedIntrospectionQuery']);
+        $this->assertIsArray($ret);
+        $this->assertArrayHasKey('user', $ret[0]);
+    }
+
+    public function testParseRequestQueryDetectsIntrospectionThroughRootFragments()
+    {
+        $ret = $this->graphql->parseRequestQuery(<<<'GRAPHQL'
+            query IntrospectionQuery {
+                __typename
+                ...RootIntrospection
+            }
+            fragment RootIntrospection on Query {
+                ...NestedIntrospection
+            }
+            fragment NestedIntrospection on Query {
+                __schema { queryType { name } }
+            }
+            GRAPHQL);
+
+        $this->assertTrue($ret);
+    }
+
+    public function testParseRequestQueryFindsApplicationFieldsThroughRootFragments()
+    {
+        $ret = $this->graphql->parseRequestQuery(<<<'GRAPHQL'
+            query ReadUser {
+                ...RootQuery
+            }
+            fragment RootQuery on Query {
+                user(id: "1") { id }
+            }
+            GRAPHQL);
+
+        $this->assertIsArray($ret);
+        $this->assertArrayHasKey('user', $ret[0]);
+    }
+
+    public function testParseRequestQueryUsesSelectedOperationForIntrospectionMode()
+    {
+        $document = <<<'GRAPHQL'
+            query Schema { __schema { queryType { name } } }
+            query ReadUser { user(id: "1") { id } }
+            GRAPHQL;
+
+        $ret = $this->graphql->parseRequestQuery($document, 'ReadUser');
+        $this->assertIsArray($ret);
+        $this->assertArrayHasKey('user', $ret[0]);
+
+        $this->assertTrue($this->graphql->parseRequestQuery($document, 'Schema'));
+    }
+
+    public function testParseRequestQueryDoesNotExemptMixedApplicationQueryAsIntrospection()
+    {
+        $ret = $this->graphql->parseRequestQuery(<<<'GRAPHQL'
+            query MixedQuery {
+                __schema { queryType { name } }
+                user(id: "1") { id }
+            }
+            GRAPHQL);
+
+        $this->assertIsArray($ret);
+        $this->assertArrayHasKey('user', $ret[0]);
+    }
+
     public function testGetOperationTypeUsesSelectedOperation()
     {
         $this->graphql->parseRequestQuery(<<<'GRAPHQL'
