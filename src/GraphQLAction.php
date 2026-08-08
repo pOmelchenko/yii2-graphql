@@ -63,8 +63,9 @@ class GraphQLAction extends Action
      */
     public $checkAccess;
     /**
-     * @var bool|null whether mutation requests must use POST. Null preserves legacy behavior and emits a
-     * deprecation warning when a mutation uses a non-POST request. The default will become true in the next major.
+     * @var bool|null whether mutation requests must use the original HTTP POST transport method. Yii method
+     * overrides do not satisfy this requirement. Null preserves legacy behavior and emits a deprecation warning
+     * when a mutation uses a non-POST transport. The default will become true in the next major.
      */
     public $requirePostForMutations = null;
     /**
@@ -130,8 +131,9 @@ class GraphQLAction extends Action
         $this->selectedOperationHasIntrospection = $this->graphQL->hasSelectedOperationIntrospection();
 
         $hasMutation = $this->graphQL->getOperationType($this->operationName) === 'mutation';
+        $isTransportPost = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
 
-        if ($hasMutation && !$request->isPost) {
+        if ($hasMutation && !$isTransportPost) {
             if ($this->requirePostForMutations === null) {
                 // TODO: Remove this legacy branch and default the option to true in the next major release.
                 trigger_error(

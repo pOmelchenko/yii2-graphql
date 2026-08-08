@@ -335,8 +335,12 @@ hardening so existing applications keep their current behavior:
 ],
 ```
 
-With these options enabled, the selected mutation must use POST and must have a configured `checkAccess`
-callback. `requirePostForMutations` defaults to `null`: a non-POST mutation keeps the legacy behavior but emits an
+With these options enabled, the selected mutation must use the original HTTP POST transport method and must have a
+configured `checkAccess` callback. Yii's `_method` parameter and `X-Http-Method-Override` header do not satisfy
+`requirePostForMutations`. Applications that intentionally trust method overrides must set this flag to `false` and
+validate the proxy and override before `GraphQLAction` runs.
+
+`requirePostForMutations` defaults to `null`: a non-POST mutation keeps the legacy behavior but emits an
 `E_USER_DEPRECATED` warning. Set it explicitly to `false` to retain that behavior without a warning; its default will
 become `true` in the next major release. `requireAccessCheckForMutations` defaults to `false` and remains opt-in.
 Mutation detection follows the operation selected by `operationName`, so other operations in the same document do
