@@ -222,6 +222,136 @@ class GraphQLActionTest extends TestCase
         $this->controller->runAction('index');
     }
 
+    /**
+     * @dataProvider mixedIntrospectionSelectionProvider
+     */
+    public function testPublicFieldExceptionDoesNotExemptMixedIntrospection($introspectionSelection)
+    {
+        $_GET = [
+            'query' => 'query MixedQuery { hello ' . $introspectionSelection . ' }',
+        ];
+        $this->controller->attachBehavior('authenticator', [
+            'class' => CompositeAuth::class,
+            'authMethods' => [
+                \yii\filters\auth\QueryParamAuth::class,
+            ],
+            'except' => ['hello'],
+        ]);
+
+        $this->expectException(\yii\web\UnauthorizedHttpException::class);
+        $this->controller->runAction('index');
+    }
+
+    public function mixedIntrospectionSelectionProvider()
+    {
+        return [
+            '__schema' => ['__schema { queryType { name } }'],
+            '__type' => ['__type(name: "Query") { name }'],
+        ];
+    }
+
+    public function testRootFragmentDoesNotHideMixedIntrospectionFromAuthentication()
+    {
+        $_GET = [
+            'query' => <<<'GRAPHQL'
+                query MixedQuery {
+                    hello
+                    ...RootIntrospection
+                }
+                fragment RootIntrospection on Query {
+                    __schema { queryType { name } }
+                }
+                GRAPHQL,
+        ];
+        $this->controller->attachBehavior('authenticator', [
+            'class' => CompositeAuth::class,
+            'authMethods' => [
+                \yii\filters\auth\QueryParamAuth::class,
+            ],
+            'except' => ['hello'],
+        ]);
+
+        $this->expectException(\yii\web\UnauthorizedHttpException::class);
+        $this->controller->runAction('index');
+    }
+
+    public function testOnlyPolicyAuthenticatesMixedIntrospection()
+    {
+        $_GET = [
+            'query' => <<<'GRAPHQL'
+                query MixedQuery {
+                    hello
+                    __schema { queryType { name } }
+                }
+                GRAPHQL,
+        ];
+        $this->controller->attachBehavior('authenticator', [
+            'class' => CompositeAuth::class,
+            'authMethods' => [
+                \yii\filters\auth\QueryParamAuth::class,
+            ],
+            'only' => ['__schema'],
+        ]);
+
+        $this->expectException(\yii\web\UnauthorizedHttpException::class);
+        $this->controller->runAction('index');
+    }
+
+    public function testAllowedMixedIntrospectionUsesCompleteConfiguredSchema()
+    {
+        $_GET = [
+            'query' => <<<'GRAPHQL'
+                query PublicWithSchema {
+                    hello
+                    __schema { queryType { fields { name } } }
+                }
+                GRAPHQL,
+        ];
+        $this->controller->attachBehavior('authenticator', [
+            'class' => CompositeAuth::class,
+            'authMethods' => [
+                \yii\filters\auth\QueryParamAuth::class,
+            ],
+            'except' => ['hello', '__schema'],
+        ]);
+
+        $result = $this->controller->runAction('index');
+        $actualFields = array_column($result['data']['__schema']['queryType']['fields'], 'name');
+        $expectedFields = array_keys(\Yii::$app->getModule('graphql')->getGraphQL()->queries);
+        sort($actualFields);
+        sort($expectedFields);
+
+        $this->assertSame($expectedFields, $actualFields);
+    }
+
+    public function testUnselectedOperationDoesNotChangeMixedIntrospectionAuthentication()
+    {
+        $_GET = [
+            'query' => <<<'GRAPHQL'
+                query PublicWithSchema {
+                    hello
+                    __schema { queryType { name } }
+                }
+                query Private {
+                    user(id: "1") { id }
+                }
+                GRAPHQL,
+            'operationName' => 'PublicWithSchema',
+        ];
+        $this->controller->attachBehavior('authenticator', [
+            'class' => CompositeAuth::class,
+            'authMethods' => [
+                \yii\filters\auth\QueryParamAuth::class,
+            ],
+            'except' => ['hello', '__schema'],
+        ]);
+
+        $result = $this->controller->runAction('index');
+
+        $this->assertArrayHasKey('data', $result);
+        $this->assertArrayHasKey('hello', $result['data']);
+    }
+
     public function testIntrospectionCapabilitiesQueryDoesNotThrowSchemaNotFound()
     {
         $_GET = [

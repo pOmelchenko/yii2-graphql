@@ -74,34 +74,36 @@ class CompositeAuth extends \yii\filters\auth\AuthMethod
         if ($action instanceof GraphQLAction) {
             $maps = $action->getGraphQLActions();
 
-            if (empty($this->only)) {
-                $onlyMatch = true;
-            } else {
-                $onlyMatch = true;
-                foreach ($maps as $key => $value) {
-                    foreach ($this->only as $pattern) {
-                        if (fnmatch($pattern, $key)) {
-                            continue 2;
-                        }
-                    }
-                    $onlyMatch = false;
-                    break;
+            foreach ($maps as $key => $value) {
+                if (!empty($this->only) && !$this->matches($key, $this->only)) {
+                    continue;
                 }
+                if ($this->matches($key, $this->except)) {
+                    continue;
+                }
+
+                return true;
             }
 
-            $exceptMatch = true;
-            foreach ($maps as $key => $value) {
-                foreach ($this->except as $pattern) {
-                    if (fnmatch($pattern, $key)) {
-                        continue 2;
-                    }
-                }
-                $exceptMatch = false;
-                break;
-            }
-            return !$exceptMatch && $onlyMatch;
+            return false;
         } else {
             return parent::isActive($action);
         }
+    }
+
+    /**
+     * @param string $action
+     * @param string[] $patterns
+     * @return bool
+     */
+    private function matches($action, array $patterns)
+    {
+        foreach ($patterns as $pattern) {
+            if (fnmatch($pattern, $action)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

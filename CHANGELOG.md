@@ -1,12 +1,42 @@
 Yii2 Graphql Changelog
 =======================
 # Unreleased
+
+> Before upgrading, follow each applicable version step in [UPGRADE.md](UPGRADE.md).
+
+- Optimized root-fragment expansion to avoid repeated traversal across operations.
+- **Security behavior change:** secured mixed application/introspection operations by authorizing introspection
+  independently and using the complete configured schema after authorization.
+- **Security behavior change:** applied `CompositeAuth` `only` and `except` patterns to each selected GraphQL action
+  independently. Requests that previously relied on a mixed-field pattern mismatch may now require credentials.
+- Added a versioned migration guide covering intentional behavior changes.
+
+# 0.17.5
+- Published release tags without a `v` prefix so GitHub, Packagist, and Composer use the same version names.
+
+# 0.17.4
+- Required manual approval before the GitLab mirror can publish a package.
+- Restricted the GitLab release job to protected, approved tag pipelines.
+
+# 0.17.3
+- Restricted GitHub release creation to commits reachable from the protected default branch.
+- Hardened the tag-based release workflow trust boundary.
+
+# 0.17.2
+- Ensured configured `checkAccess` callbacks run without requiring `CompositeAuth`.
+- Prevented `CompositeAuth::except` from removing actions before authorization checks.
+
+# 0.17.1
+- Detected introspection from actual `__schema` and `__type` fields, including fields reached through root fragments.
+- Scoped authentication and mutation policies to the operation selected through `operationName`.
+- Prevented application operations from inheriting an exemption from an unselected introspection operation.
+
+# 0.17.0
 - Added opt-in mutation hardening through `requirePostForMutations` and `requireAccessCheckForMutations`.
 - Deprecated the implicit allowance of mutations over non-POST requests. Leaving `requirePostForMutations` unset
   preserves the legacy behavior with an `E_USER_DEPRECATED` warning; set it to `false` for an explicit legacy opt-out
   or `true` to require POST. The default will change to `true` in the next major release.
-- Ensured configured `checkAccess` callbacks run without requiring `CompositeAuth`, while preserving excluded actions.
-- Applied mutation policies only to the operation selected through `operationName`.
+- Added Infection mutation testing and expanded the supported PHP CI matrix.
 
 # 0.16.1
 - Fixed SchemaNotFound during IDE capability probes by treating `__schema` / `__type` selections as introspection in `GraphQL::parseRequestQuery()`.

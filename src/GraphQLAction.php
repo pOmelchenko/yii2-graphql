@@ -37,6 +37,7 @@ class GraphQLAction extends Action
     private $graphQL;
     private $schemaArray;
     private $selectedOperationSchema;
+    private $selectedOperationHasIntrospection = false;
     private $query;
     private $variables;
     private $operationName;
@@ -126,6 +127,7 @@ class GraphQLAction extends Action
 
         $this->schemaArray = $this->graphQL->parseRequestQuery($this->query, $this->operationName);
         $this->selectedOperationSchema = $this->graphQL->getSelectedOperationSchema();
+        $this->selectedOperationHasIntrospection = $this->graphQL->hasSelectedOperationIntrospection();
 
         $hasMutation = $this->graphQL->getOperationType($this->operationName) === 'mutation';
 
@@ -149,7 +151,8 @@ class GraphQLAction extends Action
     }
 
     /**
-     * Return all GraphQL actions participating in the request; for introspection it returns only __schema.
+     * Return all GraphQL actions participating in the selected operation.
+     * Introspection is represented by the special __schema action.
      * @return array
      */
     public function getGraphQLActions()
@@ -159,6 +162,9 @@ class GraphQLAction extends Action
             return [self::INTROSPECTIONQUERY => 'true'];
         }
         $ret = array_merge($this->selectedOperationSchema[0], $this->selectedOperationSchema[1]);
+        if ($this->selectedOperationHasIntrospection) {
+            $ret[self::INTROSPECTIONQUERY] = 'true';
+        }
         if (!$this->authActionsInitialized) {
             //init
             $this->authActions = $ret;
