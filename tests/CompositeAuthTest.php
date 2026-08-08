@@ -121,6 +121,21 @@ class CompositeAuthTest extends TestCase
         $auth = new CompositeAuthStub();
         $auth->only = ['user*'];
 
+        $this->assertTrue($auth->callIsActive($action));
+    }
+
+    public function testIsActiveAppliesOnlyAndExceptToTheSameAction()
+    {
+        $controller = new DefaultController('default', \Yii::$app->getModule('graphql'));
+        $action = new GraphQLActionStub($controller, [
+            'hello' => 'HelloQuery',
+            'user' => 'UserQuery',
+        ]);
+
+        $auth = new CompositeAuthStub();
+        $auth->only = ['hello'];
+        $auth->except = ['hello'];
+
         $this->assertFalse($auth->callIsActive($action));
     }
 }

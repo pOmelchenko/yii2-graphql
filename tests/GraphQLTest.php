@@ -169,7 +169,7 @@ class GraphQLTest extends TestCase
         $this->assertTrue($this->graphql->parseRequestQuery($document, 'Schema'));
     }
 
-    public function testParseRequestQueryDoesNotExemptMixedApplicationQueryAsIntrospection()
+    public function testParseRequestQueryUsesFullSchemaForMixedIntrospection()
     {
         $ret = $this->graphql->parseRequestQuery(<<<'GRAPHQL'
             query MixedQuery {
@@ -178,8 +178,9 @@ class GraphQLTest extends TestCase
             }
             GRAPHQL);
 
-        $this->assertIsArray($ret);
-        $this->assertArrayHasKey('user', $ret[0]);
+        $this->assertTrue($ret);
+        $this->assertTrue($this->graphql->hasSelectedOperationIntrospection());
+        $this->assertArrayHasKey('user', $this->graphql->getSelectedOperationSchema()[0]);
     }
 
     public function testSharedRootFragmentIsExpandedOncePerOperationType()

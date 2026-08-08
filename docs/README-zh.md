@@ -28,6 +28,8 @@ composer require pomelchenko/yii2-graphql
 ```
 需要 PHP ≥ 7.4；项目已在 [webonyx/graphql-php](https://github.com/webonyx/graphql-php) 14.x 与 [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.1.x 上测试。
 
+升级前，请阅读 [UPGRADE.md](../UPGRADE.md) 中按版本整理的迁移说明。
+
 ### 开发
 
 在提交之前本地运行代码风格和静态分析：

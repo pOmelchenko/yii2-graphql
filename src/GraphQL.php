@@ -55,6 +55,10 @@ class GraphQL
      */
     private $selectedOperationSchema = [[], [], []];
     /**
+     * @var bool whether the operation selected for execution contains __schema or __type
+     */
+    private $selectedOperationHasIntrospection = false;
+    /**
      * @var TypeResolution|null
      */
     private $typeResolution;
@@ -272,7 +276,7 @@ class GraphQL
      * Convert a raw query into an array consumable by the schema builder.
      * @param $requestString
      * @param string|null $operationName
-     * @return array|bool Array indexes: 0 query, 1 mutation, 2 types. True indicates IntrospectionQuery.
+     * @return array|bool Array indexes: 0 query, 1 mutation, 2 types. True requests the full configured schema.
      */
     public function parseRequestQuery($requestString, $operationName = null)
     {
@@ -292,14 +296,19 @@ class GraphQL
         $operationName = $operationName === '' ? null : $operationName;
         $selectedOperation = AST::getOperationAST($this->currentDocument, $operationName);
         $selectedOperations = $selectedOperation === null ? $operations : [$selectedOperation];
-        $this->selectedOperationSchema = $this->parseOperations($selectedOperations, $fragments);
+        $this->selectedOperationSchema = $this->parseOperations(
+            $selectedOperations,
+            $fragments,
+            $this->selectedOperationHasIntrospection
+        );
 
-        if ($this->selectedOperationSchema === true) {
+        if ($this->selectedOperationHasIntrospection) {
             return true;
         }
 
         // Validation covers the whole document, so the schema must include fields from unselected operations too.
-        return $this->parseOperations($operations, $fragments);
+        $documentHasIntrospection = false;
+        return $this->parseOperations($operations, $fragments, $documentHasIntrospection);
     }
 
     /**
@@ -313,13 +322,25 @@ class GraphQL
     }
 
     /**
+     * Whether the operation selected for execution contains an introspection root field.
+     *
+     * @return bool
+     */
+    public function hasSelectedOperationIntrospection()
+    {
+        return $this->selectedOperationHasIntrospection;
+    }
+
+    /**
      * Parse root fields for the given operations.
      *
      * @param OperationDefinitionNode[] $operations
      * @param FragmentDefinitionNode[] $fragments
+     * @param bool|null $hasIntrospection receives whether the operations contain __schema or __type
+     * @param-out bool $hasIntrospection
      * @return array|bool
      */
-    private function parseOperations(array $operations, array $fragments)
+    private function parseOperations(array $operations, array $fragments, &$hasIntrospection = null)
     {
         $queryTypes = [];
         $mutation = [];
