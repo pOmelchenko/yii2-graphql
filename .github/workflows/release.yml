@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: [ CI ]
+    types: [ completed ]
+
+permissions: {}
+
+jobs:
+  release:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch != 'master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG_NAME: ${{ github.event.workflow_run.head_branch }}
+      TAG_SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - name: Verify tag points to master history
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$TAG_NAME" =~ ^(v|[0-9]) ]]; then
+            echo "Unexpected release tag: $TAG_NAME" >&2
+            exit 1
+          fi
+
+          git check-ref-format "refs/tags/$TAG_NAME"
+          git init repository
+          git -C repository remote add origin \
+            "${{ github.server_url }}/${{ github.repository }}.git"
+          git -C repository fetch --no-tags origin \
+            "refs/heads/master:refs/remotes/origin/master" \
+            "refs/tags/$TAG_NAME:refs/tags/$TAG_NAME"
+
+          actual_tag_sha="$(git -C repository rev-list -n 1 "refs/tags/$TAG_NAME")"
+          if [[ "$actual_tag_sha" != "$TAG_SHA" ]]; then
+            echo "Tag $TAG_NAME points to $actual_tag_sha, not tested commit $TAG_SHA" >&2
+            exit 1
+          fi
+
+          git -C repository merge-base --is-ancestor \
+            "$TAG_SHA" refs/remotes/origin/master
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
