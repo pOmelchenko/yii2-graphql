@@ -4,6 +4,10 @@ namespace yiiunit\extensions\graphql;
 
 use GraphQL\Error\Error as GraphQLError;
 use GraphQL\Executor\ExecutionResult;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -178,21 +182,54 @@ class GraphQLTest extends TestCase
         $this->assertArrayHasKey('user', $ret[0]);
     }
 
-    public function testSharedRootFragmentExpansionScalesApproximatelyLinearly()
+    public function testSharedRootFragmentIsExpandedOncePerOperationType()
     {
-        // Measure enough work to avoid timer noise while keeping the regression test fast.
-        $smallDuration = $this->measureSharedRootFragmentParsing(1000);
-        $largeDuration = $this->measureSharedRootFragmentParsing(2000);
+        $document = Parser::parse(<<<'GRAPHQL'
+            query First { ...SharedRoot }
+            query Second { ...SharedRoot }
+            query Third { ...SharedRoot }
+            fragment SharedRoot on Query { hello }
+            GRAPHQL);
+        $operations = [];
+        $fragments = [];
 
-        $this->assertLessThan(
-            $smallDuration * 3,
-            $largeDuration,
-            sprintf(
-                'Doubling a shared-fragment document should remain approximately linear; %.6fs became %.6fs.',
-                $smallDuration,
-                $largeDuration
-            )
+        foreach ($document->definitions as $definition) {
+            if ($definition instanceof OperationDefinitionNode) {
+                $operations[] = $definition;
+            } elseif ($definition instanceof FragmentDefinitionNode) {
+                $fragments[$definition->name->value] = $definition;
+            }
+        }
+
+        $fragmentIterations = 0;
+        $fragmentSelections = iterator_to_array($fragments['SharedRoot']->selectionSet->selections);
+        $fragments['SharedRoot']->selectionSet->selections = new class (
+            $fragmentSelections,
+            $fragmentIterations
+        ) extends NodeList {
+            private $iterations;
+
+            public function __construct(array $nodes, &$iterations)
+            {
+                parent::__construct($nodes);
+                $this->iterations = &$iterations;
+            }
+
+            public function getIterator(): \Traversable
+            {
+                $this->iterations++;
+                return parent::getIterator();
+            }
+        };
+
+        $schema = $this->invoke(
+            $this->graphql,
+            'parseOperations',
+            [$operations, $fragments]
         );
+
+        $this->assertSame(1, $fragmentIterations);
+        $this->assertArrayHasKey('hello', $schema[0]);
     }
 
     public function testGetOperationTypeUsesSelectedOperation()
@@ -208,31 +245,6 @@ class GraphQLTest extends TestCase
         $this->assertSame('mutation', $this->graphql->getOperationType('ChangePassword'));
         $this->assertNull($this->graphql->getOperationType());
         $this->assertNull($this->graphql->getOperationType('MissingOperation'));
-    }
-
-    private function measureSharedRootFragmentParsing($operationCount)
-    {
-        $operations = [];
-        $fields = [];
-        for ($index = 0; $index < $operationCount; $index++) {
-            $operations[] = sprintf('query Q%d { ...SharedRoot }', $index);
-            $fields[] = sprintf('field%d: hello', $index);
-        }
-
-        $document = implode("\n", $operations)
-            . "\nfragment SharedRoot on Query {\n"
-            . implode("\n", $fields)
-            . "\n}";
-        $durations = [];
-
-        for ($run = 0; $run < 3; $run++) {
-            $start = microtime(true);
-            $this->graphql->parseRequestQuery($document, 'Q0');
-            $durations[] = microtime(true) - $start;
-        }
-
-        sort($durations);
-        return $durations[1];
     }
 
     public function testGetOperationTypeUsesOnlyOperationWhenNameIsOmitted()
