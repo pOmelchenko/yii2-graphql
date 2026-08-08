@@ -104,6 +104,29 @@ class GraphQLTest extends TestCase
         $this->assertArrayHasKey('user', $ret[0]);
     }
 
+    public function testGetOperationTypeUsesSelectedOperation()
+    {
+        $this->graphql->parseRequestQuery(<<<'GRAPHQL'
+            query ReadUser { user(id: "1") { id } }
+            mutation ChangePassword {
+                updateUserPwd(id: "qsli@google.com", password: "newpwd") { id }
+            }
+            GRAPHQL);
+
+        $this->assertSame('query', $this->graphql->getOperationType('ReadUser'));
+        $this->assertSame('mutation', $this->graphql->getOperationType('ChangePassword'));
+        $this->assertNull($this->graphql->getOperationType());
+        $this->assertNull($this->graphql->getOperationType('MissingOperation'));
+    }
+
+    public function testGetOperationTypeUsesOnlyOperationWhenNameIsOmitted()
+    {
+        $this->graphql->parseRequestQuery('mutation { updateUserPwd(id: "1", password: "newpwd") { id } }');
+
+        $this->assertSame('mutation', $this->graphql->getOperationType());
+        $this->assertSame('mutation', $this->graphql->getOperationType(''));
+    }
+
     public function testSchemaMergesProvidedConfiguration()
     {
         $graphql = new GraphQL();

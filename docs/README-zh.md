@@ -54,7 +54,7 @@ composer stan
 `name` | string | **必须** — 类型名称，建议唯一；在 `$attributes` 中定义。
 `description` | string | 类型用途描述；在 `$attributes` 中定义。
 `fields` | array | **必须** — 字段集合，由 `fields()` 方法返回。
-`resolveField` | callback | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** 字段解析器。例如 `user` 字段对应方法 `resolveUserField()`；`$value` 为 `type` 定义的类型实例。
+`resolveField` | callback | `function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)` 字段解析器。例如 `user` 字段对应方法 `resolveUserField()`；`$value` 为 `type` 定义的类型实例。
 
 ### Query
 
@@ -66,7 +66,7 @@ composer stan
 ----- | ----- | -----
 `type` | ObjectType | 返回的查询类型。单个类型用 `GraphQL::type` 指定，列表用 `Type::listOf(GraphQL::type)`。
 `args` | array | 可用的查询参数；每个参数按 `Field` 定义。
-`resolve` | callback | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** — `$value` 为根数据，`$args` 为参数，`$context` 为 `yii\web\Application`，`$info` 为解析信息。
+`resolve` | callback | `function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)` — `$value` 为根数据，`$args` 为参数，`$context` 为 `yii\web\Application`，`$info` 为解析信息。
 
 ### Mutation
 
@@ -316,6 +316,24 @@ class GraphqlController extends Controller
     }
 }
 ```
+
+配置 `checkAccess` 后，即使没有挂载 `CompositeAuth`，`GraphQLAction` 也会为每个请求的 GraphQL action
+调用该回调。Mutation 的传输和访问检查要求采用显式启用方式，以保持现有应用的行为不变：
+
+```php
+'index' => [
+    'class' => \yii\graphql\GraphQLAction::class,
+    'checkAccess' => [$this, 'checkAccess'],
+    'requirePostForMutations' => true,
+    'requireAccessCheckForMutations' => true,
+],
+```
+
+启用这些选项后，选中的 mutation 必须使用 POST，并且必须配置 `checkAccess` 回调。
+`requirePostForMutations` 默认值为 `null`：non-POST mutation 会保留旧行为，但会触发
+`E_USER_DEPRECATED` 警告。显式设置为 `false` 可继续使用旧行为且不产生警告；下一个 major 版本会将默认值
+改为 `true`。`requireAccessCheckForMutations` 默认值仍为 `false`，继续采用 opt-in 方式。Mutation 检测以
+`operationName` 选中的操作为准，因此同一文档中的其他操作不会触发这些要求。
 
 ### Multipart 上传支持
 
