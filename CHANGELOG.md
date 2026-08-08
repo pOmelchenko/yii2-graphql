@@ -4,6 +4,10 @@ Yii2 Graphql Changelog
 
 > Before upgrading, follow each applicable version step in [UPGRADE.md](UPGRADE.md).
 
+# 0.18.1
+- **Security:** required both the original transport method and Yii's effective method to remain POST for strict
+  mutation transport enforcement, closing reverse method-override downgrades to safe methods.
+
 # 0.18.0
 - **Security:** cached root-fragment expansion across operations to prevent quadratic unauthenticated CPU work.
 - **Security behavior change:** secured mixed application/introspection operations by authorizing introspection

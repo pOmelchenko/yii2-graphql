@@ -332,9 +332,10 @@ class GraphqlController extends Controller
 ],
 ```
 
-启用这些选项后，选中的 mutation 必须使用原始 HTTP POST 传输方法，并且必须配置 `checkAccess` 回调。
-Yii 的 `_method` 参数和 `X-Http-Method-Override` 请求头不能满足 `requirePostForMutations`。如果应用有意信任
-method override，请将该选项设为 `false`，并在运行 `GraphQLAction` 前验证代理和 override。
+启用这些选项后，选中的 mutation 的原始 HTTP 传输方法和 Yii 有效方法都必须是 POST，并且必须配置
+`checkAccess` 回调。Yii 的 `_method` 参数和 `X-Http-Method-Override` 请求头不能在满足
+`requirePostForMutations` 的同时将 non-POST 传输升级为 POST，或将 POST 传输降级为安全方法。如果应用有意
+信任 method override，请将该选项设为 `false`，并在运行 `GraphQLAction` 前验证代理和 override。
 
 `requirePostForMutations` 默认值为 `null`：non-POST mutation 会保留旧行为，但会触发
 `E_USER_DEPRECATED` 警告。显式设置为 `false` 可继续使用旧行为且不产生警告；下一个 major 版本会将默认值

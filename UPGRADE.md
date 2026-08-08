@@ -175,3 +175,13 @@ Integrations that need request metadata should use `GraphQL::getSelectedOperatio
 - Remove any authorization logic inferred only from the boolean return value of `parseRequestQuery()`.
 - If method overrides are intentionally supported, replace `requirePostForMutations` with an explicit trusted-proxy
   policy before `GraphQLAction` runs.
+
+## Upgrade from 0.18.0 to 0.18.1
+
+Version 0.18.1 completes strict mutation transport enforcement for method overrides in the reverse direction. When
+`GraphQLAction::$requirePostForMutations` is `true`, both the original `$_SERVER['REQUEST_METHOD']` and Yii's effective
+request method must be `POST`.
+
+A raw POST carrying `_method=GET` or another non-POST override now receives HTTP 405 instead of being parsed as a safe
+method and executing a mutation from the query string. Applications that intentionally accept such overrides must
+keep `requirePostForMutations` disabled and enforce their trusted-proxy policy before `GraphQLAction` runs.
