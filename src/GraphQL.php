@@ -291,10 +291,6 @@ class GraphQL
                 }
 
                 if ($definition->operation === 'query') {
-                    if ($definition->name && $definition->name->value === 'IntrospectionQuery') {
-                        $isAll = true;
-                        break 2;
-                    }
                     if (isset($this->queries[$node->value])) {
                         $queryTypes[$node->value] = $this->queries[$node->value];
                     }

@@ -97,6 +97,13 @@ class GraphQLTest extends TestCase
         $this->assertTrue($ret);
     }
 
+    public function testParseRequestQueryDoesNotTreatNamedNonIntrospectionAsIntrospection()
+    {
+        $ret = $this->graphql->parseRequestQuery($this->queries['spoofedIntrospectionQuery']);
+        $this->assertIsArray($ret);
+        $this->assertArrayHasKey('user', $ret[0]);
+    }
+
     public function testSchemaMergesProvidedConfiguration()
     {
         $graphql = new GraphQL();

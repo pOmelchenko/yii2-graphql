@@ -97,6 +97,13 @@ return [
     'hello' =>  "
         query hello{hello}
     ",
+    'spoofedIntrospectionQuery' => "
+        query IntrospectionQuery {
+            user(id:\"2\") {
+                id
+            }
+        }
+    ",
 
     'singleObject' =>  "
         query user {
