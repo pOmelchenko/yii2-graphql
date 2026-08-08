@@ -7,11 +7,15 @@ use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\AST;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 use Yii;
@@ -46,6 +50,10 @@ class GraphQL
     public $errorFormatter;
 
     private $currentDocument;
+    /**
+     * @var array|bool schema entries requested by the operation selected for execution
+     */
+    private $selectedOperationSchema = [[], [], []];
     /**
      * @var TypeResolution|null
      */
@@ -165,7 +173,7 @@ class GraphQL
      */
     public function query($requestString, $rootValue = null, $contextValue = null, $variableValues = null, $operationName = null)
     {
-        $sl = $this->parseRequestQuery($requestString);
+        $sl = $this->parseRequestQuery($requestString, $operationName);
         if ($sl === true) {
             $sl = [$this->queries, $this->mutations, $this->types];
         }
@@ -264,39 +272,81 @@ class GraphQL
      * Convert a raw query into an array consumable by the schema builder.
      * @param $requestString
      * @param string|null $operationName
-     * @return array|bool Array indexes: 0 query, 1 mutation, 2 types. True indicates full introspection fields.
+     * @return array|bool Array indexes: 0 query, 1 mutation, 2 types. True indicates IntrospectionQuery.
      */
     public function parseRequestQuery($requestString, $operationName = null)
     {
         $source = new Source($requestString ?: '', 'GraphQL request');
         $this->currentDocument = Parser::parse($source);
+        $fragments = [];
+        $operations = [];
+
+        foreach ($this->currentDocument->definitions as $definition) {
+            if ($definition instanceof FragmentDefinitionNode) {
+                $fragments[$definition->name->value] = $definition;
+            } elseif ($definition instanceof OperationDefinitionNode) {
+                $operations[] = $definition;
+            }
+        }
+
+        $operationName = $operationName === '' ? null : $operationName;
+        $selectedOperation = AST::getOperationAST($this->currentDocument, $operationName);
+        $selectedOperations = $selectedOperation === null ? $operations : [$selectedOperation];
+        $this->selectedOperationSchema = $this->parseOperations($selectedOperations, $fragments);
+
+        if ($this->selectedOperationSchema === true) {
+            return true;
+        }
+
+        // Validation covers the whole document, so the schema must include fields from unselected operations too.
+        return $this->parseOperations($operations, $fragments);
+    }
+
+    /**
+     * Return schema entries requested by the operation selected for execution.
+     *
+     * @return array|bool
+     */
+    public function getSelectedOperationSchema()
+    {
+        return $this->selectedOperationSchema;
+    }
+
+    /**
+     * Parse root fields for the given operations.
+     *
+     * @param OperationDefinitionNode[] $operations
+     * @param FragmentDefinitionNode[] $fragments
+     * @return array|bool
+     */
+    private function parseOperations(array $operations, array $fragments)
+    {
         $queryTypes = [];
         $mutation = [];
         $types = [];
-        $isAll = false;
-        foreach ($this->currentDocument->definitions as $definition) {
-            if (!($definition instanceof OperationDefinitionNode)) {
-                continue;
-            }
+        $hasIntrospection = false;
+        $hasApplicationFields = false;
 
-            if ($operationName !== null && $operationName !== '') {
-                if ($definition->name === null || $definition->name->value !== $operationName) {
-                    continue;
-                }
-            }
+        foreach ($operations as $definition) {
+            $visitedFragments = [];
+            $rootFields = $this->collectRootFields(
+                $definition->selectionSet->selections,
+                $fragments,
+                $visitedFragments
+            );
 
-            foreach ($definition->selectionSet->selections as $selection) {
-                if (!($selection instanceof FieldNode)) {
-                    continue;
-                }
-
+            foreach ($rootFields as $selection) {
                 $node = $selection->name;
 
                 if ($node->value === '__schema' || $node->value === '__type') {
-                    $isAll = true;
-                    break 2;
+                    $hasIntrospection = true;
+                    continue;
+                }
+                if ($node->value === '__typename') {
+                    continue;
                 }
 
+                $hasApplicationFields = true;
                 if ($definition->operation === 'query') {
                     if (isset($this->queries[$node->value])) {
                         $queryTypes[$node->value] = $this->queries[$node->value];
@@ -310,12 +360,82 @@ class GraphQL
                     }
                 }
             }
-
-            if ($operationName !== null && $operationName !== '') {
-                break;
-            }
         }
-        return $isAll ?: [$queryTypes, $mutation, $types];
+
+        if ($hasIntrospection && !$hasApplicationFields) {
+            return true;
+        }
+
+        return [$queryTypes, $mutation, $types];
+    }
+
+    /**
+     * Collect fields selected at an operation root, following only fragments reachable from that root.
+     *
+     * @param iterable $selections
+     * @param FragmentDefinitionNode[] $fragments
+     * @param bool[] $visitedFragments
+     * @return FieldNode[]
+     */
+    private function collectRootFields($selections, array $fragments, array &$visitedFragments)
+    {
+        $fields = [];
+
+        foreach ($selections as $selection) {
+            if ($selection instanceof FieldNode) {
+                $fields[] = $selection;
+                continue;
+            }
+            if ($selection instanceof InlineFragmentNode) {
+                $fields = array_merge(
+                    $fields,
+                    $this->collectRootFields($selection->selectionSet->selections, $fragments, $visitedFragments)
+                );
+                continue;
+            }
+            if (!($selection instanceof FragmentSpreadNode)) {
+                continue;
+            }
+
+            $fragmentName = $selection->name->value;
+            if (isset($visitedFragments[$fragmentName]) || !isset($fragments[$fragmentName])) {
+                continue;
+            }
+
+            $visitedFragments[$fragmentName] = true;
+            $fields = array_merge(
+                $fields,
+                $this->collectRootFields(
+                    $fragments[$fragmentName]->selectionSet->selections,
+                    $fragments,
+                    $visitedFragments
+                )
+            );
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Return the operation type selected for execution.
+     *
+     * A document with multiple operations requires an operation name. When no
+     * operation can be selected, execution will report the corresponding
+     * GraphQL validation error and this method returns null.
+     *
+     * @param string|null $operationName
+     * @return string|null
+     */
+    public function getOperationType($operationName = null)
+    {
+        if ($this->currentDocument === null) {
+            return null;
+        }
+
+        $operationName = $operationName === '' ? null : $operationName;
+        $selectedOperation = AST::getOperationAST($this->currentDocument, $operationName);
+
+        return $selectedOperation === null ? null : $selectedOperation->operation;
     }
 
     /**

@@ -53,7 +53,7 @@ composer stan
 `name` | string | **Обязательно** — имя типа. Желательно уникальное; задаётся в `$attributes`.
 `description` | string | Описание типа и его назначения; задаётся в `$attributes`.
 `fields` | array | **Обязательно** — набор полей, возвращаемый методом `fields()`.
-`resolveField` | callback | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** — резолвер поля. Для поля `user` метод будет `resolveUserField()`. `$value` — экземпляр типа, определённого в `type`.
+`resolveField` | callback | `function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)` — резолвер поля. Для поля `user` метод будет `resolveUserField()`. `$value` — экземпляр типа, определённого в `type`.
 
 ### Query
 `GraphQLQuery` и `GraphQLMutation` наследуются от `GraphQLField` и имеют одинаковую структуру элементов. Каждый запрос GraphQL соответствует объекту `GraphQLQuery`.
@@ -63,7 +63,7 @@ composer stan
 ----- | ----- | -----
 `type` | ObjectType | Возвращаемый тип. Один элемент — через `GraphQL::type`, список — `Type::listOf(GraphQL::type)`.
 `args` | array | Аргументы запроса; каждый параметр описывается как `Field`.
-`resolve` | callback | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** — `$value` корневые данные, `$args` аргументы, `$context` — `yii\web\Application`, `$info` — информация о резолве.
+`resolve` | callback | `function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)` — `$value` корневые данные, `$args` аргументы, `$context` — `yii\web\Application`, `$info` — информация о резолве.
 
 ### Mutation
 Определяется аналогично `GraphQLQuery`.
@@ -292,6 +292,26 @@ class GraphqlController extends Controller
     }
 }
 ```
+
+Если `checkAccess` настроен, `GraphQLAction` вызывает его для каждого запрошенного GraphQL action даже без
+подключённого `CompositeAuth`. Строгие требования для mutations включаются явно, поэтому существующее поведение
+приложений сохраняется:
+
+```php
+'index' => [
+    'class' => \yii\graphql\GraphQLAction::class,
+    'checkAccess' => [$this, 'checkAccess'],
+    'requirePostForMutations' => true,
+    'requireAccessCheckForMutations' => true,
+],
+```
+
+При включённых опциях выбранная mutation должна использовать POST и иметь настроенный callback `checkAccess`.
+По умолчанию `requirePostForMutations` равен `null`: mutation через non-POST сохраняет прежнее поведение, но вызывает
+предупреждение `E_USER_DEPRECATED`. Явно задайте `false`, чтобы оставить legacy-поведение без предупреждения; в
+следующей major-версии значением по умолчанию станет `true`. `requireAccessCheckForMutations` по умолчанию равен
+`false` и остаётся opt-in. Mutation определяется по операции, выбранной через `operationName`, поэтому другие
+операции в том же документе не активируют эти требования.
 
 ### Поддержка мультизагрузки (multipart)
 
