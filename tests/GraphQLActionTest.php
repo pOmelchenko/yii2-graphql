@@ -299,6 +299,31 @@ class GraphQLActionTest extends TestCase
         $this->assertSame(['stories', 'user'], $invoked);
     }
 
+    public function testCheckAccessUsesOnlySelectedOperationWithSharedFragments()
+    {
+        $_GET = [
+            'query' => <<<'GRAPHQL'
+                query ReadUser { ...UserRoot }
+                query Greeting { ...GreetingRoot }
+                fragment UserRoot on Query { ...CommonRoot user(id: "1") { id } }
+                fragment GreetingRoot on Query { ...CommonRoot hello }
+                fragment CommonRoot on Query { __typename }
+                GRAPHQL,
+            'operationName' => 'Greeting',
+        ];
+
+        $action = $this->controller->createAction('index');
+        $invoked = [];
+        $action->checkAccess = function ($actionName) use (&$invoked) {
+            $invoked[] = $actionName;
+        };
+
+        $result = $action->runWithParams([]);
+
+        $this->assertSame(['hello'], $invoked);
+        $this->assertArrayHasKey('hello', $result['data']);
+    }
+
     public function testRemovedGraphQLActionsAreNotReinitializedBeforeAccessCheck()
     {
         $_GET = [

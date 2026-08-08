@@ -326,13 +326,20 @@ class GraphQL
         $types = [];
         $hasIntrospection = false;
         $hasApplicationFields = false;
+        $visitedFragmentsByOperation = [];
 
         foreach ($operations as $definition) {
-            $visitedFragments = [];
-            $rootFields = $this->collectRootFields(
+            $operationType = $definition->operation;
+            if (!isset($visitedFragmentsByOperation[$operationType])) {
+                $visitedFragmentsByOperation[$operationType] = [];
+            }
+
+            $rootFields = [];
+            $this->collectRootFields(
                 $definition->selectionSet->selections,
                 $fragments,
-                $visitedFragments
+                $visitedFragmentsByOperation[$operationType],
+                $rootFields
             );
 
             foreach ($rootFields as $selection) {
@@ -347,14 +354,14 @@ class GraphQL
                 }
 
                 $hasApplicationFields = true;
-                if ($definition->operation === 'query') {
+                if ($operationType === 'query') {
                     if (isset($this->queries[$node->value])) {
                         $queryTypes[$node->value] = $this->queries[$node->value];
                     }
                     if (isset($this->types[$node->value])) {
                         $types[$node->value] = $this->types[$node->value];
                     }
-                } elseif ($definition->operation === 'mutation') {
+                } elseif ($operationType === 'mutation') {
                     if (isset($this->mutations[$node->value])) {
                         $mutation[$node->value] = $this->mutations[$node->value];
                     }
@@ -375,21 +382,21 @@ class GraphQL
      * @param iterable $selections
      * @param FragmentDefinitionNode[] $fragments
      * @param bool[] $visitedFragments
-     * @return FieldNode[]
+     * @param FieldNode[] $fields
      */
-    private function collectRootFields($selections, array $fragments, array &$visitedFragments)
+    private function collectRootFields($selections, array $fragments, array &$visitedFragments, array &$fields)
     {
-        $fields = [];
-
         foreach ($selections as $selection) {
             if ($selection instanceof FieldNode) {
                 $fields[] = $selection;
                 continue;
             }
             if ($selection instanceof InlineFragmentNode) {
-                $fields = array_merge(
-                    $fields,
-                    $this->collectRootFields($selection->selectionSet->selections, $fragments, $visitedFragments)
+                $this->collectRootFields(
+                    $selection->selectionSet->selections,
+                    $fragments,
+                    $visitedFragments,
+                    $fields
                 );
                 continue;
             }
@@ -403,17 +410,13 @@ class GraphQL
             }
 
             $visitedFragments[$fragmentName] = true;
-            $fields = array_merge(
-                $fields,
-                $this->collectRootFields(
-                    $fragments[$fragmentName]->selectionSet->selections,
-                    $fragments,
-                    $visitedFragments
-                )
+            $this->collectRootFields(
+                $fragments[$fragmentName]->selectionSet->selections,
+                $fragments,
+                $visitedFragments,
+                $fields
             );
         }
-
-        return $fields;
     }
 
     /**

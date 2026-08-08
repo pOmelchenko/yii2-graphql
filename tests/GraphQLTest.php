@@ -4,6 +4,10 @@ namespace yiiunit\extensions\graphql;
 
 use GraphQL\Error\Error as GraphQLError;
 use GraphQL\Executor\ExecutionResult;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -137,6 +141,20 @@ class GraphQLTest extends TestCase
         $this->assertArrayHasKey('user', $ret[0]);
     }
 
+    public function testParseRequestQueryFindsApplicationFieldsThroughRootInlineFragments()
+    {
+        $ret = $this->graphql->parseRequestQuery(<<<'GRAPHQL'
+            query ReadUser {
+                ... on Query {
+                    user(id: "1") { id }
+                }
+            }
+            GRAPHQL);
+
+        $this->assertIsArray($ret);
+        $this->assertArrayHasKey('user', $ret[0]);
+    }
+
     public function testParseRequestQueryUsesSelectedOperationForIntrospectionMode()
     {
         $document = <<<'GRAPHQL'
@@ -162,6 +180,56 @@ class GraphQLTest extends TestCase
 
         $this->assertIsArray($ret);
         $this->assertArrayHasKey('user', $ret[0]);
+    }
+
+    public function testSharedRootFragmentIsExpandedOncePerOperationType()
+    {
+        $document = Parser::parse(<<<'GRAPHQL'
+            query First { ...SharedRoot }
+            query Second { ...SharedRoot }
+            query Third { ...SharedRoot }
+            fragment SharedRoot on Query { hello }
+            GRAPHQL);
+        $operations = [];
+        $fragments = [];
+
+        foreach ($document->definitions as $definition) {
+            if ($definition instanceof OperationDefinitionNode) {
+                $operations[] = $definition;
+            } elseif ($definition instanceof FragmentDefinitionNode) {
+                $fragments[$definition->name->value] = $definition;
+            }
+        }
+
+        $fragmentIterations = 0;
+        $fragmentSelections = iterator_to_array($fragments['SharedRoot']->selectionSet->selections);
+        $fragments['SharedRoot']->selectionSet->selections = new class (
+            $fragmentSelections,
+            $fragmentIterations
+        ) extends NodeList {
+            private $iterations;
+
+            public function __construct(array $nodes, &$iterations)
+            {
+                parent::__construct($nodes);
+                $this->iterations = &$iterations;
+            }
+
+            public function getIterator(): \Traversable
+            {
+                $this->iterations++;
+                return parent::getIterator();
+            }
+        };
+
+        $schema = $this->invoke(
+            $this->graphql,
+            'parseOperations',
+            [$operations, $fragments]
+        );
+
+        $this->assertSame(1, $fragmentIterations);
+        $this->assertArrayHasKey('hello', $schema[0]);
     }
 
     public function testGetOperationTypeUsesSelectedOperation()
