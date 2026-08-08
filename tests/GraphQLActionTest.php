@@ -200,7 +200,6 @@ class GraphQLActionTest extends TestCase
         ];
 
         $action = $this->controller->createAction('index');
-        $action->getGraphQLActions();
         $action->removeGraphQlAction('hello');
 
         $called = false;

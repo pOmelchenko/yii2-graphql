@@ -53,7 +53,7 @@ composer stan
 `name` | string | **Обязательно** — имя типа. Желательно уникальное; задаётся в `$attributes`.
 `description` | string | Описание типа и его назначения; задаётся в `$attributes`.
 `fields` | array | **Обязательно** — набор полей, возвращаемый методом `fields()`.
-`resolveField` | callback | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** — резолвер поля. Для поля `user` метод будет `resolveUserField()`. `$value` — экземпляр типа, определённого в `type`.
+`resolveField` | callback | `function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)` — резолвер поля. Для поля `user` метод будет `resolveUserField()`. `$value` — экземпляр типа, определённого в `type`.
 
 ### Query
 `GraphQLQuery` и `GraphQLMutation` наследуются от `GraphQLField` и имеют одинаковую структуру элементов. Каждый запрос GraphQL соответствует объекту `GraphQLQuery`.
@@ -63,7 +63,7 @@ composer stan
 ----- | ----- | -----
 `type` | ObjectType | Возвращаемый тип. Один элемент — через `GraphQL::type`, список — `Type::listOf(GraphQL::type)`.
 `args` | array | Аргументы запроса; каждый параметр описывается как `Field`.
-`resolve` | callback | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** — `$value` корневые данные, `$args` аргументы, `$context` — `yii\web\Application`, `$info` — информация о резолве.
+`resolve` | callback | `function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)` — `$value` корневые данные, `$args` аргументы, `$context` — `yii\web\Application`, `$info` — информация о резолве.
 
 ### Mutation
 Определяется аналогично `GraphQLQuery`.
