@@ -1,7 +1,0 @@
-parameters:
-	ignoreErrors:
-		-
-			rawMessage: Trait yii\graphql\traits\GlobalIdTrait is used zero times and is not analysed.
-			identifier: trait.unused
-			count: 1
-			path: src/traits/GlobalIdTrait.php

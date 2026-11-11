@@ -1,11 +1,11 @@
 includes:
     - vendor/phpstan/phpstan/conf/bleedingEdge.neon
-    - phpstan-baseline.neon
 
 parameters:
     level: 4
     paths:
         - src
+        - tests/traits/GlobalIdTraitTest.php
     bootstrapFiles:
         - phpstan-bootstrap.php
     tmpDir: var/phpstan
