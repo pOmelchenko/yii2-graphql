@@ -543,88 +543,81 @@ class GraphQLActionTest extends TestCase
         $this->assertSame('1', $result['data']['user']['id']);
     }
 
-    public function testUnsetPostRequirementPreservesLegacyMutationAndEmitsDeprecation()
-    {
-        $_GET = [
-            'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
-        ];
-        $deprecation = null;
-        set_error_handler(function ($severity, $message) use (&$deprecation) {
-            if ($severity === E_USER_DEPRECATED) {
-                $deprecation = $message;
-                return true;
-            }
-            return false;
-        });
-
-        try {
-            $result = $this->controller->createAction('index')->runWithParams([]);
-        } finally {
-            restore_error_handler();
-        }
-
-        $this->assertSame('1', $result['data']['updateUserPwd']['id']);
-        $this->assertStringContainsString(
-            'GraphQLAction::$requirePostForMutations is deprecated',
-            $deprecation
-        );
-    }
-
-    public function testExplicitLegacyMutationOptOutDoesNotEmitDeprecation()
-    {
-        $_GET = [
-            'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
-        ];
-        $deprecation = null;
-        set_error_handler(function ($severity, $message) use (&$deprecation) {
-            if ($severity === E_USER_DEPRECATED) {
-                $deprecation = $message;
-                return true;
-            }
-            return false;
-        });
-
-        try {
-            $action = new GraphQLAction('index', $this->controller, [
-                'requirePostForMutations' => false,
-            ]);
-            $result = $action->runWithParams([]);
-        } finally {
-            restore_error_handler();
-        }
-
-        $this->assertNull($deprecation);
-        $this->assertSame('1', $result['data']['updateUserPwd']['id']);
-    }
-
-    public function testPostMutationWithUnsetRequirementDoesNotEmitDeprecation()
+    /**
+     * @dataProvider mutationTransportProvider
+     */
+    public function testMutationTransportWithStandardYiiErrorHandler(array $options, $method, $expectedStatus, $warningCount)
     {
         $request = \Yii::$app->request;
-        $previousBody = $request->getBodyParams();
-        $previousRequestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-        $request->setBodyParams([
+        $previousMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $_SERVER['REQUEST_METHOD'] = $method;
+        $payload = [
             'query' => 'mutation { updateUserPwd(id: "qsli@google.com", password: "newpwd") { id } }',
-        ]);
-        $deprecation = null;
-        set_error_handler(function ($severity, $message) use (&$deprecation) {
-            if ($severity === E_USER_DEPRECATED) {
-                $deprecation = $message;
-                return true;
-            }
-            return false;
-        });
-
-        try {
-            $result = $this->controller->createAction('index')->runWithParams([]);
-        } finally {
-            restore_error_handler();
-            $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
-            $request->setBodyParams($previousBody);
+        ];
+        if ($method === 'GET') {
+            $request->setQueryParams($payload);
+        } else {
+            $request->setBodyParams($payload);
         }
 
-        $this->assertNull($deprecation);
-        $this->assertSame('1', $result['data']['updateUserPwd']['id']);
+        $controller = new class ('default', \Yii::$app->getModule('graphql')) extends DefaultController {
+            public $actionOptions;
+
+            public function actions()
+            {
+                return ['index' => array_merge(['class' => GraphQLAction::class], $this->actionOptions)];
+            }
+        };
+        $controller->actionOptions = $options;
+        $controller->enableCsrfValidation = false;
+        $previousLogger = \Yii::getLogger();
+        $logger = new \yii\log\Logger(['flushInterval' => 0]);
+        \Yii::setLogger($logger);
+        $errorHandler = new \yii\web\ErrorHandler();
+        $previousDisplayErrors = ini_get('display_errors');
+        $errorHandler->register();
+        $rejection = null;
+        $result = null;
+        $password = \yiiunit\extensions\graphql\data\DataSource::findUser(1)->password;
+
+        try {
+            $result = $controller->runAction('index');
+        } catch (\yii\web\HttpException $exception) {
+            $rejection = $exception;
+        } finally {
+            $errorHandler->unregister();
+            ini_set('display_errors', $previousDisplayErrors);
+            \Yii::setLogger($previousLogger);
+            $_SERVER['REQUEST_METHOD'] = $previousMethod;
+        }
+
+        $this->assertSame($expectedStatus, $rejection === null ? null : $rejection->statusCode);
+        if ($expectedStatus === null) {
+            $this->assertSame('1', $result['data']['updateUserPwd']['id']);
+        } else {
+            $this->assertSame($password, \yiiunit\extensions\graphql\data\DataSource::findUser(1)->password);
+        }
+        $warnings = array_values(array_filter($logger->messages, static function ($message) {
+            return $message[1] === \yii\log\Logger::LEVEL_WARNING && $message[2] === 'yii\graphql\deprecation';
+        }));
+        $this->assertCount($warningCount, $warnings);
+        if ($warningCount) {
+            $this->assertStringContainsString('GraphQLAction::$requirePostForMutations=false is deprecated', $warnings[0][0]);
+            $this->assertStringContainsString('webonyx/graphql-php 15.x', $warnings[0][0]);
+        }
+    }
+
+    public function mutationTransportProvider()
+    {
+        return [
+            'default GET' => [[], 'GET', 405, 0],
+            'explicit null GET' => [['requirePostForMutations' => null], 'GET', 405, 0],
+            'explicit legacy GET' => [['requirePostForMutations' => false], 'GET', null, 1],
+            'default POST' => [[], 'POST', null, 0],
+            'explicit null POST' => [['requirePostForMutations' => null], 'POST', null, 0],
+            'strict POST' => [['requirePostForMutations' => true], 'POST', null, 0],
+            'explicit legacy POST' => [['requirePostForMutations' => false], 'POST', null, 1],
+        ];
     }
 
     /**

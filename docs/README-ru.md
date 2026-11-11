@@ -319,13 +319,17 @@ class GraphqlController extends Controller
 При включённых опциях выбранная mutation должна использовать POST и как исходный транспортный HTTP-метод, и как
 эффективный метод Yii, а также иметь настроенный callback `checkAccess`. Параметр Yii `_method` и заголовок
 `X-Http-Method-Override` не могут повысить non-POST транспорт до POST или понизить POST до safe-метода, сохранив
-выполнение `requirePostForMutations`. Если приложение намеренно доверяет method override, задайте этому флагу `false`
-и проверяйте прокси и override до запуска `GraphQLAction`.
+выполнение `requirePostForMutations`. Интеграции с method override нужно перевести на настоящий POST-транспорт и
+эффективный метод POST до запуска `GraphQLAction`.
 
-По умолчанию `requirePostForMutations` равен `null`: mutation через non-POST сохраняет прежнее поведение, но вызывает
-предупреждение `E_USER_DEPRECATED`. Явно задайте `false`, чтобы оставить legacy-поведение без предупреждения; в
-следующей major-версии значением по умолчанию станет `true`. `requireAccessCheckForMutations` по умолчанию равен
-`false` и остаётся opt-in. Mutation определяется по операции, выбранной через `operationName`, поэтому другие
+По умолчанию `requirePostForMutations` равен `true`; `null` тоже требует POST. Только явное `false` временно разрешает
+legacy non-POST мутации. Этот opt-out устарел: каждая мутация с ним пишет предупреждение в журнал Yii с категорией
+`yii\graphql\deprecation`, включая POST-мутации, чтобы находить и удалять устаревшую конфигурацию.
+В первом релизе на webonyx 15.x опция будет удалена, и POST станет обязательным для всех мутаций. См.
+[план миграции](../UPGRADE.md#unreleased-changes-after-14110). При cookie/session-аутентификации сохраняйте
+CSRF-проверку Yii: требование POST не заменяет CSRF-токены.
+`requireAccessCheckForMutations` по умолчанию равен `false` и остаётся opt-in. Mutation определяется по операции,
+выбранной через `operationName`, поэтому другие
 операции в том же документе не активируют эти требования.
 
 ### Поддержка мультизагрузки (multipart)

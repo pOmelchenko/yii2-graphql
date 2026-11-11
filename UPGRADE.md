@@ -235,3 +235,29 @@ PHP 7.4 has an additional dependency limitation: it resolves to laminas/laminas-
 [CVE-2023-29530](https://github.com/laminas/laminas-diactoros/security/advisories/GHSA-xv3h-4844-9h36)
 (`PKSA-yg4s-vh6g-jnyh`, HTTP multiline header termination). Its fixed releases require PHP 8.0 or newer. Only the
 PHP 7.4 compatibility job permits that advisory during dependency resolution, and its audit still reports it.
+
+## Unreleased changes after 14.11.0
+
+### Require POST by default and retire the legacy opt-out
+
+This is an intentional security behavior change. `GraphQLAction::$requirePostForMutations` now defaults to `true`;
+`null` also requires POST. Non-POST mutations receive HTTP 405. Previously an unspecified policy could either
+execute a GET mutation or fail with a deprecation exception, depending on the PHP/Yii error handler. Restoring
+implicit GET mutation execution would expose cookie/session-authenticated applications to cross-site requests.
+
+Only explicit `false` temporarily preserves legacy transport behavior. It is deprecated and logs a Yii warning
+under `yii\graphql\deprecation` on every selected mutation, including POST mutations. These warnings do not raise
+PHP deprecations and do not interrupt the standard Yii error handler. Dependency constraints are unchanged.
+
+The retirement plan is:
+
+1. In the next 14.11 patch (planned 14.11.1), require POST by default and deprecate the explicit `false` opt-out.
+2. During the remaining 14.11.x maintenance releases, retain only that explicit compatibility path and its warnings.
+3. In the first release targeting webonyx 15.x, remove `requirePostForMutations` and always require POST. Applications
+   must remove the configuration key, including explicit `true` or `null` values, before upgrading to that release.
+
+To migrate now, send all mutations over POST (JSON or multipart), remove method overrides that change the effective
+method away from POST, and remove the `requirePostForMutations` configuration key. Collect warning-level messages
+in `yii\graphql\deprecation` to identify remaining legacy use; after migration, these warnings should disappear.
+GET queries remain supported. Cookie/session-authenticated applications must keep Yii's CSRF validation enabled
+and provide valid CSRF tokens for mutations: POST enforcement is not a replacement for CSRF protection.

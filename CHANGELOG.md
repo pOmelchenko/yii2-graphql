@@ -4,6 +4,11 @@ Yii2 Graphql Changelog
 
 > Before upgrading, follow each applicable version step in [UPGRADE.md](UPGRADE.md).
 
+- **Security behavior change:** mutations require POST by default; `null` also enforces POST. Non-POST requests
+  receive HTTP 405 instead of an error-handler-dependent deprecation or implicit mutation execution.
+- Deprecated the explicit `requirePostForMutations=false` legacy opt-out. Each mutation using it logs a Yii warning
+  under `yii\graphql\deprecation`. The first release targeting webonyx 15.x will remove the option entirely.
+
 # 14.11.0
 - Aligned the extension's major and minor version with the webonyx/graphql-php 14.11 compatibility target; patch
   versions remain independent. Composer dependency constraints and mutation-policy defaults are unchanged.
