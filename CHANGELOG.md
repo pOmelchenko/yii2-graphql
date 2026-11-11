@@ -8,6 +8,8 @@ Yii2 Graphql Changelog
   step. Library dependency constraints and runtime behavior are unchanged.
 - Moved `prefer-lowest` CI to PHP 8.0, removed PHP 7.4 testing and its Diactoros advisory exception.
 - Updated the PHP_CodeSniffer development requirement to `^4.0.4`; the existing coding standard remains in use.
+- Raised the PHPStan development minimum to `^2.3.5` and enabled static analysis in the PHP 8.0 lowest-dependency
+  CI job using the existing configuration and baseline.
 
 # 14.11.2
 - Raised the webonyx/graphql-php minimum to 14.8.0, which introduced the required `AST::getOperationAST()` API.

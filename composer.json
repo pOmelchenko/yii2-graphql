@@ -25,7 +25,7 @@
     },
     "require-dev":{
         "infection/infection": "^0.26 || ^0.31",
-        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan": "^2.3.5",
         "phpunit/phpunit": "^9.6",
         "squizlabs/php_codesniffer": "^4.0.4",
         "yidas/yii2-composer-bower-skip": "^2.0"
