@@ -349,6 +349,9 @@ effective method, and must have a configured `checkAccess` callback. Yii's `_met
 `requirePostForMutations`. Applications that intentionally trust method overrides must set this flag to `false` and
 validate the proxy and override before `GraphQLAction` runs.
 
+Mutation policies run after Yii's module/controller `beforeAction` filters and before access callbacks or resolvers.
+Policy failures use JSON; a rejected non-POST mutation returns HTTP 405 with `Allow: POST`.
+
 `requirePostForMutations` defaults to `null`: a non-POST mutation keeps the legacy behavior and logs a Yii warning
 under `yii\graphql\deprecation`. Set it explicitly to `false` to retain that behavior without a warning; its default will
 become `true` in the next major release. `requireAccessCheckForMutations` defaults to `false` and remains opt-in.

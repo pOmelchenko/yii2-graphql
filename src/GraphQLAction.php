@@ -41,6 +41,7 @@ class GraphQLAction extends Action
     private $query;
     private $variables;
     private $operationName;
+    private $operationType;
     /**
      * @var array child graphql actions
      */
@@ -130,8 +131,13 @@ class GraphQLAction extends Action
         $this->schemaArray = $this->graphQL->parseRequestQuery($this->query, $this->operationName);
         $this->selectedOperationSchema = $this->graphQL->getSelectedOperationSchema();
         $this->selectedOperationHasIntrospection = $this->graphQL->hasSelectedOperationIntrospection();
+        $this->operationType = $this->graphQL->getOperationType($this->operationName);
+    }
 
-        $hasMutation = $this->graphQL->getOperationType($this->operationName) === 'mutation';
+    private function checkMutationPolicies(): void
+    {
+        $request = Yii::$app->getRequest();
+        $hasMutation = $this->operationType === 'mutation';
         $isTransportPost = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
         $isEffectivePost = $request->isPost;
 
@@ -145,6 +151,7 @@ class GraphQLAction extends Action
                     'yii\graphql\deprecation'
                 );
             } elseif ($this->requirePostForMutations) {
+                Yii::$app->getResponse()->getHeaders()->set('Allow', 'POST');
                 throw new MethodNotAllowedHttpException('GraphQL mutations must use POST requests.');
             }
         }
@@ -195,6 +202,7 @@ class GraphQLAction extends Action
     public function run()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
+        $this->checkMutationPolicies();
         if ($this->checkAccess) {
             if (!$this->authActionsInitialized) {
                 $this->getGraphQLActions();

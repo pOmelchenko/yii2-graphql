@@ -628,9 +628,10 @@ class GraphQLActionTest extends TestCase
 
         try {
             $this->expectException(\yii\web\MethodNotAllowedHttpException::class);
-            new GraphQLAction('index', $this->controller, [
+            $action = new GraphQLAction('index', $this->controller, [
                 'requirePostForMutations' => true,
             ]);
+            $action->runWithParams([]);
         } finally {
             $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
             $_GET = $previousGet;
@@ -673,9 +674,10 @@ class GraphQLActionTest extends TestCase
 
         try {
             $this->expectException(\yii\web\MethodNotAllowedHttpException::class);
-            new GraphQLAction('index', $this->controller, [
+            $action = new GraphQLAction('index', $this->controller, [
                 'requirePostForMutations' => true,
             ]);
+            $action->runWithParams([]);
         } finally {
             if ($hadRequestMethod) {
                 $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
@@ -724,9 +726,10 @@ class GraphQLActionTest extends TestCase
 
         try {
             $this->expectException(\yii\web\MethodNotAllowedHttpException::class);
-            new GraphQLAction('index', $this->controller, [
+            $action = new GraphQLAction('index', $this->controller, [
                 'requirePostForMutations' => true,
             ]);
+            $action->runWithParams([]);
         } finally {
             \Yii::$app->set('request', $previousRequest);
             $_POST = $previousPost;
@@ -773,9 +776,10 @@ class GraphQLActionTest extends TestCase
 
         try {
             $this->expectException(\yii\web\ForbiddenHttpException::class);
-            new GraphQLAction('index', $this->controller, [
+            $action = new GraphQLAction('index', $this->controller, [
                 'requireAccessCheckForMutations' => true,
             ]);
+            $action->runWithParams([]);
         } finally {
             $_SERVER['REQUEST_METHOD'] = $previousRequestMethod;
             $request->setBodyParams($previousBody);
@@ -844,9 +848,10 @@ class GraphQLActionTest extends TestCase
         ];
 
         $this->expectException(\yii\web\MethodNotAllowedHttpException::class);
-        new GraphQLAction('index', $this->controller, [
+        $action = new GraphQLAction('index', $this->controller, [
             'requirePostForMutations' => true,
         ]);
+        $action->runWithParams([]);
     }
 
     public function testIntrospectionQueryReturnsSpecialActions()

@@ -345,6 +345,9 @@ class GraphqlController extends Controller
 `requirePostForMutations` 的同时将 non-POST 传输升级为 POST，或将 POST 传输降级为安全方法。如果应用有意
 信任 method override，请将该选项设为 `false`，并在运行 `GraphQLAction` 前验证代理和 override。
 
+Mutation 策略在 Yii 模块和控制器的 `beforeAction` 过滤器之后、权限回调和解析器之前检查。
+策略错误使用 JSON；被拒绝的 non-POST mutation 返回 HTTP 405，并包含 `Allow: POST`。
+
 `requirePostForMutations` 默认值为 `null`：non-POST mutation 会保留旧行为，并在 Yii 日志中以
 `yii\graphql\deprecation` 分类记录警告。显式设置为 `false` 可继续使用旧行为且不产生警告；下一个 major 版本会将默认值
 改为 `true`。`requireAccessCheckForMutations` 默认值仍为 `false`，继续采用 opt-in 方式。Mutation 检测以

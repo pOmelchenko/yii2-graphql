@@ -247,3 +247,14 @@ converted to an exception by Yii's standard error handler and abort the request.
 Ensure your Yii log targets include the warning level and this category if you want to collect these notices.
 Custom PHP error handlers no longer receive this mutation deprecation. Explicit `false` remains a silent legacy
 opt-out, and `true` continues to reject non-POST mutations. Dependency constraints and policy defaults are unchanged.
+
+### Mutation policy timing
+
+`requirePostForMutations` and `requireAccessCheckForMutations` are now evaluated in `GraphQLAction::run()` after
+Yii's module/controller `beforeAction` filters, before `checkAccess` callbacks and resolvers. Authentication, CORS,
+content negotiation, and audit filters therefore run before a mutation is rejected by these policies. A filter can
+also stop the request first, for example with HTTP 401 or a successful CORS preflight response.
+
+Integrations that construct actions directly must execute them to trigger these policy checks; construction alone
+no longer rejects mutations. Use `Controller::runAction()` to include the normal filter lifecycle. Policy failures
+use the action's JSON response format, and strict transport failures include `Allow: POST` with HTTP 405.
