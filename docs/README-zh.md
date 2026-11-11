@@ -26,7 +26,9 @@ yii-graphql 特点
 ```
 composer require pomelchenko/yii2-graphql
 ```
-需要 PHP ≥ 7.4 和 [webonyx/graphql-php](https://github.com/webonyx/graphql-php) ≥ 14.8（限 14.x）。CI 测试最新和最低可解析依赖，包括 [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.x。
+需要 PHP ≥ 8.0 和 [webonyx/graphql-php](https://github.com/webonyx/graphql-php) ≥ 14.8（限 14.x）。CI 测试最新和最低可解析依赖，包括 [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.x。
+
+PHP 8.0 是[分阶段 PHP 迁移](PHP-MIGRATION.md)的第一步。PHP 7.4 应用在准备升级运行环境期间可以继续使用已发布的 `14.11.2` 标签。
 
 升级前，请阅读 [UPGRADE.md](../UPGRADE.md) 中按版本整理的迁移说明。
 

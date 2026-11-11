@@ -4,6 +4,10 @@ Yii2 Graphql Changelog
 
 > Before upgrading, follow each applicable version step in [UPGRADE.md](UPGRADE.md).
 
+- **Platform compatibility change:** raised the minimum PHP version from 7.4 to 8.0 as the first staged migration
+  step. Library dependency constraints and runtime behavior are unchanged.
+- Moved `prefer-lowest` CI to PHP 8.0, removed PHP 7.4 testing and its Diactoros advisory exception.
+
 # 14.11.2
 - Raised the webonyx/graphql-php minimum to 14.8.0, which introduced the required `AST::getOperationAST()` API.
 - Added a PHP 7.4 `prefer-lowest` CI job that executes the full test suite, including GraphQL requests.

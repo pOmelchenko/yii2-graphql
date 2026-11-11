@@ -26,7 +26,9 @@ Using [composer](https://getcomposer.org/)
 ```
 composer require pomelchenko/yii2-graphql
 ```
-Requires PHP ≥ 7.4 and [webonyx/graphql-php](https://github.com/webonyx/graphql-php) ≥ 14.8 within 14.x. CI tests both latest and lowest resolvable dependencies, including [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.x.
+Requires PHP ≥ 8.0 and [webonyx/graphql-php](https://github.com/webonyx/graphql-php) ≥ 14.8 within 14.x. CI tests both latest and lowest resolvable dependencies, including [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.x.
+
+PHP 8.0 is the first step in the [staged PHP migration](docs/PHP-MIGRATION.md). Applications on PHP 7.4 can use the published `14.11.2` tag while preparing their runtime upgrade.
 
 Before upgrading, review the version-by-version instructions in [UPGRADE.md](UPGRADE.md).
 

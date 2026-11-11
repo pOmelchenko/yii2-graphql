@@ -296,3 +296,28 @@ PHP version. The lowest-dependency job checks runtime compatibility with PHPUnit
 `composer mutation` and CI now require an overall MSI of at least 70% and a covered MSI of at least 74%. Falling
 below either threshold makes the command fail. Infection reports remain available as CI artifacts on failure.
 See [the testing guide](docs/TESTING.md) for the per-version baseline and the process for raising these thresholds.
+
+## Unreleased: migrate from PHP 7.4 to PHP 8.0
+
+### Upgrade the runtime before the extension
+
+The minimum PHP requirement is now `>=8.0.0`. This is a platform compatibility change: PHP 7.4 can continue using
+the published `14.11.2` tag, but Composer will reject this new version on PHP 7.4. First run the existing application
+and `14.11.2` on PHP 8.0 and resolve application-level incompatibilities. Then update the extension, check the lock
+file diff, and run `composer check-platform-reqs` with the actual deployment runtime. Upgrade CLI, web and worker
+runtimes together; Composer's `config.platform.php` is a resolver setting, not a substitute for running PHP 8.0.
+
+The webonyx 14, graphql-upload 6 and Diactoros 2 constraints remain unchanged. Mutation transport defaults,
+authorization behavior and the retirement plan for `requirePostForMutations` are unchanged. Future minimum-PHP
+steps and the webonyx 15 adaptation will be separate changes. See [the migration plan](docs/PHP-MIGRATION.md).
+
+### Recheck dependency locks and CI
+
+CI now tests the latest dependencies on PHP 8.0–8.3 and the lowest resolvable dependencies on PHP 8.0. PHP 7.4 is
+removed from the matrix. PHP 8.4 and 8.5 remain skipped because the current Diactoros 2 constraint does not support
+those runtimes. Infection thresholds remain 70% MSI and 74% covered MSI.
+
+The PHP 7.4-only Diactoros advisory exception is removed from CI. Fresh CI resolutions must select a patched
+Diactoros version. Raising the PHP minimum does not update an application's existing lock: the unchanged `^2.17`
+constraint still permits vulnerable older Diactoros versions. Review `composer audit --locked` and update affected
+dependencies under the application's security policy. Known webonyx 14 advisories remain unresolved at this stage.
