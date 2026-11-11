@@ -219,6 +219,20 @@ class GraphQLActionLifecycleTest extends TestCase
         $this->assertSame(0, $this->resolverCalls);
     }
 
+    public function testDefaultGetMutationCannotUseAnExistingAuthenticatedIdentity()
+    {
+        $this->prepareRequest('GET', false);
+        $this->useExistingIdentityWithCsrfValidation();
+
+        $response = $this->runAndRender();
+
+        $this->assertFalse(\Yii::$app->user->isGuest);
+        $this->assertSame(405, $response->statusCode);
+        $this->assertSame(Response::FORMAT_JSON, $response->format);
+        $this->assertSame('POST', $response->headers->get('Allow'));
+        $this->assertSame(0, $this->resolverCalls);
+    }
+
     public function testPostMutationWithValidCsrfTokenCanExecute()
     {
         $this->prepareRequest('POST');
