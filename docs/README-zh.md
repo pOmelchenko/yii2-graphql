@@ -345,8 +345,8 @@ class GraphqlController extends Controller
 `requirePostForMutations` 的同时将 non-POST 传输升级为 POST，或将 POST 传输降级为安全方法。如果应用有意
 信任 method override，请将该选项设为 `false`，并在运行 `GraphQLAction` 前验证代理和 override。
 
-`requirePostForMutations` 默认值为 `null`：non-POST mutation 会保留旧行为，但会触发
-`E_USER_DEPRECATED` 警告。显式设置为 `false` 可继续使用旧行为且不产生警告；下一个 major 版本会将默认值
+`requirePostForMutations` 默认值为 `null`：non-POST mutation 会保留旧行为，并在 Yii 日志中以
+`yii\graphql\deprecation` 分类记录警告。显式设置为 `false` 可继续使用旧行为且不产生警告；下一个 major 版本会将默认值
 改为 `true`。`requireAccessCheckForMutations` 默认值仍为 `false`，继续采用 opt-in 方式。Mutation 检测以
 `operationName` 选中的操作为准，因此同一文档中的其他操作不会触发这些要求。
 

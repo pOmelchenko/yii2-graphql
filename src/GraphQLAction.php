@@ -65,7 +65,7 @@ class GraphQLAction extends Action
     /**
      * @var bool|null whether mutation requests must use POST as both the original HTTP transport method and Yii's
      * effective method. Method overrides do not satisfy this requirement in either direction. Null preserves legacy
-     * behavior and emits a deprecation warning when either method is non-POST. The default will become true in the
+     * behavior and logs a deprecation warning when either method is non-POST. The default will become true in the
      * next major.
      */
     public $requirePostForMutations = null;
@@ -138,11 +138,11 @@ class GraphQLAction extends Action
         if ($hasMutation && (!$isTransportPost || !$isEffectivePost)) {
             if ($this->requirePostForMutations === null) {
                 // TODO: Remove this legacy branch and default the option to true in the next major release.
-                trigger_error(
+                Yii::warning(
                     'Allowing GraphQL mutations over non-POST requests without explicitly configuring '
                     . 'GraphQLAction::$requirePostForMutations is deprecated. Set it to true to require POST '
                     . 'or false to keep the legacy behavior. The default will change to true in the next major release.',
-                    E_USER_DEPRECATED
+                    'yii\graphql\deprecation'
                 );
             } elseif ($this->requirePostForMutations) {
                 throw new MethodNotAllowedHttpException('GraphQL mutations must use POST requests.');

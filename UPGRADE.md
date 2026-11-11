@@ -235,3 +235,15 @@ PHP 7.4 has an additional dependency limitation: it resolves to laminas/laminas-
 [CVE-2023-29530](https://github.com/laminas/laminas-diactoros/security/advisories/GHSA-xv3h-4844-9h36)
 (`PKSA-yg4s-vh6g-jnyh`, HTTP multiline header termination). Its fixed releases require PHP 8.0 or newer. Only the
 PHP 7.4 compatibility job permits that advisory during dependency resolution, and its audit still reports it.
+
+## Unreleased changes after 14.11.0
+
+### Mutation deprecation logging
+
+Leaving `GraphQLAction::$requirePostForMutations` at `null` still permits non-POST mutations, but now records a
+warning through Yii's logger in the `yii\graphql\deprecation` category. Previously `E_USER_DEPRECATED` could be
+converted to an exception by Yii's standard error handler and abort the request.
+
+Ensure your Yii log targets include the warning level and this category if you want to collect these notices.
+Custom PHP error handlers no longer receive this mutation deprecation. Explicit `false` remains a silent legacy
+opt-out, and `true` continues to reject non-POST mutations. Dependency constraints and policy defaults are unchanged.

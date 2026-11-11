@@ -4,6 +4,9 @@ Yii2 Graphql Changelog
 
 > Before upgrading, follow each applicable version step in [UPGRADE.md](UPGRADE.md).
 
+- Fixed non-POST mutation deprecation breaking requests under Yii's standard error handler. The implicit legacy
+  policy now logs a Yii warning under `yii\graphql\deprecation`; explicit `false` remains silent and `true` still rejects.
+
 # 14.11.0
 - Aligned the extension's major and minor version with the webonyx/graphql-php 14.11 compatibility target; patch
   versions remain independent. Composer dependency constraints and mutation-policy defaults are unchanged.

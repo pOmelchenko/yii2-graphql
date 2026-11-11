@@ -322,8 +322,8 @@ class GraphqlController extends Controller
 выполнение `requirePostForMutations`. Если приложение намеренно доверяет method override, задайте этому флагу `false`
 и проверяйте прокси и override до запуска `GraphQLAction`.
 
-По умолчанию `requirePostForMutations` равен `null`: mutation через non-POST сохраняет прежнее поведение, но вызывает
-предупреждение `E_USER_DEPRECATED`. Явно задайте `false`, чтобы оставить legacy-поведение без предупреждения; в
+По умолчанию `requirePostForMutations` равен `null`: mutation через non-POST сохраняет прежнее поведение и записывает
+предупреждение в журнал Yii с категорией `yii\graphql\deprecation`. Явно задайте `false`, чтобы оставить legacy-поведение без предупреждения; в
 следующей major-версии значением по умолчанию станет `true`. `requireAccessCheckForMutations` по умолчанию равен
 `false` и остаётся opt-in. Mutation определяется по операции, выбранной через `operationName`, поэтому другие
 операции в том же документе не активируют эти требования.
