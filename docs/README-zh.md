@@ -342,15 +342,17 @@ class GraphqlController extends Controller
 
 启用这些选项后，选中的 mutation 的原始 HTTP 传输方法和 Yii 有效方法都必须是 POST，并且必须配置
 `checkAccess` 回调。Yii 的 `_method` 参数和 `X-Http-Method-Override` 请求头不能在满足
-`requirePostForMutations` 的同时将 non-POST 传输升级为 POST，或将 POST 传输降级为安全方法。如果应用有意
-信任 method override，请将该选项设为 `false`，并在运行 `GraphQLAction` 前验证代理和 override。
+`requirePostForMutations` 的同时将 non-POST 传输升级为 POST，或将 POST 传输降级为安全方法。
+使用 method override 的集成需要在运行 `GraphQLAction` 前迁移为实际 POST 传输和有效 POST 方法。
 
 Mutation 策略在 Yii 模块和控制器的 `beforeAction` 过滤器之后、权限回调和解析器之前检查。
 策略错误使用 JSON；被拒绝的 non-POST mutation 返回 HTTP 405，并包含 `Allow: POST`。
 
-`requirePostForMutations` 默认值为 `null`：non-POST mutation 会保留旧行为，并在 Yii 日志中以
-`yii\graphql\deprecation` 分类记录警告。显式设置为 `false` 可继续使用旧行为且不产生警告；下一个 major 版本会将默认值
-改为 `true`。`requireAccessCheckForMutations` 默认值仍为 `false`，继续采用 opt-in 方式。Mutation 检测以
+`requirePostForMutations` 默认值为 `true`，`null` 同样要求 POST。只有显式 `false` 暂时允许旧的 non-POST 行为。
+此 opt-out 已弃用：使用它的每次 mutation（包括 POST）都会以 `yii\graphql\deprecation` 分类记录 Yii 警告。
+首个基于 webonyx 15.x 的版本将删除该选项，并对所有 mutation 强制 POST。参见
+[迁移计划](../UPGRADE.md#unreleased-changes-after-14110)。Cookie/session 认证的应用应保留 Yii CSRF 校验；POST 不能替代 CSRF token。
+`requireAccessCheckForMutations` 默认值仍为 `false`，继续采用 opt-in 方式。Mutation 检测以
 `operationName` 选中的操作为准，因此同一文档中的其他操作不会触发这些要求。
 
 ### Multipart 上传支持

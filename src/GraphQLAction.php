@@ -65,11 +65,11 @@ class GraphQLAction extends Action
     public $checkAccess;
     /**
      * @var bool|null whether mutation requests must use POST as both the original HTTP transport method and Yii's
-     * effective method. Method overrides do not satisfy this requirement in either direction. Null preserves legacy
-     * behavior and logs a deprecation warning when either method is non-POST. The default will become true in the
-     * next major.
+     * effective method. Method overrides do not satisfy this requirement in either direction. Defaults to true;
+     * null also requires POST. An explicit false enables deprecated legacy behavior and logs a Yii warning.
+     * @deprecated since 14.11.1. Remove this option; the first release targeting webonyx 15.x will always require POST.
      */
-    public $requirePostForMutations = null;
+    public $requirePostForMutations = true;
     /**
      * @var bool whether mutations require a configured access check. Disabled by default for backward compatibility.
      */
@@ -141,19 +141,18 @@ class GraphQLAction extends Action
         $isTransportPost = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
         $isEffectivePost = $request->isPost;
 
-        if ($hasMutation && (!$isTransportPost || !$isEffectivePost)) {
-            if ($this->requirePostForMutations === null) {
-                // TODO: Remove this legacy branch and default the option to true in the next major release.
-                Yii::warning(
-                    'Allowing GraphQL mutations over non-POST requests without explicitly configuring '
-                    . 'GraphQLAction::$requirePostForMutations is deprecated. Set it to true to require POST '
-                    . 'or false to keep the legacy behavior. The default will change to true in the next major release.',
-                    'yii\graphql\deprecation'
-                );
-            } elseif ($this->requirePostForMutations) {
-                Yii::$app->getResponse()->getHeaders()->set('Allow', 'POST');
-                throw new MethodNotAllowedHttpException('GraphQL mutations must use POST requests.');
-            }
+        if ($hasMutation && $this->requirePostForMutations === false) {
+            Yii::warning(
+                'GraphQLAction::$requirePostForMutations=false is deprecated. Send all mutations over POST '
+                . 'and remove this option. The legacy opt-out will be removed in the first release targeting '
+                . 'webonyx/graphql-php 15.x.',
+                'yii\graphql\deprecation'
+            );
+        }
+
+        if ($hasMutation && (!$isTransportPost || !$isEffectivePost) && $this->requirePostForMutations !== false) {
+            Yii::$app->getResponse()->getHeaders()->set('Allow', 'POST');
+            throw new MethodNotAllowedHttpException('GraphQL mutations must use POST requests.');
         }
 
         if ($hasMutation && $this->requireAccessCheckForMutations && !$this->checkAccess) {

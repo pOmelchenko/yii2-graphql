@@ -5,6 +5,7 @@ namespace yiiunit\extensions\graphql;
 use GraphQL\Type\Definition\Type;
 use yii\base\Controller;
 use yii\base\Module as YiiModule;
+use yii\filters\AccessControl;
 use yii\filters\ContentNegotiator;
 use yii\filters\Cors;
 use yii\filters\auth\QueryParamAuth;
@@ -126,7 +127,8 @@ class GraphQLActionLifecycleTest extends TestCase
     public function rejectedMutationProvider()
     {
         return [
-            'transport policy' => ['GET', ['requirePostForMutations' => true], 405],
+            'default transport policy' => ['GET', [], 405],
+            'explicit null transport policy' => ['GET', ['requirePostForMutations' => null], 405],
             'access-check policy' => ['POST', ['requireAccessCheckForMutations' => true], 403],
         ];
     }
@@ -202,5 +204,45 @@ class GraphQLActionLifecycleTest extends TestCase
         $this->assertSame(200, $response->statusCode);
         $this->assertSame(['data' => ['touch' => true]], json_decode($response->content, true));
         $this->assertSame(1, $this->resolverCalls);
+    }
+
+    public function testPostMutationStillRequiresCsrfTokenWhenYiiValidationIsEnabled()
+    {
+        $this->prepareRequest('POST');
+        $this->useExistingIdentityWithCsrfValidation();
+
+        $response = $this->runAndRender();
+
+        $this->assertSame(400, $response->statusCode);
+        $this->assertSame(Response::FORMAT_JSON, $response->format);
+        $this->assertNull($response->headers->get('Allow'));
+        $this->assertSame(0, $this->resolverCalls);
+    }
+
+    public function testPostMutationWithValidCsrfTokenCanExecute()
+    {
+        $this->prepareRequest('POST');
+        $this->useExistingIdentityWithCsrfValidation();
+        $request = \Yii::$app->request;
+        $request->headers->set($request->csrfHeader, $request->getCsrfToken());
+
+        $response = $this->runAndRender();
+
+        $this->assertSame(200, $response->statusCode);
+        $this->assertSame(['data' => ['touch' => true]], json_decode($response->content, true));
+        $this->assertSame(1, $this->resolverCalls);
+    }
+
+    private function useExistingIdentityWithCsrfValidation(): void
+    {
+        // Model an already authenticated session; a fresh token login regenerates the CSRF token.
+        $this->controller->detachBehavior('authenticator');
+        \Yii::$app->user->setIdentity(\yiiunit\extensions\graphql\data\DataSource::findUser(1));
+        $this->controller->attachBehavior('sessionAccess', [
+            'class' => AccessControl::class,
+            'rules' => [['allow' => true, 'roles' => ['@']]],
+        ]);
+        $this->controller->enableCsrfValidation = true;
+        \Yii::$app->request->enableCsrfValidation = true;
     }
 }
