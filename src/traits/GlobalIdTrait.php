@@ -39,7 +39,7 @@ trait GlobalIdTrait
      */
     public function decodeRelayId($id)
     {
-        list($type, $id) = $this->decodeGlobalId($id);
+        list($_type, $id) = $this->decodeGlobalId($id);
 
         return $id;
     }
@@ -52,7 +52,7 @@ trait GlobalIdTrait
      */
     public function decodeRelayType($id)
     {
-        list($type, $id) = $this->decodeGlobalId($id);
+        list($type, $_id) = $this->decodeGlobalId($id);
 
         return $type;
     }
