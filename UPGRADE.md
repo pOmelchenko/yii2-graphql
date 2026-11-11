@@ -236,7 +236,7 @@ PHP 7.4 has an additional dependency limitation: it resolves to laminas/laminas-
 (`PKSA-yg4s-vh6g-jnyh`, HTTP multiline header termination). Its fixed releases require PHP 8.0 or newer. Only the
 PHP 7.4 compatibility job permits that advisory during dependency resolution, and its audit still reports it.
 
-## Unreleased changes after 14.11.0
+## Upgrade from 14.11.0 to 14.11.1
 
 ### Require POST by default and retire the legacy opt-out
 
@@ -249,9 +249,12 @@ Only explicit `false` temporarily preserves legacy transport behavior. It is dep
 under `yii\graphql\deprecation` on every selected mutation, including POST mutations. These warnings do not raise
 PHP deprecations and do not interrupt the standard Yii error handler. Dependency constraints are unchanged.
 
+Do not use the legacy non-POST opt-out for cookie/session-authenticated mutation endpoints: Yii's standard CSRF
+validation skips GET requests, so that opt-out still exposes ambient authentication to cross-site mutations.
+
 The retirement plan is:
 
-1. In the next 14.11 patch (planned 14.11.1), require POST by default and deprecate the explicit `false` opt-out.
+1. In 14.11.1, require POST by default and deprecate the explicit `false` opt-out.
 2. During the remaining 14.11.x maintenance releases, retain only that explicit compatibility path and its warnings.
 3. In the first release targeting webonyx 15.x, remove `requirePostForMutations` and always require POST. Applications
    must remove the configuration key, including explicit `true` or `null` values, before upgrading to that release.
