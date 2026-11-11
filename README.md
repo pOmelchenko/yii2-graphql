@@ -346,12 +346,16 @@ hardening so existing applications keep their current behavior:
 With these options enabled, the selected mutation must use POST as both the original HTTP transport method and Yii's
 effective method, and must have a configured `checkAccess` callback. Yii's `_method` parameter and
 `X-Http-Method-Override` header cannot upgrade a non-POST transport or downgrade a POST transport while satisfying
-`requirePostForMutations`. Applications that intentionally trust method overrides must set this flag to `false` and
-validate the proxy and override before `GraphQLAction` runs.
+`requirePostForMutations`. Method-override integrations must migrate to an actual POST transport and an effective
+POST method before `GraphQLAction` runs.
 
-`requirePostForMutations` defaults to `null`: a non-POST mutation keeps the legacy behavior and logs a Yii warning
-under `yii\graphql\deprecation`. Set it explicitly to `false` to retain that behavior without a warning; its default will
-become `true` in the next major release. `requireAccessCheckForMutations` defaults to `false` and remains opt-in.
+`requirePostForMutations` defaults to `true`; `null` also requires POST. Only an explicit `false` temporarily permits
+legacy non-POST mutations. This opt-out is deprecated: every mutation using it logs a Yii warning under
+`yii\graphql\deprecation`, including POST mutations so applications can find and remove stale configuration.
+The first release targeting webonyx 15.x will remove the option and require POST for every mutation. See
+[the migration plan](UPGRADE.md#unreleased-changes-after-14110). Cookie/session-authenticated applications must
+retain Yii's CSRF validation; requiring POST does not replace CSRF tokens.
+`requireAccessCheckForMutations` defaults to `false` and remains opt-in.
 Mutation detection follows the operation selected by `operationName`, so other operations in the same document do
 not activate these requirements.
 
