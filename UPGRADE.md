@@ -276,7 +276,7 @@ Integrations that construct actions directly must execute them to trigger these 
 no longer rejects mutations. Use `Controller::runAction()` to include the normal filter lifecycle. Policy failures
 use the action's JSON response format, and strict transport failures include `Allow: POST` with HTTP 405.
 
-## Unreleased
+## Upgrade from 14.11.1 to 14.11.2
 
 ### Require webonyx 14.8 or newer
 
@@ -290,3 +290,9 @@ GraphQL query and mutation execution. This tests the lowest versions resolvable 
 exceptions and Composer's remaining security checks; it does not disable security blocking globally.
 Lint, static analysis, coverage, and mutation testing continue to run with the latest dependencies on each supported
 PHP version. The lowest-dependency job checks runtime compatibility with PHPUnit.
+
+### Enforce mutation score thresholds in development
+
+`composer mutation` and CI now require an overall MSI of at least 70% and a covered MSI of at least 74%. Falling
+below either threshold makes the command fail. Infection reports remain available as CI artifacts on failure.
+See [the testing guide](docs/TESTING.md) for the per-version baseline and the process for raising these thresholds.

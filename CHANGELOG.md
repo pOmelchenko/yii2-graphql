@@ -4,8 +4,11 @@ Yii2 Graphql Changelog
 
 > Before upgrading, follow each applicable version step in [UPGRADE.md](UPGRADE.md).
 
+# 14.11.2
 - Raised the webonyx/graphql-php minimum to 14.8.0, which introduced the required `AST::getOperationAST()` API.
 - Added a PHP 7.4 `prefer-lowest` CI job that executes the full test suite, including GraphQL requests.
+- Made Infection a CI quality gate with a minimum MSI of 70% and covered MSI of 74%, based on all supported PHP
+  versions. Documented the baseline and how to raise it; failure artifacts remain available.
 
 # 14.11.1
 - **Security behavior change:** mutations require POST by default; `null` also enforces POST. Non-POST requests
