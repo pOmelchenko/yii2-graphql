@@ -4,6 +4,7 @@ Yii2 Graphql Changelog
 
 > Before upgrading, follow each applicable version step in [UPGRADE.md](UPGRADE.md).
 
+# 14.11.1
 - **Security behavior change:** mutations require POST by default; `null` also enforces POST. Non-POST requests
   receive HTTP 405 instead of an error-handler-dependent deprecation or implicit mutation execution.
 - Deprecated the explicit `requirePostForMutations=false` legacy opt-out. Each mutation using it logs a Yii warning

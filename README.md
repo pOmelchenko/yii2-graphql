@@ -356,7 +356,7 @@ Policy failures use JSON; a rejected non-POST mutation returns HTTP 405 with `Al
 legacy non-POST mutations. This opt-out is deprecated: every mutation using it logs a Yii warning under
 `yii\graphql\deprecation`, including POST mutations so applications can find and remove stale configuration.
 The first release targeting webonyx 15.x will remove the option and require POST for every mutation. See
-[the migration plan](UPGRADE.md#unreleased-changes-after-14110). Cookie/session-authenticated applications must
+[the migration plan](UPGRADE.md#upgrade-from-14110-to-14111). Cookie/session-authenticated applications must
 retain Yii's CSRF validation; requiring POST does not replace CSRF tokens.
 `requireAccessCheckForMutations` defaults to `false` and remains opt-in.
 Mutation detection follows the operation selected by `operationName`, so other operations in the same document do

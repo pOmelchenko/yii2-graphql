@@ -329,7 +329,7 @@ class GraphqlController extends Controller
 legacy non-POST мутации. Этот opt-out устарел: каждая мутация с ним пишет предупреждение в журнал Yii с категорией
 `yii\graphql\deprecation`, включая POST-мутации, чтобы находить и удалять устаревшую конфигурацию.
 В первом релизе на webonyx 15.x опция будет удалена, и POST станет обязательным для всех мутаций. См.
-[план миграции](../UPGRADE.md#unreleased-changes-after-14110). При cookie/session-аутентификации сохраняйте
+[план миграции](../UPGRADE.md#upgrade-from-14110-to-14111). При cookie/session-аутентификации сохраняйте
 CSRF-проверку Yii: требование POST не заменяет CSRF-токены.
 `requireAccessCheckForMutations` по умолчанию равен `false` и остаётся opt-in. Mutation определяется по операции,
 выбранной через `operationName`, поэтому другие

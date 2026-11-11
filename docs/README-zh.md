@@ -351,7 +351,7 @@ Mutation 策略在 Yii 模块和控制器的 `beforeAction` 过滤器之后、�
 `requirePostForMutations` 默认值为 `true`，`null` 同样要求 POST。只有显式 `false` 暂时允许旧的 non-POST 行为。
 此 opt-out 已弃用：使用它的每次 mutation（包括 POST）都会以 `yii\graphql\deprecation` 分类记录 Yii 警告。
 首个基于 webonyx 15.x 的版本将删除该选项，并对所有 mutation 强制 POST。参见
-[迁移计划](../UPGRADE.md#unreleased-changes-after-14110)。Cookie/session 认证的应用应保留 Yii CSRF 校验；POST 不能替代 CSRF token。
+[迁移计划](../UPGRADE.md#upgrade-from-14110-to-14111)。Cookie/session 认证的应用应保留 Yii CSRF 校验；POST 不能替代 CSRF token。
 `requireAccessCheckForMutations` 默认值仍为 `false`，继续采用 opt-in 方式。Mutation 检测以
 `operationName` 选中的操作为准，因此同一文档中的其他操作不会触发这些要求。
 
