@@ -275,3 +275,18 @@ also stop the request first, for example with HTTP 401 or a successful CORS pref
 Integrations that construct actions directly must execute them to trigger these policy checks; construction alone
 no longer rejects mutations. Use `Controller::runAction()` to include the normal filter lifecycle. Policy failures
 use the action's JSON response format, and strict transport failures include `Allow: POST` with HTTP 405.
+
+## Unreleased
+
+### Require webonyx 14.8 or newer
+
+The webonyx/graphql-php constraint is now `^14.8`. `AST::getOperationAST()`, used when parsing requests and selecting
+operations, was introduced in 14.8.0. Composer previously allowed older 14.x versions that could fail at runtime.
+Applications locked to webonyx 14.0–14.7 must update that dependency together with this extension. No other Composer
+constraint changes; the compatibility target and extension versioning remain 14.11.x.
+
+CI now runs the full PHPUnit suite on PHP 7.4 with `composer update --prefer-lowest --prefer-stable`, including real
+GraphQL query and mutation execution. This tests the lowest versions resolvable under CI's existing advisory
+exceptions and Composer's remaining security checks; it does not disable security blocking globally.
+Lint, static analysis, coverage, and mutation testing continue to run with the latest dependencies on each supported
+PHP version. The lowest-dependency job checks runtime compatibility with PHPUnit.

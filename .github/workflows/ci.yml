@@ -20,6 +20,10 @@ jobs:
           - php-version: '7.4'
             coverage: xdebug
             supported: true
+          - php-version: '7.4'
+            coverage: none
+            supported: true
+            dependencies: lowest
           - php-version: '8.0'
             coverage: xdebug
             supported: true
@@ -74,16 +78,23 @@ jobs:
               "PKSA-yg4s-vh6g-jnyh": {"apply": "block", "reason": "PHP 7.4 compatibility CI only; Diactoros 2.17"}
             }'
           fi
-          composer install --prefer-dist --no-progress --no-interaction
+          if [ "${{ matrix.dependencies }}" = "lowest" ]; then
+            composer update --prefer-lowest --prefer-stable --prefer-dist --no-progress --no-interaction
+          else
+            composer install --prefer-dist --no-progress --no-interaction
+          fi
+      - name: Report resolved dependency versions
+        if: matrix.supported == true && matrix.dependencies == 'lowest'
+        run: composer show --direct
       - name: Report dependency security advisories
         if: matrix.supported == true
         continue-on-error: true
         run: composer audit --locked
       - name: Run PHP_CodeSniffer
-        if: matrix.supported == true
+        if: matrix.supported == true && matrix.dependencies != 'lowest'
         run: vendor/bin/phpcs --standard=phpcs.xml.dist
       - name: Run PHPStan
-        if: matrix.supported == true
+        if: matrix.supported == true && matrix.dependencies != 'lowest'
         run: vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=512M
       - name: Run tests with coverage
         if: matrix.supported == true && matrix.coverage == 'xdebug'

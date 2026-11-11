@@ -26,14 +26,14 @@ yii-graphql 特点
 ```
 composer require pomelchenko/yii2-graphql
 ```
-需要 PHP ≥ 7.4；项目已在 [webonyx/graphql-php](https://github.com/webonyx/graphql-php) 14.x 与 [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.1.x 上测试。
+需要 PHP ≥ 7.4 和 [webonyx/graphql-php](https://github.com/webonyx/graphql-php) ≥ 14.8（限 14.x）。CI 测试最新和最低可解析依赖，包括 [ecodev/graphql-upload](https://github.com/Ecodev/graphql-upload) 6.x。
 
 升级前，请阅读 [UPGRADE.md](../UPGRADE.md) 中按版本整理的迁移说明。
 
 ### 版本编号
 
 从 `14.11.0` 开始，扩展的主版本和次版本对应 webonyx 的兼容目标分支（`14.11.x`），补丁版本独立递增。
-Composer 依赖约束保持不变，包括 `webonyx/graphql-php: ^14`。
+webonyx 依赖约束为 `^14.8`：14.8.0 引入了本扩展使用的 `AST::getOperationAST()` API。
 
 webonyx 14 仍存在已知的上游拒绝服务漏洞。公告链接及本次发布的限制见
 [14.11.0 升级说明](../UPGRADE.md#upgrade-from-0181-to-14110)。
