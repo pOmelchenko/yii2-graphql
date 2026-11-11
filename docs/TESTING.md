@@ -1,5 +1,12 @@
 # Testing and mutation score thresholds
 
+## Runtime coverage
+
+The current minimum is PHP 8.0. CI runs the full PHPUnit, lint, PHPStan and Infection checks with the latest
+dependencies on PHP 8.0–8.3. A separate PHP 8.0 job resolves `--prefer-lowest --prefer-stable` dependencies and runs
+the full PHPUnit suite, including GraphQL request execution. PHP 8.4 and 8.5 are explicitly skipped while the
+project depends on Diactoros 2. See [the PHP migration plan](PHP-MIGRATION.md) for the next stages.
+
 Run `composer test`, `composer lint`, and `composer stan` before submitting changes. Run the mutation suite with
 Xdebug or PCOV available:
 
@@ -20,6 +27,8 @@ failure, so this also fails the job. A run with no mutations does not bypass the
 ## Why these thresholds
 
 The common baseline comes from the successful [14.11.1 tag CI run](https://github.com/pOmelchenko/yii2-graphql/actions/runs/43073805016):
+
+This is a historical reference; the PHP 8.0 migration removes PHP 7.4 testing and keeps the existing common thresholds.
 
 | PHP | Infection | MSI | Covered MSI |
 | --- | --- | --- | --- |

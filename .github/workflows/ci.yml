@@ -17,10 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - php-version: '7.4'
-            coverage: xdebug
-            supported: true
-          - php-version: '7.4'
+          - php-version: '8.0'
             coverage: none
             supported: true
             dependencies: lowest
@@ -72,12 +69,6 @@ jobs:
             "PKSA-sf9j-1gs7-xzvx": {"apply": "block", "reason": "webonyx 14 compatibility CI only"},
             "PKSA-7h5p-prw9-w5nr": {"apply": "block", "reason": "webonyx 14 compatibility CI only"}
           }'
-          # PHP 7.4 is limited to Diactoros 2.17; its header advisory has no PHP 7.4-compatible fix.
-          if [ "${{ matrix.php-version }}" = "7.4" ]; then
-            composer config --global --merge --json audit.ignore '{
-              "PKSA-yg4s-vh6g-jnyh": {"apply": "block", "reason": "PHP 7.4 compatibility CI only; Diactoros 2.17"}
-            }'
-          fi
           if [ "${{ matrix.dependencies }}" = "lowest" ]; then
             composer update --prefer-lowest --prefer-stable --prefer-dist --no-progress --no-interaction
           else
