@@ -230,3 +230,8 @@ is outside this release's dependency scope. A new tag does not make webonyx 14 s
 Modern Composer can block a fresh dependency resolution for this branch. Compatibility CI uses an explicit,
 runner-local exception for these three advisory IDs only; it does not change the package's `composer.json` and
 continues to report the advisories in an audit step. Applications retain their own dependency-security policy.
+
+PHP 7.4 has an additional dependency limitation: it resolves to laminas/laminas-diactoros 2.17, which is affected by
+[CVE-2023-29530](https://github.com/laminas/laminas-diactoros/security/advisories/GHSA-xv3h-4844-9h36)
+(`PKSA-yg4s-vh6g-jnyh`, HTTP multiline header termination). Its fixed releases require PHP 8.0 or newer. Only the
+PHP 7.4 compatibility job permits that advisory during dependency resolution, and its audit still reports it.

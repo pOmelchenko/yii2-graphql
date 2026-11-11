@@ -18,6 +18,8 @@ Yii2 Graphql Changelog
 - Corrected the authentication namespace and email-scalar examples in all README translations.
 - Documented the three known upstream denial-of-service advisories affecting webonyx 14; these remain unresolved
   in this compatibility release. CI permits only those advisories for dependency resolution and still reports them.
+- Documented the additional Diactoros header advisory affecting the PHP 7.4 dependency set; only the PHP 7.4
+  compatibility job permits it during resolution. CI runs all matrix jobs even if another PHP version fails.
 
 # 0.18.1
 - **Security:** required both the original transport method and Yii's effective method to remain POST for strict
