@@ -261,3 +261,14 @@ method away from POST, and remove the `requirePostForMutations` configuration ke
 in `yii\graphql\deprecation` to identify remaining legacy use; after migration, these warnings should disappear.
 GET queries remain supported. Cookie/session-authenticated applications must keep Yii's CSRF validation enabled
 and provide valid CSRF tokens for mutations: POST enforcement is not a replacement for CSRF protection.
+
+### Mutation policy timing
+
+`requirePostForMutations` and `requireAccessCheckForMutations` are now evaluated in `GraphQLAction::run()` after
+Yii's module/controller `beforeAction` filters, before `checkAccess` callbacks and resolvers. Authentication, CORS,
+content negotiation, and audit filters therefore run before a mutation is rejected by these policies. A filter can
+also stop the request first, for example with HTTP 401 or a successful CORS preflight response.
+
+Integrations that construct actions directly must execute them to trigger these policy checks; construction alone
+no longer rejects mutations. Use `Controller::runAction()` to include the normal filter lifecycle. Policy failures
+use the action's JSON response format, and strict transport failures include `Allow: POST` with HTTP 405.

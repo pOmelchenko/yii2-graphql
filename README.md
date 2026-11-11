@@ -349,6 +349,9 @@ effective method, and must have a configured `checkAccess` callback. Yii's `_met
 `requirePostForMutations`. Method-override integrations must migrate to an actual POST transport and an effective
 POST method before `GraphQLAction` runs.
 
+Mutation policies run after Yii's module/controller `beforeAction` filters and before access callbacks or resolvers.
+Policy failures use JSON; a rejected non-POST mutation returns HTTP 405 with `Allow: POST`.
+
 `requirePostForMutations` defaults to `true`; `null` also requires POST. Only an explicit `false` temporarily permits
 legacy non-POST mutations. This opt-out is deprecated: every mutation using it logs a Yii warning under
 `yii\graphql\deprecation`, including POST mutations so applications can find and remove stale configuration.

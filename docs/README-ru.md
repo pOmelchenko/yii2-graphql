@@ -322,6 +322,9 @@ class GraphqlController extends Controller
 выполнение `requirePostForMutations`. Интеграции с method override нужно перевести на настоящий POST-транспорт и
 эффективный метод POST до запуска `GraphQLAction`.
 
+Политики мутаций проверяются после фильтров `beforeAction` модуля и контроллера Yii, перед callback проверки доступа
+и резолверами. Ошибки политик возвращаются в JSON; отклонённая non-POST mutation получает HTTP 405 и `Allow: POST`.
+
 По умолчанию `requirePostForMutations` равен `true`; `null` тоже требует POST. Только явное `false` временно разрешает
 legacy non-POST мутации. Этот opt-out устарел: каждая мутация с ним пишет предупреждение в журнал Yii с категорией
 `yii\graphql\deprecation`, включая POST-мутации, чтобы находить и удалять устаревшую конфигурацию.
