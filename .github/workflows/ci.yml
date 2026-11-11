@@ -12,7 +12,6 @@ permissions:
 
 jobs:
   tests:
-    name: PHP ${{ matrix.php-version }} (${{ matrix.dependencies || 'latest' }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
