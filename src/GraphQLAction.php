@@ -66,6 +66,7 @@ class GraphQLAction extends Action
      * @var bool|null whether mutation requests must use POST as both the original HTTP transport method and Yii's
      * effective method. Method overrides do not satisfy this requirement in either direction. Defaults to true;
      * null also requires POST. An explicit false enables deprecated legacy behavior and logs a Yii warning.
+     * @deprecated since 14.11.1. Remove this option; the first release targeting webonyx 15.x will always require POST.
      */
     public $requirePostForMutations = true;
     /**
