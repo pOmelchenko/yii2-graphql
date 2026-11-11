@@ -85,7 +85,7 @@ jobs:
         if: matrix.supported == true && matrix.dependencies != 'lowest'
         run: vendor/bin/phpcs --standard=phpcs.xml.dist
       - name: Run PHPStan
-        if: matrix.supported == true && matrix.dependencies != 'lowest'
+        if: matrix.supported == true
         run: vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --memory-limit=512M
       - name: Run tests with coverage
         if: matrix.supported == true && matrix.coverage == 'xdebug'

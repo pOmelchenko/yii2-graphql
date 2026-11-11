@@ -4,8 +4,9 @@
 
 The current minimum is PHP 8.0. CI runs the full PHPUnit, lint, PHPStan and Infection checks with the latest
 dependencies on PHP 8.0–8.3. A separate PHP 8.0 job resolves `--prefer-lowest --prefer-stable` dependencies and runs
-the full PHPUnit suite, including GraphQL request execution. PHP 8.4 and 8.5 are explicitly skipped while the
-project depends on Diactoros 2. See [the PHP migration plan](PHP-MIGRATION.md) for the next stages.
+PHPStan and the full PHPUnit suite, including GraphQL request execution. Both jobs use PHPStan 2.3.5 or newer with
+the same configuration and baseline. PHP 8.4 and 8.5 are explicitly skipped while the project depends on Diactoros 2.
+See [the PHP migration plan](PHP-MIGRATION.md) for the next stages.
 
 Run `composer test`, `composer lint`, and `composer stan` before submitting changes. Run the mutation suite with
 Xdebug or PCOV available:

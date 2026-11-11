@@ -50,7 +50,7 @@ by CI executing the full suite on an actual PHP 8.0 runtime with both lowest and
 ## CI and repository rules
 
 - Run the existing full quality checks on PHP 8.0, 8.1, 8.2 and 8.3.
-- Run the lowest-dependency PHPUnit job on PHP 8.0. Keep MSI 70% and covered MSI 74% unchanged.
+- Run PHPUnit and PHPStan with the lowest dependencies on PHP 8.0. Keep MSI 70% and covered MSI 74% unchanged.
 - Remove PHP 7.4 execution and its runner-local Diactoros advisory exception.
 - Keep the PHP 8.4/8.5 skip notices until compatible dependency versions are introduced.
 - Replace the required `tests (7.4, xdebug, true)` check in the master ruleset with
