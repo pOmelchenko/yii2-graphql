@@ -59,7 +59,19 @@ jobs:
         run: composer validate --strict
       - name: Install dependencies
         if: matrix.supported == true
-        run: composer install --prefer-dist --no-progress --no-interaction
+        run: |
+          # Compatibility tests for webonyx 14; these upstream issues remain unresolved (see UPGRADE.md).
+          # Scope exceptions to resolution only: composer audit must continue to report them.
+          composer config --global --json audit.ignore '{
+            "PKSA-xwpn-zs9j-6wy5": {"apply": "block", "reason": "webonyx 14 compatibility CI only"},
+            "PKSA-sf9j-1gs7-xzvx": {"apply": "block", "reason": "webonyx 14 compatibility CI only"},
+            "PKSA-7h5p-prw9-w5nr": {"apply": "block", "reason": "webonyx 14 compatibility CI only"}
+          }'
+          composer install --prefer-dist --no-progress --no-interaction
+      - name: Report dependency security advisories
+        if: matrix.supported == true
+        continue-on-error: true
+        run: composer audit --locked
       - name: Run PHP_CodeSniffer
         if: matrix.supported == true
         run: vendor/bin/phpcs --standard=phpcs.xml.dist

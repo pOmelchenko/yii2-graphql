@@ -162,12 +162,12 @@ class GraphQLAction extends Action
     public function getGraphQLActions()
     {
         if ($this->selectedOperationSchema === true) {
-            $this->authActionsInitialized = true;
-            return [self::INTROSPECTIONQUERY => 'true'];
-        }
-        $ret = array_merge($this->selectedOperationSchema[0], $this->selectedOperationSchema[1]);
-        if ($this->selectedOperationHasIntrospection) {
-            $ret[self::INTROSPECTIONQUERY] = 'true';
+            $ret = [self::INTROSPECTIONQUERY => 'true'];
+        } else {
+            $ret = array_merge($this->selectedOperationSchema[0], $this->selectedOperationSchema[1]);
+            if ($this->selectedOperationHasIntrospection) {
+                $ret[self::INTROSPECTIONQUERY] = 'true';
+            }
         }
         if (!$this->authActionsInitialized) {
             //init

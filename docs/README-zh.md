@@ -30,6 +30,14 @@ composer require pomelchenko/yii2-graphql
 
 升级前，请阅读 [UPGRADE.md](../UPGRADE.md) 中按版本整理的迁移说明。
 
+### 版本编号
+
+从 `14.11.0` 开始，扩展的主版本和次版本对应 webonyx 的兼容目标分支（`14.11.x`），补丁版本独立递增。
+Composer 依赖约束保持不变，包括 `webonyx/graphql-php: ^14`。
+
+webonyx 14 仍存在已知的上游拒绝服务漏洞。公告链接及本次发布的限制见
+[14.11.0 升级说明](../UPGRADE.md#upgrade-from-0181-to-14110)。
+
 ### 开发
 
 在提交之前本地运行代码风格和静态分析：
@@ -278,7 +286,7 @@ function behaviors()
 {
     return [
         'authenticator' => [
-            'class' => \yii\graphql\filter\auth\CompositeAuth::class,
+            'class' => \yii\graphql\filters\auth\CompositeAuth::class,
             'authMethods' => [
                 \yii\filters\auth\QueryParamAuth::class,
             ],
@@ -388,8 +396,8 @@ class UserType extends GraphQLType
     {
         $result = [
             'id' => ['type'=>Type::id()],
-            'email' => Types::email(),
-            'email2' => Types::email(),
+            'email' => GraphQL::type(\yii\graphql\types\EmailType::class),
+            'email2' => GraphQL::type(\yii\graphql\types\EmailType::class),
             'photo' => [
                 'type' => GraphQL::type(ImageType::class),
                 'description' => 'User photo URL',

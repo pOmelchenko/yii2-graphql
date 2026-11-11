@@ -4,6 +4,21 @@ Yii2 Graphql Changelog
 
 > Before upgrading, follow each applicable version step in [UPGRADE.md](UPGRADE.md).
 
+# 14.11.0
+- Aligned the extension's major and minor version with the webonyx/graphql-php 14.11 compatibility target; patch
+  versions remain independent. Composer dependency constraints and mutation-policy defaults are unchanged.
+- **Security behavior change:** applied configured `checkAccess` callbacks to pure introspection operations as well
+  as mixed operations, preventing a pure `__schema` or `__type` request from bypassing authorization.
+- **Security behavior change:** delegated unexpected resolver exceptions to webonyx's formatter so internal messages
+  are hidden from clients. Yii HTTP, schema-not-found, and model-validation errors retain their existing formats.
+- Preserved all model-validation errors when multiple resolvers fail in the same response.
+- Preserved type aliases across incremental `schema()` calls and registered aliases supplied through `addType()`.
+- Allowed root `__typename` queries without adding unrelated application fields to access checks.
+- Rebuilt interface-implementation metadata on schema initialization, preventing duplicate or stale possible types.
+- Corrected the authentication namespace and email-scalar examples in all README translations.
+- Documented the three known upstream denial-of-service advisories affecting webonyx 14; these remain unresolved
+  in this compatibility release. CI permits only those advisories for dependency resolution and still reports them.
+
 # 0.18.1
 - **Security:** required both the original transport method and Yii's effective method to remain POST for strict
   mutation transport enforcement, closing reverse method-override downgrades to safe methods.

@@ -13,9 +13,11 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use yii\graphql\GraphQL;
 use yii\graphql\exceptions\SchemaNotFound;
+use yii\graphql\exceptions\ValidatorException;
 use yiiunit\extensions\graphql\objects\query\HelloQuery;
 use yiiunit\extensions\graphql\objects\types\ExampleType;
 use yiiunit\extensions\graphql\objects\types\ResultItemType;
+use yiiunit\extensions\graphql\objects\types\StoryType;
 
 class GraphQLTest extends TestCase
 {
@@ -291,6 +293,62 @@ class GraphQLTest extends TestCase
     {
         $this->expectException(\GraphQL\Error\InvariantViolation::class);
         $this->graphql->getResult('invalid');
+    }
+
+    public function testGetResultPreservesErrorsFromMultipleInvalidModels()
+    {
+        $errors = [];
+        foreach (['email', 'password'] as $attribute) {
+            $model = new \yii\base\DynamicModel([$attribute]);
+            $model->addError($attribute, 'Invalid ' . $attribute);
+            $errors[] = new GraphQLError('Validation failed', null, null, [], null, new ValidatorException($model));
+        }
+
+        $result = $this->graphql->getResult(new ExecutionResult(null, $errors));
+
+        $this->assertSame([
+            ['code' => 'email', 'message' => 'Invalid email'],
+            ['code' => 'password', 'message' => 'Invalid password'],
+        ], $result['errors']);
+    }
+
+    public function testSchemaUpdatesPreservePreviouslyRegisteredAliases()
+    {
+        $graphql = new GraphQL();
+        $graphql->schema(['types' => ['firstAlias' => ExampleType::class]]);
+        $graphql->schema(['types' => ['secondAlias' => StoryType::class]]);
+
+        $this->assertSame('example', $graphql->getTypeResolution()->parseType('firstAlias', true)->name);
+        $this->assertSame('story', $graphql->getTypeResolution()->parseType('secondAlias', true)->name);
+    }
+
+    public function testAddTypeRegistersItsAlias()
+    {
+        $graphql = new GraphQL();
+        $graphql->addType(ExampleType::class, 'customAlias');
+
+        $this->assertSame('example', $graphql->getTypeResolution()->parseType('customAlias', true)->name);
+    }
+
+    public function testAddingTypesPreservesResolvedTypeIdentity()
+    {
+        $graphql = new GraphQL();
+        $resolution = $graphql->getTypeResolution();
+        $first = $resolution->parseType(ExampleType::class);
+
+        $graphql->addType(StoryType::class, 'storyAlias');
+        $graphql->schema(['types' => ['exampleAlias' => ExampleType::class]]);
+
+        $this->assertSame($first, $resolution->parseType(ExampleType::class));
+        $this->assertSame($first, $resolution->parseType('exampleAlias', true));
+    }
+
+    public function testRootTypenameExecutesWithoutApplicationFields()
+    {
+        $result = $this->graphql->query('query { ...Root } fragment Root on Query { kind: __typename }');
+
+        $this->assertSame(['data' => ['kind' => 'Query']], $result);
+        $this->assertSame([[], [], []], $this->graphql->getSelectedOperationSchema());
     }
 
     public function testQueryReturnsValidationErrorsForInvalidDocument()

@@ -107,7 +107,7 @@ class GraphQL
             $this->queries += $schemaQuery;
             $this->mutations += $schemaMutation;
             $this->types += $schemaTypes;
-            $this->getTypeResolution()->setAlias($schemaTypes);
+            $this->getTypeResolution()->setAlias($this->types);
         }
     }
 
@@ -229,7 +229,9 @@ class GraphQL
                 if (isset($fr['message'])) {
                     $result['errors'][] = $fr;
                 } else {
-                    $result['errors'] += $fr;
+                    foreach ($fr as $formattedError) {
+                        $result['errors'][] = $formattedError;
+                    }
                 }
             }
 //            $result['errors'] = array_map($executeResult->errorFormatter, $executeResult->errors);
@@ -308,7 +310,13 @@ class GraphQL
 
         // Validation covers the whole document, so the schema must include fields from unselected operations too.
         $documentHasIntrospection = false;
-        return $this->parseOperations($operations, $fragments, $documentHasIntrospection);
+        $documentHasTypename = false;
+        $schema = $this->parseOperations($operations, $fragments, $documentHasIntrospection, $documentHasTypename);
+        if ($documentHasTypename && $schema === [[], [], []]) {
+            return [$this->queries, $this->mutations, $this->types];
+        }
+
+        return $schema;
     }
 
     /**
@@ -338,14 +346,17 @@ class GraphQL
      * @param FragmentDefinitionNode[] $fragments
      * @param bool|null $hasIntrospection receives whether the operations contain __schema or __type
      * @param-out bool $hasIntrospection
+     * @param bool|null $hasTypename receives whether the operations contain __typename at the root
+     * @param-out bool $hasTypename
      * @return array|bool
      */
-    private function parseOperations(array $operations, array $fragments, &$hasIntrospection = null)
+    private function parseOperations(array $operations, array $fragments, &$hasIntrospection = null, &$hasTypename = null)
     {
         $queryTypes = [];
         $mutation = [];
         $types = [];
         $hasIntrospection = false;
+        $hasTypename = false;
         $hasApplicationFields = false;
         $visitedFragmentsByOperation = [];
 
@@ -371,6 +382,7 @@ class GraphQL
                     continue;
                 }
                 if ($node->value === '__typename') {
+                    $hasTypename = true;
                     continue;
                 }
 
@@ -503,6 +515,7 @@ class GraphQL
     {
         $name = $this->getTypeName($class, $name);
         $this->types[$name] = $class;
+        $this->getTypeResolution()->setAlias($this->types);
     }
 
     /**

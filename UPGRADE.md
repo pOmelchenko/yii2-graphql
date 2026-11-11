@@ -185,3 +185,48 @@ request method must be `POST`.
 A raw POST carrying `_method=GET` or another non-POST override now receives HTTP 405 instead of being parsed as a safe
 method and executing a mutation from the query string. Applications that intentionally accept such overrides must
 keep `requirePostForMutations` disabled and enforce their trusted-proxy policy before `GraphQLAction` runs.
+
+## Upgrade from 0.18.1 to 14.11.0
+
+### Follow the aligned version numbers
+
+Starting with 14.11.0, this extension follows the major and minor version of its webonyx/graphql-php compatibility
+target. The patch number belongs to this extension: 14.11.0 targets webonyx 14.11.x, including 14.11.10; their patch
+numbers do not have to match. Existing tags, including 0.18.1, are retained.
+
+The Composer constraints are unchanged, including `webonyx/graphql-php: ^14`. Update any application requirement
+restricted to this extension's `0.x` versions to `~14.11.0`. This numbering change does not activate previously
+announced breaking defaults: `requirePostForMutations` remains `null`, `requireAccessCheckForMutations` remains
+`false`, and the deprecated legacy-module fallback remains available.
+
+### Authorize pure introspection explicitly
+
+A configured `GraphQLAction::$checkAccess` callback now receives `GraphQLAction::INTROSPECTIONQUERY` (`__schema`)
+for pure introspection, including `__type` and root fragments. Previously this callback ran for mixed introspection
+but was skipped for pure introspection. Update callbacks with a closed list of actions to allow or deny `__schema`
+explicitly. `CompositeAuth::except` continues to control authentication independently from this authorization check.
+
+### Handle internal errors through webonyx
+
+Unexpected resolver exceptions now use webonyx's standard error formatter. Internal exception messages are replaced
+with `Internal server error`; debug details are available only with `YII_DEBUG` enabled. Exceptions implementing
+webonyx 14's `ClientAware` contract can explicitly mark messages as safe. HTTP exceptions, `SchemaNotFound`, and
+`ValidatorException` keep their existing response formats. Custom error formatters remain supported.
+
+### Account for known upstream vulnerabilities
+
+webonyx 14.11.10 is affected by the following upstream denial-of-service advisories:
+
+- [GHSA-r7cg-qjjm-xhqq](https://github.com/webonyx/graphql-php/security/advisories/GHSA-r7cg-qjjm-xhqq): parser recursion
+  can exhaust the stack before validation or per-operation authentication runs.
+- [GHSA-fc86-6rv6-2jpm](https://github.com/webonyx/graphql-php/security/advisories/GHSA-fc86-6rv6-2jpm): repeated inline
+  fragments can cause excessive validation work.
+- [GHSA-68jq-c3rv-pcrr](https://github.com/webonyx/graphql-php/security/advisories/GHSA-68jq-c3rv-pcrr): repeated fields
+  can cause quadratic validation work. Query depth and complexity limits do not address this validation issue.
+
+This extension release does not fix those upstream vulnerabilities. Their published fixes are in webonyx 15, which
+is outside this release's dependency scope. A new tag does not make webonyx 14 security-patched.
+
+Modern Composer can block a fresh dependency resolution for this branch. Compatibility CI uses an explicit,
+runner-local exception for these three advisory IDs only; it does not change the package's `composer.json` and
+continues to report the advisories in an audit step. Applications retain their own dependency-security policy.

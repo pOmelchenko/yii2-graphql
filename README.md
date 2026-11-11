@@ -30,6 +30,14 @@ Requires PHP ≥ 7.4 and is tested against [webonyx/graphql-php](https://github.
 
 Before upgrading, review the version-by-version instructions in [UPGRADE.md](UPGRADE.md).
 
+### Versioning
+
+Starting with `14.11.0`, the extension's major and minor version follow the webonyx compatibility target (`14.11.x`).
+The patch number is independent. Composer dependency constraints remain unchanged, including `webonyx/graphql-php: ^14`.
+
+webonyx 14 has known upstream denial-of-service vulnerabilities. See the
+[14.11.0 upgrade notes](UPGRADE.md#upgrade-from-0181-to-14110) for advisory links and the limitations of this release.
+
 ### Development
 
 Run PHP_CodeSniffer and PHPStan locally before opening PRs:
@@ -277,7 +285,7 @@ function behaviors()
 {
     return [
         'authenticator' => [
-            'class' => \yii\graphql\filter\auth\CompositeAuth::class,
+            'class' => \yii\graphql\filters\auth\CompositeAuth::class,
             'authMethods' => [
                 \yii\filters\auth\QueryParamAuth::class,
             ],
@@ -421,8 +429,8 @@ class UserType extends GraphQLType
             'id' => [
                 'type'=>Type::id()
             ],
-            'email' => Types::email(),
-            'email2' => Types::email(),
+            'email' => GraphQL::type(\yii\graphql\types\EmailType::class),
+            'email2' => GraphQL::type(\yii\graphql\types\EmailType::class),
             'photo' => [
                 'type' => GraphQL::type(ImageType::class),
                 'description' => 'User photo URL',

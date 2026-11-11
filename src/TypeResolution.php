@@ -46,7 +46,7 @@ class TypeResolution
     public function setAlias($config)
     {
 
-        $this->alias = $config;
+        $this->alias = $config + $this->alias;
     }
 
     /**
@@ -63,9 +63,10 @@ class TypeResolution
             $typeMap = TypeInfo::extractTypes($type, $typeMap);
         }
         $this->typeMap = $typeMap + Type::getStandardTypes();
+        $this->implementations = [];
 
         // Keep track of all possible types for abstract types
-        foreach ($this->typeMap as $typeName => $type) {
+        foreach ($this->typeMap as $type) {
             if ($type instanceof ObjectType) {
                 foreach ($type->getInterfaces() as $iface) {
                     $this->implementations[$iface->name][] = $type;
@@ -143,7 +144,7 @@ class TypeResolution
                     $possibleTypesMap[$type->name][$innerType->name] = 1;
                 }
             } elseif ($type instanceof InterfaceType) {
-                foreach ($this->implementations[$type->name] as $obj) {
+                foreach ($this->implementations[$type->name] ?? [] as $obj) {
                     $possibleTypesMap[$type->name][$obj->name] = 1;
                 }
             }
@@ -167,7 +168,6 @@ class TypeResolution
         // If it's already an ObjectType, just update properties and return it.
         // If it's an array, assume it's an array of fields and build ObjectType
         // from it. Otherwise, build it from a string or an instance.
-        $objectType = null;
         if ($type instanceof ObjectType) {
             $objectType = $type;
             foreach ($opts as $key => $value) {
@@ -258,6 +258,11 @@ class TypeResolution
 
         if (isset($this->typeMap[$name])) {
             return $this->typeMap[$name];
+        }
+
+        $cachedName = is_string($class) ? ($this->alias[$class] ?? null) : null;
+        if (is_string($cachedName) && isset($this->typeMap[$cachedName])) {
+            return $this->typeMap[$cachedName];
         }
 
         //class is string or not found;
