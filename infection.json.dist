@@ -10,6 +10,9 @@
         "customPath": "vendor/bin/phpunit"
     },
     "timeout": 10,
+    "minMsi": 70,
+    "minCoveredMsi": 74,
+    "ignoreMsiWithNoMutations": false,
     "logs": {
         "text": "build/infection/infection.log",
         "json": "build/infection/infection.json",

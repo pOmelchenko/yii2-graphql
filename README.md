@@ -52,6 +52,8 @@ composer lint:strict
 composer stan
 ```
 
+[Mutation score thresholds and testing workflow](docs/TESTING.md).
+
 ### Type
 The type system is the core of GraphQL, which is embodied in `GraphQLType`. By deconstructing the GraphQL protocol and using the [graph-php](https://github.com/webonyx/graphql-php) library to achieve fine-grained control of all elements, it is convenient to extend the class according to its own needs
 
