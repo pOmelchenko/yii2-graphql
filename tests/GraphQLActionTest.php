@@ -877,12 +877,58 @@ class GraphQLActionTest extends TestCase
         $actions = $action->getGraphQLActions();
         $this->assertArrayHasKey(GraphQLAction::INTROSPECTIONQUERY, $actions);
 
-        $called = false;
-        $action->checkAccess = function () use (&$called) {
-            $called = true;
+        $invoked = [];
+        $action->checkAccess = function ($actionName) use (&$invoked) {
+            $invoked[] = $actionName;
         };
         $action->runWithParams([]);
 
-        $this->assertFalse($called, 'Introspection should not trigger checkAccess callbacks');
+        $this->assertSame([GraphQLAction::INTROSPECTIONQUERY], $invoked);
+    }
+
+    public function testCheckAccessCanDenyPureIntrospection()
+    {
+        $_GET = ['query' => 'query { ...Root } fragment Root on Query { __type(name: "Query") { name } }'];
+        $action = $this->controller->createAction('index');
+        $action->checkAccess = function ($actionName) {
+            if ($actionName === GraphQLAction::INTROSPECTIONQUERY) {
+                throw new \yii\web\ForbiddenHttpException('Introspection denied');
+            }
+        };
+
+        $this->expectException(\yii\web\ForbiddenHttpException::class);
+        $action->runWithParams([]);
+    }
+
+    public function testRemovedIntrospectionActionIsNotReinitializedBeforeAccessCheck()
+    {
+        $_GET = ['query' => '{ __schema { queryType { name } } }'];
+        $action = $this->controller->createAction('index');
+        $action->removeGraphQlAction(GraphQLAction::INTROSPECTIONQUERY);
+        $action->getGraphQLActions();
+        $invoked = [];
+        $action->checkAccess = function ($actionName) use (&$invoked) {
+            $invoked[] = $actionName;
+        };
+
+        $result = $action->runWithParams([]);
+
+        $this->assertSame([], $invoked);
+        $this->assertSame('Query', $result['data']['__schema']['queryType']['name']);
+    }
+
+    public function testRootTypenameDoesNotAuthorizeUnrequestedApplicationFields()
+    {
+        $_GET = ['query' => '{ __typename }'];
+        $action = $this->controller->createAction('index');
+        $invoked = [];
+        $action->checkAccess = function ($actionName) use (&$invoked) {
+            $invoked[] = $actionName;
+        };
+
+        $result = $action->runWithParams([]);
+
+        $this->assertSame([], $invoked);
+        $this->assertSame(['data' => ['__typename' => 'Query']], $result);
     }
 }

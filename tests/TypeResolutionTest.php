@@ -109,6 +109,28 @@ class TypeResolutionTest extends TestCase
         $this->assertSame('Post', $possible[0]->name);
     }
 
+    public function testReinitializingTypesReplacesInterfaceImplementations()
+    {
+        $resolution = new TypeResolution();
+        $interface = new InterfaceType([
+            'name' => 'Character',
+            'fields' => ['id' => Type::id()],
+        ]);
+        $hero = new ObjectType([
+            'name' => 'Hero',
+            'fields' => ['id' => Type::id()],
+            'interfaces' => [$interface],
+        ]);
+
+        $resolution->initTypes([$hero]);
+        $resolution->initTypes([$hero]);
+        $this->assertSame([$hero], $resolution->resolvePossibleTypes($interface));
+
+        $resolution->initTypes([$interface]);
+        $this->assertSame([], $resolution->resolvePossibleTypes($interface));
+        $this->assertArrayNotHasKey('Character', $resolution->getDescriptor()['possibleTypeMap']);
+    }
+
     public function testGetDescriptorReturnsTypeMaps()
     {
         $resolution = new TypeResolution();

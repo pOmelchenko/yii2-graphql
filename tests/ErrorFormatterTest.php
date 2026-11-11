@@ -57,4 +57,35 @@ class ErrorFormatterTest extends TestCase
         $this->assertArrayHasKey('message', $formatted);
         $this->assertSame('Plain error', $formatted['message']);
     }
+
+    public function testInternalExceptionDoesNotExposeItsMessageAsAClientError()
+    {
+        $exception = new \RuntimeException('Database password: secret');
+        $error = new GraphQLError('Resolver failed', null, null, [], null, $exception);
+
+        $formatted = ErrorFormatter::formatError($error);
+
+        $this->assertSame('Internal server error', $formatted['message']);
+    }
+
+    public function testClientAwareExceptionPreservesItsSafeMessage()
+    {
+        $exception = new class ('Public error') extends \RuntimeException implements \GraphQL\Error\ClientAware {
+            public function isClientSafe()
+            {
+                return true;
+            }
+
+            public function getCategory()
+            {
+                return 'application';
+            }
+        };
+        $error = new GraphQLError($exception->getMessage(), null, null, [], null, $exception);
+
+        $formatted = ErrorFormatter::formatError($error);
+
+        $this->assertSame('Public error', $formatted['message']);
+        $this->assertSame('application', $formatted['extensions']['category']);
+    }
 }

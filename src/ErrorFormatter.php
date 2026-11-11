@@ -28,8 +28,6 @@ class ErrorFormatter
             }
             if ($previous instanceof HttpException) {
                 return ['code' => $previous->statusCode, 'message' => $previous->getMessage()];
-            } else {
-                return ['code' => $previous->getCode(), 'message' => $previous->getMessage()];
             }
         } else {
             Yii::error($e->getMessage(), get_class($e));
